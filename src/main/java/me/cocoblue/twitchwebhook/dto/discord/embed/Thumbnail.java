@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordImage {
+public class Thumbnail {
     @JsonProperty("url")
     private String url;
 }

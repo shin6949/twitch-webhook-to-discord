@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.UserChange;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +17,6 @@ import java.util.List;
 @ToString
 public class UserChangeNotifications {
     @JsonProperty("data")
-    private List<TwitchUserChangeNotification> notifications;
+    private List<UserChange> notifications;
 }
 

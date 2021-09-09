@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordAuthor {
+public class Author {
     @JsonProperty("name")
     private String name;
     @JsonProperty("url")

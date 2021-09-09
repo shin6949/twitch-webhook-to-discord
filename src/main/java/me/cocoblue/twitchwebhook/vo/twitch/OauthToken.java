@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @Getter
 @Repository
 @ToString
-public class TwitchOauthToken {
+public class OauthToken {
     @JsonProperty("access_token")
     private String accessToken;
     @JsonProperty("expires_in")

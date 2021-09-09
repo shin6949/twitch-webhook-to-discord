@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -8,26 +9,22 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Service
-public class EncrypteDataServiceImpl {
-    // hash 알고리즘 선택
-    private static final String ALGOLISM = "HmacSHA256";
+public class EncryptDataServiceImpl {
     // hash 암호화 key
-    private static final String key = "COCOBLUEoverlay";
+    @Value("{twitch.hub.secret}")
+    private String key;
 
-    public String encrypteString(String message) {
+    public String encryptString(String message) {
         try {
             // hash 알고리즘과 암호화 key 적용
-            Mac hasher = Mac.getInstance(ALGOLISM);
-            hasher.init(new SecretKeySpec(key.getBytes(), ALGOLISM));
+            String algorithm = "HmacSHA256";
+            Mac mac = Mac.getInstance(algorithm);
+            mac.init(new SecretKeySpec(key.getBytes(), algorithm));
 
             // messages를 암호화 적용 후 byte 배열 형태의 결과 리턴
-            byte[] hash = hasher.doFinal(message.getBytes());
+            byte[] hash = mac.doFinal(message.getBytes());
             return byteToString(hash);
-        }
-        catch (NoSuchAlgorithmException e){
-            e.printStackTrace();
-        }
-        catch (InvalidKeyException e){
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             e.printStackTrace();
         }
         return "";
@@ -35,11 +32,11 @@ public class EncrypteDataServiceImpl {
 
     // byte[]의 값을 16진수 형태의 문자로 변환하는 함수
     private String byteToString(byte[] hash) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
-        for (int i = 0; i < hash.length; i++) {
-            int d = hash[i];
-            d += (d < 0)? 256 : 0;
+        for (int b : hash) {
+            int d = b;
+            d += (d < 0) ? 256 : 0;
             if (d < 16) {
                 buffer.append("0");
             }

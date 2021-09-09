@@ -8,7 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordThumbnail {
-    @JsonProperty("url")
-    private String url;
+public class Field {
+    @JsonProperty("name")
+    private String name;
+    @JsonProperty("value")
+    private String value;
+    @JsonProperty("inline")
+    private Boolean inline;
 }

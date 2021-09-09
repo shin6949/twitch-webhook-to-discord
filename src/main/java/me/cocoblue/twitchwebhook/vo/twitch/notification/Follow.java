@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch.notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TwitchFollowNotification {
+public class Follow {
     @JsonProperty("from_id")
     private String fromId;
     @JsonProperty("from_name")

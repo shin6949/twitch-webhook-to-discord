@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch.notification;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Repository
 @ToString
-public class TwitchStreamNotification {
+public class Stream {
     @JsonProperty("id")
     private String id;
     @JsonProperty("user_id")
@@ -48,13 +48,13 @@ public class TwitchStreamNotification {
     @JsonProperty("tag_ids")
     private ArrayList<String> tagIds;
 
-    public TwitchStreamNotification(String id, String userId, String userLogin, String gameId, String gameName,
-                                    String type, String title, int viewerCount, LocalDateTime startedAt, String language,
-                                    String thumbnailUrl, ArrayList<String> tagIds) {
+    public Stream(String id, String userId, String userLogin, String gameId, String gameName,
+                  String type, String title, int viewerCount, LocalDateTime startedAt, String language,
+                  String thumbnailUrl, ArrayList<String> tagIds) {
         this.id = id;
         this.userId = userId;
         this.userLogin = userLogin;
-        if(!gameId.equals("")) {
+        if (!gameId.equals("")) {
             this.gameIdInt = Integer.parseInt(gameId);
         }
         this.gameId = gameId;
@@ -70,7 +70,7 @@ public class TwitchStreamNotification {
 
     public void setGameId(String gameId) {
         this.gameId = gameId;
-        if(!gameId.equals("")) {
+        if (!gameId.equals("")) {
             this.gameIdInt = Integer.parseInt(gameId);
         }
     }

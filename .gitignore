@@ -1,7 +1,5 @@
 src/main/resources/static
 src/main/resources/templates
-src/main/java/me/cocoblue/twitchwebhook/controller/CocoblueOverlayController.java
-src/main/java/me/cocoblue/twitchwebhook/controller/OverlayController.java
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,intellij+all,java,maven,eclipse
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,intellij+all,java,maven,eclipse

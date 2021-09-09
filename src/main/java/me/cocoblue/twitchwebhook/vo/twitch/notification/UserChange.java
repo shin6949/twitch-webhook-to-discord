@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch.notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @AllArgsConstructor
 @Repository
 @ToString
-public class TwitchUserChangeNotification {
+public class UserChange {
     @JsonProperty("id")
     private String id;
     @JsonProperty("login")

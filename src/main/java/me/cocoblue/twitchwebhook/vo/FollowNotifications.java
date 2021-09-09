@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.Follow;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,5 +15,5 @@ import java.util.List;
 @ToString
 public class FollowNotifications {
     @JsonProperty("data")
-    private List<TwitchFollowNotification> notifications;
+    private List<Follow> notifications;
 }

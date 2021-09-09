@@ -1,11 +1,19 @@
 package me.cocoblue.twitchwebhook.controller;
 
-import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.service.*;
-import me.cocoblue.twitchwebhook.vo.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.service.EncryptDataServiceImpl;
+import me.cocoblue.twitchwebhook.service.LogService;
+import me.cocoblue.twitchwebhook.service.StreamNotifyServiceImpl;
+import me.cocoblue.twitchwebhook.service.UserChangeNotifyServiceImpl;
+import me.cocoblue.twitchwebhook.vo.FollowNotifications;
+import me.cocoblue.twitchwebhook.vo.StreamNotification;
+import me.cocoblue.twitchwebhook.vo.UserChangeNotifications;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.UserChange;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,19 +22,12 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/webhook")
 @Log4j2
+@AllArgsConstructor
 public class WebHookPostController {
     private final UserChangeNotifyServiceImpl userChangeNotifyService;
     private final StreamNotifyServiceImpl streamNotifyService;
-    private final EncrypteDataServiceImpl encrypteDataService;
+    private final EncryptDataServiceImpl encryptDataService;
     private final LogService logService;
-
-    public WebHookPostController(UserChangeNotifyServiceImpl userChangeNotifyService, StreamNotifyServiceImpl streamNotifyService,
-                                 EncrypteDataServiceImpl encrypteDataService, LogService logService) {
-        this.userChangeNotifyService = userChangeNotifyService;
-        this.streamNotifyService = streamNotifyService;
-        this.encrypteDataService = encrypteDataService;
-        this.logService = logService;
-    }
 
     @PostMapping(path = "/stream/{broadcasterId}")
     public String receiveStreamNotification(@PathVariable String broadcasterId,
@@ -34,7 +35,7 @@ public class WebHookPostController {
                                             @RequestHeader HashMap<String, String> header) throws JsonProcessingException {
         // 요청이 유효한지 체크
         String signatureFromTwitch = header.get("x-hub-signature");
-        if(dataNotValid(notification, signatureFromTwitch)) {
+        if (dataNotValid(notification, signatureFromTwitch)) {
             return "success";
         }
 
@@ -44,29 +45,29 @@ public class WebHookPostController {
         Map<String, Object> map = mapper.readValue(notification, Map.class);
         StreamNotification streamNotification = mapper.convertValue(map, StreamNotification.class);
 
-        if(streamNotification.getNotification().size() == 0) {
+        if (streamNotification.getNotification().size() == 0) {
             streamNotifyService.sendEndMessage(broadcasterId);
             return "success";
         }
 
-        TwitchStreamNotification twitchStreamNotification = streamNotification.getNotification().get(0);
-        log.info(twitchStreamNotification);
-        if(logService.isAlreadySend(twitchStreamNotification.getId())) {
+        Stream stream = streamNotification.getNotification().get(0);
+        log.info(stream);
+        if (logService.isAlreadySend(stream.getId())) {
             return "success";
         }
 
         // Message Send
-        streamNotifyService.sendStartMessage(twitchStreamNotification);
+        streamNotifyService.sendStartMessage(stream);
 
         // Log Insert
-        streamNotifyService.insertLog(twitchStreamNotification);
+        streamNotifyService.insertLog(stream);
 
         return "success";
     }
 
     @PostMapping(path = "/follow/from/{broadcasterId}")
     public String receiveFollowFromNotification(@PathVariable String broadcasterId,
-                                      @RequestBody FollowNotifications notification) {
+                                                @RequestBody FollowNotifications notification) {
         log.info(broadcasterId);
         log.info(notification.toString());
 
@@ -75,7 +76,7 @@ public class WebHookPostController {
 
     @PostMapping(path = "/follow/to/{broadcasterId}")
     public String receiveFollowToNotification(@PathVariable String broadcasterId,
-                                            @RequestBody FollowNotifications notification) {
+                                              @RequestBody FollowNotifications notification) {
         log.info(broadcasterId);
         log.info(notification.toString());
 
@@ -89,31 +90,31 @@ public class WebHookPostController {
 
         // 요청이 유효한지 체크
         String signatureFromTwitch = header.get("x-hub-signature");
-        if(dataNotValid(notification, signatureFromTwitch)) {
+        if (dataNotValid(notification, signatureFromTwitch)) {
             return "success";
         }
 
         // RequestBody를 Vo에 Mapping
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> map = mapper.readValue(notification, Map.class);
+        Map map = mapper.readValue(notification, Map.class);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         UserChangeNotifications userChangeNotifications = mapper.convertValue(map, UserChangeNotifications.class);
 
         // Message Send
-        TwitchUserChangeNotification twitchUserChangeNotification = userChangeNotifications.getNotifications().get(0);
+        UserChange userChange = userChangeNotifications.getNotifications().get(0);
 
         // 요청이 번지수 잘못 찾아 온 경우 넘기기
-        if(!twitchUserChangeNotification.getId().equals(broadcasterId)) {
+        if (!userChange.getId().equals(broadcasterId)) {
             return "success";
         }
 
-        userChangeNotifyService.sendDiscordWebHook(twitchUserChangeNotification);
+        userChangeNotifyService.sendDiscordWebHook(userChange);
 
         return "success";
     }
 
     private boolean dataNotValid(String data, String signature) {
-        String encryptValue = "sha256=" + encrypteDataService.encrypteString(data);
+        String encryptValue = "sha256=" + encryptDataService.encryptString(data);
         log.info("Received Signature: " + signature);
         log.info("Encrypt Value: " + encryptValue);
 

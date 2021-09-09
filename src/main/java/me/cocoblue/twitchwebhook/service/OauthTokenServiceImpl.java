@@ -2,8 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import me.cocoblue.twitchwebhook.dao.OauthTokenDao;
 import me.cocoblue.twitchwebhook.dto.OauthRequestForm;
-import me.cocoblue.twitchwebhook.dto.OauthToken;
-import me.cocoblue.twitchwebhook.vo.TwitchOauthToken;
+import me.cocoblue.twitchwebhook.vo.twitch.OauthToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,34 +28,34 @@ public class OauthTokenServiceImpl implements OauthTokenService {
     }
 
     @Override
-    public OauthToken getRecentOauthToken() {
+    public me.cocoblue.twitchwebhook.dto.OauthToken getRecentOauthToken() {
         return oauthTokenDao.getRecentOauthToken();
     }
 
     @Override
-    public int insertOauthToken(OauthToken oauthToken) {
+    public int insertOauthToken(me.cocoblue.twitchwebhook.dto.OauthToken oauthToken) {
         return oauthTokenDao.insertOauthToken(oauthToken);
     }
 
     @Override
-    public OauthToken getOauthTokenFromTwitch() {
-        OauthToken oauthToken = getRecentOauthToken();
+    public me.cocoblue.twitchwebhook.dto.OauthToken getOauthTokenFromTwitch() {
+        me.cocoblue.twitchwebhook.dto.OauthToken oauthToken = getRecentOauthToken();
         OauthRequestForm oauthRequestForm = new OauthRequestForm("", oauthToken.getRefreshToken(), 3600, "user_read",
                 "bearer", clientId, clientSecret, "refresh_token");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        HttpEntity<OauthRequestForm> entity = new HttpEntity<OauthRequestForm>(oauthRequestForm, headers);
+        HttpEntity<OauthRequestForm> entity = new HttpEntity<>(oauthRequestForm, headers);
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<TwitchOauthToken> response = rt.exchange(
+        ResponseEntity<OauthToken> response = rt.exchange(
                 "https://id.twitch.tv/oauth2/token", //{요청할 서버 주소}
                 HttpMethod.POST, //{요청할 방식}
                 entity, // {요청할 때 보낼 데이터}
-                TwitchOauthToken.class);
+                OauthToken.class);
 
-        TwitchOauthToken receivedOauthToken = response.getBody();
-        OauthToken resultOauthToken = new OauthToken(0, receivedOauthToken.getAccessToken(),
+        OauthToken receivedOauthToken = response.getBody();
+        me.cocoblue.twitchwebhook.dto.OauthToken resultOauthToken = new me.cocoblue.twitchwebhook.dto.OauthToken(0, receivedOauthToken.getAccessToken(),
                 receivedOauthToken.getRefreshToken(), receivedOauthToken.getExpire(), LocalDateTime.now());
 
         oauthTokenDao.insertOauthToken(resultOauthToken);

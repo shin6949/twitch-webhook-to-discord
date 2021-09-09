@@ -1,13 +1,15 @@
 package me.cocoblue.twitchwebhook.service;
 
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EncrypteDataServiceImplTest {
+@Log4j2
+class EncryptDataServiceImplTest {
     @Autowired
-    private EncrypteDataServiceImpl encrypteDataService;
+    private EncryptDataServiceImpl encryptDataService;
 
     @Test
     public void test() {
@@ -30,6 +32,7 @@ class EncrypteDataServiceImplTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-        System.out.println(encrypteDataService.encrypteString(message));
+
+        log.info(encryptDataService.encryptString(message));
     }
 }

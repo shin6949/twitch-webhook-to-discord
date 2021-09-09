@@ -1,9 +1,9 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.dto.OauthToken;
-import me.cocoblue.twitchwebhook.vo.TwitchUser;
-import me.cocoblue.twitchwebhook.vo.UserInfo;
 import lombok.RequiredArgsConstructor;
+import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.vo.UserInfo;
+import me.cocoblue.twitchwebhook.vo.twitch.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,11 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class TwitchHelixApiServiceImpl {
     private final OauthTokenService oauthTokenService;
-
+    private final String userGetUrl = "https://api.twitch.tv/helix/users";
     @Value("${twitch.client-id}")
     private String clientId;
-
-    private final String userGetUrl = "https://api.twitch.tv/helix/users";
 
     public UserInfo requestUserInfoToTwitch(String AccessToken, UriComponentsBuilder builder) {
         HttpHeaders headers = new HttpHeaders();
@@ -43,14 +41,14 @@ public class TwitchHelixApiServiceImpl {
         return response.getBody();
     }
 
-    public TwitchUser getUserInfoByLoginIdFromTwitch(String loginId) {
+    public User getUserInfoByLoginIdFromTwitch(String loginId) {
         OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("login", loginId);
 
         UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if(userInfo == null) {
+        if (userInfo == null) {
             OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
@@ -58,14 +56,14 @@ public class TwitchHelixApiServiceImpl {
         return userInfo.getTwitchUsers().get(0);
     }
 
-    public TwitchUser getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
+    public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
         OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("id", broadcasterId);
 
         UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if(userInfo == null) {
+        if (userInfo == null) {
             OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }

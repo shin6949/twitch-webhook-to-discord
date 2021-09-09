@@ -1,9 +1,10 @@
-package me.cocoblue.twitchwebhook.dto.discord.embed;
+package me.cocoblue.twitchwebhook.dto.discord;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.dto.discord.embed.*;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DiscordEmbed {
     @JsonProperty("author")
-    private DiscordAuthor author;
+    private Author author;
     @JsonProperty("title")
     private String title;
     @JsonProperty("url")
@@ -22,12 +23,12 @@ public class DiscordEmbed {
     @JsonProperty("color")
     private String color;
     @JsonProperty("fields")
-    private List<DiscordField> fields;
+    private List<Field> fields;
     @JsonProperty("thumbnail")
-    private DiscordThumbnail thumbnail;
+    private Thumbnail thumbnail;
     @JsonProperty("image")
-    private DiscordImage image;
+    private Image image;
     @JsonProperty("footer")
-    private DiscordFooter footer;
+    private Footer footer;
 }
 

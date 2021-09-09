@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,5 +17,5 @@ import java.util.List;
 @ToString
 public class StreamNotification {
     @JsonProperty("data")
-    private List<TwitchStreamNotification> notification;
+    private List<Stream> notification;
 }

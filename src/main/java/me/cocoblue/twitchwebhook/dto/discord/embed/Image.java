@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordFooter {
-    @JsonProperty("text")
-    private String text;
-    @JsonProperty("icon_url")
-    private String iconUrl;
+public class Image {
+    @JsonProperty("url")
+    private String url;
 }

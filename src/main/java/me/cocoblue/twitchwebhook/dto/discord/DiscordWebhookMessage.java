@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.dto.discord;
 
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordEmbed;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;

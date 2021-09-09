@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Repository
 @Getter
 @ToString
-public class TwitchUser {
+public class User {
     @JsonProperty("id")
     private int id;
     @JsonProperty("login")

@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service;
 
+import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordEmbed;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

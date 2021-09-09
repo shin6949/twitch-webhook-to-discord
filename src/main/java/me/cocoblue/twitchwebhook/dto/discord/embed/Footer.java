@@ -8,11 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordField {
-    @JsonProperty("name")
-    private String name;
-    @JsonProperty("value")
-    private String value;
-    @JsonProperty("inline")
-    private Boolean inline;
+public class Footer {
+    @JsonProperty("text")
+    private String text;
+    @JsonProperty("icon_url")
+    private String iconUrl;
 }

@@ -1,12 +1,12 @@
 package me.cocoblue.twitchwebhook.service;
 
 import me.cocoblue.twitchwebhook.dto.Form;
+import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordAuthor;
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordEmbed;
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordField;
-import me.cocoblue.twitchwebhook.dto.discord.embed.DiscordFooter;
-import me.cocoblue.twitchwebhook.vo.TwitchUserChangeNotification;
+import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
+import me.cocoblue.twitchwebhook.dto.discord.embed.Field;
+import me.cocoblue.twitchwebhook.dto.discord.embed.Footer;
+import me.cocoblue.twitchwebhook.vo.twitch.notification.UserChange;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,44 +27,44 @@ public class UserChangeNotifyServiceImpl {
         this.formService = formService;
     }
 
-    public DiscordWebhookMessage makeDiscordWebhookMessage(TwitchUserChangeNotification twitchUserChangeNotification,
+    public DiscordWebhookMessage makeDiscordWebhookMessage(UserChange userChange,
                                                            Form form) {
-        String authorName = twitchUserChangeNotification.getDisplayName() + "님의 정보가 변경되었습니다.";
-        String authorURL = "https://twitch.tv/" + twitchUserChangeNotification.getDisplayName();
-        String authorProfileURL = twitchUserChangeNotification.getProfileImageUrl();
-        DiscordAuthor discordAuthor = new DiscordAuthor(authorName, authorURL, authorProfileURL);
+        String authorName = userChange.getDisplayName() + "님의 정보가 변경되었습니다.";
+        String authorURL = "https://twitch.tv/" + userChange.getDisplayName();
+        String authorProfileURL = userChange.getProfileImageUrl();
+        Author author = new Author(authorName, authorURL, authorProfileURL);
 
-        String embedTitle = twitchUserChangeNotification.getDisplayName() + "님의 정보가 변경되었습니다.";
+        String embedTitle = userChange.getDisplayName() + "님의 정보가 변경되었습니다.";
         String embedDescription = "Test";
         String embedColor = "418422";
 
-        List<DiscordField> discordFields = new ArrayList<>();
-        DiscordField discordField = new DiscordField("name", "value", true);
-        discordFields.add(discordField);
+        List<Field> fields = new ArrayList<>();
+        Field field = new Field("name", "value", true);
+        fields.add(field);
 
-        DiscordFooter discordFooter = new DiscordFooter("Twitch", null);
+        Footer footer = new Footer("Twitch", null);
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        DiscordEmbed discordEmbed = new DiscordEmbed(discordAuthor, embedTitle, authorURL, embedDescription, embedColor,
-                discordFields, null, null, discordFooter);
+        DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
+                fields, null, null, footer);
         discordEmbeds.add(discordEmbed);
 
         return new DiscordWebhookMessage(form.getUsername(), form.getAvatarUrl(), form.getContent(),
                 discordEmbeds);
     }
 
-    public boolean sendDiscordWebHook(TwitchUserChangeNotification twitchUserChangeNotification) {
-        int broadcasterId = Integer.parseInt(twitchUserChangeNotification.getId());
+    public void sendDiscordWebHook(UserChange userChange) {
+        int broadcasterId = Integer.parseInt(userChange.getId());
         List<Form> notifyForms = formService.getStartFormByBroadcasterIdAndType(broadcasterId, 1);
 
-        for(Form notifyForm : notifyForms) {
-            DiscordWebhookMessage discordWebhookMessage = makeDiscordWebhookMessage(twitchUserChangeNotification, notifyForm);
+        for (Form notifyForm : notifyForms) {
+            DiscordWebhookMessage discordWebhookMessage = makeDiscordWebhookMessage(userChange, notifyForm);
 
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/json");
-            HttpEntity<DiscordWebhookMessage> entity = new HttpEntity<DiscordWebhookMessage>(discordWebhookMessage, headers);
+            HttpEntity<DiscordWebhookMessage> entity = new HttpEntity<>(discordWebhookMessage, headers);
 
             RestTemplate rt = new RestTemplate();
 
@@ -75,6 +75,5 @@ public class UserChangeNotifyServiceImpl {
                     String.class);
         }
 
-        return true;
     }
 }
