@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.service;
 
+import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.dao.FormDao;
 import me.cocoblue.twitchwebhook.dto.Form;
 import org.springframework.stereotype.Service;
@@ -7,12 +8,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class FormServiceImpl implements FormService {
     private final FormDao formDao;
-
-    public FormServiceImpl(FormDao formDao) {
-        this.formDao = formDao;
-    }
 
     @Override
     public List<Form> getStartFormByBroadcasterIdAndType(int broadcasterId, int type) {

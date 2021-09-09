@@ -1,16 +1,14 @@
 package me.cocoblue.twitchwebhook.service;
 
+import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.dao.LogDao;
 import me.cocoblue.twitchwebhook.dto.Log;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class LogServiceImpl implements LogService {
     private final LogDao logDao;
-
-    public LogServiceImpl(LogDao logDao) {
-        this.logDao = logDao;
-    }
 
     @Override
     public int insertLog(Log log) {

@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.service;
 
+import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
@@ -20,12 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserChangeNotifyServiceImpl {
     private final FormService formService;
-
-    public UserChangeNotifyServiceImpl(FormService formService) {
-        this.formService = formService;
-    }
 
     public DiscordWebhookMessage makeDiscordWebhookMessage(UserChange userChange,
                                                            Form form) {

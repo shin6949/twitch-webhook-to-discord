@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.service;
 
+import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.GameIndex;
 import me.cocoblue.twitchwebhook.dto.Log;
@@ -22,19 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class StreamNotifyServiceImpl {
     private final FormService formService;
     private final TwitchHelixApiServiceImpl twitchHelixApiService;
     private final LogService logService;
     private final GameIndexService gameIndexService;
-
-    public StreamNotifyServiceImpl(FormService formService, TwitchHelixApiServiceImpl twitchHelixApiService,
-                                   LogService logService, GameIndexService gameIndexService) {
-        this.formService = formService;
-        this.twitchHelixApiService = twitchHelixApiService;
-        this.logService = logService;
-        this.gameIndexService = gameIndexService;
-    }
 
     // TODO: 메소드 간소화 필요.
     public DiscordWebhookMessage makeStartDiscordWebhookMessage(Stream stream,
