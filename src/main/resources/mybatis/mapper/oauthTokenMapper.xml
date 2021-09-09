@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.cocoblue.twitchwebhook.mapper.OauthTokenMapper">
+    <select id="getRecentOauthToken" resultType="OauthToken">
+        SELECT * FROM oauth_token
+        ORDER BY create_date DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertOauthToken">
+        INSERT INTO oauth_token(access_token, refresh_token, expire, create_date)
+        VALUES(#{accessToken}, #{refreshToken}, #{expire}, now())
+    </insert>
+</mapper>
