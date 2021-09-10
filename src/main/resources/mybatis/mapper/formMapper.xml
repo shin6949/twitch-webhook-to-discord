@@ -13,4 +13,10 @@
         FROM stream_notify_form
         WHERE broadcaster_id = #{broadcasterId} AND type = #{type} and end_notify = true
     </select>
+
+    <select id="getAllBroadcasterId" resultType="Integer">
+        SELECT broadcaster_id
+        FROM stream_notify_form
+        GROUP BY broadcaster_id
+    </select>
 </mapper>

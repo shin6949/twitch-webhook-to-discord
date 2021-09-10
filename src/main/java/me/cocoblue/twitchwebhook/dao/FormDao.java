@@ -31,4 +31,9 @@ public class FormDao {
 
         return formMapper.getEndFormByBroadcasterIdAndType(param);
     }
+
+
+    public List<Integer> getAllBroadcasterId() {
+        return formMapper.getAllBroadcasterId();
+    }
 }

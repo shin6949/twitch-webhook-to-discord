@@ -18,14 +18,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TwitchHelixApiServiceImpl {
     private final OauthTokenService oauthTokenService;
     private final String userGetUrl = "https://api.twitch.tv/helix/users";
+
     @Value("${twitch.client-id}")
     private String clientId;
 
-    public UserInfo requestUserInfoToTwitch(String AccessToken, UriComponentsBuilder builder) {
+    public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         headers.add("Client-id", clientId);
-        headers.add("Authorization", "Bearer " + AccessToken);
+        headers.add("Authorization", "Bearer " + accessToken);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         RestTemplate rt = new RestTemplate();

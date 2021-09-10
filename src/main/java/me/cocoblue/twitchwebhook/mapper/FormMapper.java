@@ -10,4 +10,5 @@ import java.util.Map;
 public interface FormMapper {
     List<Form> getStartFormByBroadcasterIdAndType(Map<String, Object> param);
     List<Form> getEndFormByBroadcasterIdAndType(Map<String, Object> param);
+    List<Integer> getAllBroadcasterId();
 }
