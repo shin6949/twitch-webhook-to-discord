@@ -22,9 +22,10 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class UserChangeNotifyServiceImpl {
+public class UserChangeNotifyServiceImpl implements UserChangeNotifyService {
     private final FormService formService;
 
+    @Override
     public DiscordWebhookMessage makeDiscordWebhookMessage(UserChange userChange,
                                                            Form form) {
         String authorName = userChange.getDisplayName() + "님의 정보가 변경되었습니다.";
@@ -51,6 +52,7 @@ public class UserChangeNotifyServiceImpl {
                 discordEmbeds);
     }
 
+    @Override
     public void sendDiscordWebHook(UserChange userChange) {
         int broadcasterId = Integer.parseInt(userChange.getId());
         List<Form> notifyForms = formService.getStartFormByBroadcasterIdAndType(broadcasterId, 1);

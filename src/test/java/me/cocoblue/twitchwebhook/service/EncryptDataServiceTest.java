@@ -7,9 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Log4j2
-class EncryptDataServiceImplTest {
+class EncryptDataServiceTest {
     @Autowired
-    private EncryptDataServiceImpl encryptDataService;
+    private EncryptDataService encryptDataService;
 
     @Test
     public void test() {

@@ -15,13 +15,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class TwitchHelixApiServiceImpl {
+public class TwitchHelixApiServiceImpl implements TwitchHelixApiService {
     private final OauthTokenService oauthTokenService;
     private final String userGetUrl = "https://api.twitch.tv/helix/users";
 
     @Value("${twitch.client-id}")
     private String clientId;
 
+    @Override
     public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
@@ -42,6 +43,7 @@ public class TwitchHelixApiServiceImpl {
         return response.getBody();
     }
 
+    @Override
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
         OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
 
@@ -57,6 +59,7 @@ public class TwitchHelixApiServiceImpl {
         return userInfo.getTwitchUsers().get(0);
     }
 
+    @Override
     public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
         OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
 

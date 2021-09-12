@@ -9,11 +9,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Service
-public class EncryptDataServiceImpl {
+public class EncryptDataServiceImpl implements EncryptDataService {
     // hash 암호화 key
     @Value("{twitch.hub.secret}")
     private String key;
 
+    @Override
     public String encryptString(String message) {
         try {
             // hash 알고리즘과 암호화 key 적용

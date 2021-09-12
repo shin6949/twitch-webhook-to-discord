@@ -24,13 +24,14 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class StreamNotifyServiceImpl {
+public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
     private final TwitchHelixApiServiceImpl twitchHelixApiService;
     private final LogService logService;
     private final GameIndexService gameIndexService;
 
     // TODO: 메소드 간소화 필요.
+    @Override
     public DiscordWebhookMessage makeStartDiscordWebhookMessage(Stream stream,
                                                                 Form form) {
         User twitchUser = twitchHelixApiService.getUserInfoByLoginIdFromTwitch(stream.getUserLogin());
@@ -64,6 +65,7 @@ public class StreamNotifyServiceImpl {
                 discordEmbeds);
     }
 
+    @Override
     public void sendStartMessage(Stream stream) {
         int broadcasterId = Integer.parseInt(stream.getUserId());
         List<Form> notifyForms = formService.getStartFormByBroadcasterIdAndType(broadcasterId, 0);
@@ -75,6 +77,7 @@ public class StreamNotifyServiceImpl {
 
     }
 
+    @Override
     public DiscordWebhookMessage makeEndDiscordWebhookMessage(String broadcasterId, Form form) {
         User user = twitchHelixApiService.getUserInfoByBroadcasterIdFromTwitch(broadcasterId);
 
@@ -103,6 +106,7 @@ public class StreamNotifyServiceImpl {
         return new DiscordWebhookMessage(form.getUsername(), form.getAvatarUrl(), "", discordEmbeds);
     }
 
+    @Override
     public void sendEndMessage(String broadcasterId) {
         int broadcasterIdInt = Integer.parseInt(broadcasterId);
         List<Form> notifyForms = formService.getEndFormByBroadcasterIdAndType(broadcasterIdInt, 0);
@@ -114,6 +118,7 @@ public class StreamNotifyServiceImpl {
 
     }
 
+    @Override
     public void sendDiscordWebHook(DiscordWebhookMessage discordWebhookMessage, String webhookUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
@@ -124,6 +129,7 @@ public class StreamNotifyServiceImpl {
 
     }
 
+    @Override
     public void insertLog(Stream stream) {
         GameIndex gameIndex = new GameIndex(Integer.parseInt(stream.getGameId()),
                 stream.getGameName());

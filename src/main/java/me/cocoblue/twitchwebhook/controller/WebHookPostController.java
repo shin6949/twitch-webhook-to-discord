@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.service.EncryptDataServiceImpl;
+import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.LogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyServiceImpl;
 import me.cocoblue.twitchwebhook.service.UserChangeNotifyServiceImpl;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class WebHookPostController {
     private final UserChangeNotifyServiceImpl userChangeNotifyService;
     private final StreamNotifyServiceImpl streamNotifyService;
-    private final EncryptDataServiceImpl encryptDataService;
+    private final EncryptDataService encryptDataService;
     private final LogService logService;
 
     @PostMapping(path = "/stream/{broadcasterId}")
