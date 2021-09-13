@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
-import me.cocoblue.twitchwebhook.service.LogService;
-import me.cocoblue.twitchwebhook.service.StreamNotifyServiceImpl;
-import me.cocoblue.twitchwebhook.service.UserChangeNotifyServiceImpl;
+import me.cocoblue.twitchwebhook.service.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.StreamNotifyService;
+import me.cocoblue.twitchwebhook.service.UserChangeNotifyService;
 import me.cocoblue.twitchwebhook.vo.FollowNotifications;
 import me.cocoblue.twitchwebhook.vo.StreamNotification;
 import me.cocoblue.twitchwebhook.vo.UserChangeNotifications;
@@ -24,10 +24,10 @@ import java.util.Map;
 @Log4j2
 @AllArgsConstructor
 public class WebHookPostController {
-    private final UserChangeNotifyServiceImpl userChangeNotifyService;
-    private final StreamNotifyServiceImpl streamNotifyService;
+    private final UserChangeNotifyService userChangeNotifyService;
+    private final StreamNotifyService streamNotifyService;
     private final EncryptDataService encryptDataService;
-    private final LogService logService;
+    private final NotifyLogService notifyLogService;
 
     @PostMapping(path = "/stream/{broadcasterId}")
     public String receiveStreamNotification(@PathVariable String broadcasterId,
@@ -52,7 +52,7 @@ public class WebHookPostController {
 
         Stream stream = streamNotification.getNotification().get(0);
         log.info(stream);
-        if (logService.isAlreadySend(stream.getId())) {
+        if (notifyLogService.isAlreadySend(stream.getId())) {
             return "success";
         }
 

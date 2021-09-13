@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Log4j2
 class TwitchHelixApiServiceImplTest {
     @Autowired
-    private TwitchHelixApiServiceImpl twitchHelixApiService;
+    private TwitchHelixApiService twitchHelixApiService;
 
     @Test
     public void getUserInfoByBroadcasterIdFromTwitchTest() {

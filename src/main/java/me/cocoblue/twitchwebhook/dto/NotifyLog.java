@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Repository
-public class Log {
+public class NotifyLog {
     private int id;
     private String idFromTwitch;
     private int streamerId;

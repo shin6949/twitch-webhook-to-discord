@@ -1,9 +1,10 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.GameIndex;
-import me.cocoblue.twitchwebhook.dto.Log;
+import me.cocoblue.twitchwebhook.dto.NotifyLog;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
@@ -22,12 +23,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Log4j2
 @Service
 @AllArgsConstructor
 public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
-    private final TwitchHelixApiServiceImpl twitchHelixApiService;
-    private final LogService logService;
+    private final TwitchHelixApiService twitchHelixApiService;
+    private final NotifyLogService notifyLogService;
     private final GameIndexService gameIndexService;
 
     // TODO: 메소드 간소화 필요.
@@ -135,14 +137,14 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
                 stream.getGameName());
         gameIndexService.insertGameIndex(gameIndex);
 
-        Log log = new Log();
-        System.out.println(stream.getId());
-        log.setIdFromTwitch(stream.getId());
-        log.setStreamerId(Integer.parseInt(stream.getUserId()));
-        log.setTitle(stream.getTitle());
-        log.setStartedAt(stream.getStartedAt().plusHours(9));
-        log.setGameId(stream.getGameIdInt());
+        NotifyLog notifyLog = new NotifyLog();
+        log.info(stream.getId());
+        notifyLog.setIdFromTwitch(stream.getId());
+        notifyLog.setStreamerId(Integer.parseInt(stream.getUserId()));
+        notifyLog.setTitle(stream.getTitle());
+        notifyLog.setStartedAt(stream.getStartedAt().plusHours(9));
+        notifyLog.setGameId(stream.getGameIdInt());
 
-        logService.insertLog(log);
+        notifyLogService.insertLog(notifyLog);
     }
 }

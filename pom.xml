@@ -8,15 +8,21 @@
         <version>2.4.5</version>
         <relativePath/>
     </parent>
-    <groupId>com.cocoblue</groupId>
-    <artifactId>overlay</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>StreamOverlay</name>
+    <groupId>me.cocoblue</groupId>
+    <artifactId>twitchwebhook</artifactId>
+    <version>1.1</version>
+    <name>TwitchWebhookToDiscord</name>
     <description>To receive Twitch Webhook Notification and send to discord webhook</description>
     <properties>
         <java.version>11</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -120,6 +126,23 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <forkMode>once</forkMode>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>2.19.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

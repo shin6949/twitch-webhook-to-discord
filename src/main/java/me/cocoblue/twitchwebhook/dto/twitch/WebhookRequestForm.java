@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Data
@@ -21,13 +20,5 @@ public class WebhookRequestForm {
     @JsonProperty("hub.lease_seconds")
     private int leaseSeconds;
     @JsonProperty("hub.secret")
-    @Value("${twitch.hub.secret}")
     private String secret;
-
-    public WebhookRequestForm(String callbackUrl, String mode, String topic) {
-        this.callbackUrl = callbackUrl;
-        this.mode = mode;
-        this.topic = topic;
-        this.leaseSeconds = 3600;
-    }
 }

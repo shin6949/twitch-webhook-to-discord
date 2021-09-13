@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="me.cocoblue.twitchwebhook.mapper.LogMapper">
+<mapper namespace="me.cocoblue.twitchwebhook.mapper.NotifyLogMapper">
     <insert id="insertLog">
         INSERT INTO stream_notify_log(id_from_twitch, streamer_id, title, started_at, game_id, record_time_to_db)
         VALUES (#{idFromTwitch}, #{streamerId}, #{title}, #{startedAt}, #{gameId}, now())
     </insert>
 
-    <select id="getLogByIdFromTwitch" resultType="Log">
+    <select id="getLogByIdFromTwitch" resultType="NotifyLog">
         SELECT * FROM stream_notify_log
         WHERE id_from_twitch LIKE #{idFromTwitch}
         LIMIT 1

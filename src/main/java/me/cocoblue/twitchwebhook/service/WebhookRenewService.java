@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.service;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.WebhookRequestForm;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -19,13 +17,23 @@ import java.util.List;
 @Log4j2
 @Service
 @Component
-@AllArgsConstructor
-public class RenewWebhookService {
+public class WebhookRenewService {
     private final OauthTokenService oauthTokenService;
     private final FormService formService;
 
+    public WebhookRenewService(OauthTokenService oauthTokenService, FormService formService) {
+        this.oauthTokenService = oauthTokenService;
+        this.formService = formService;
+    }
+
     @Value("${twitch.client-id}")
     private String clientId;
+
+    @Value("${webapp.base.url}")
+    private String webappBaseUrl;
+
+    @Value("${twitch.hub.secret}")
+    private String webhookSecret;
 
     @Scheduled(cron = "0 */1 * * * *")
     public void RenewCronjob() {
@@ -36,7 +44,7 @@ public class RenewWebhookService {
         List<Integer> broadcasterIdList = formService.getAllBroadcasterId();
         log.info(broadcasterIdList);
 
-        String accessToken = oauthTokenService.getRecentOauthToken().getAccessToken();
+        String accessToken = oauthTokenService.getOauthTokenFromTwitch().getAccessToken();
         for (Integer broadcasterId : broadcasterIdList) {
             HttpHeaders headers = configureRequestHeader(accessToken);
 
@@ -50,6 +58,7 @@ public class RenewWebhookService {
         String webhookUrl = "https://api.twitch.tv/helix/webhooks/hub";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(webhookUrl);
 
+        log.info(entity);
         try {
             rt.exchange(uriComponentsBuilder.toUriString(), HttpMethod.POST, entity, String.class);
         } catch (Exception e) {
@@ -67,11 +76,9 @@ public class RenewWebhookService {
     }
 
     private WebhookRequestForm configureRequestBody(String broadcasterId, String mode) {
-        final String callbackUrl =
-                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString()
-                        + "/webhook/user/" + broadcasterId;
+        final String callbackUrl = webappBaseUrl + "/webhook/stream/" + broadcasterId;
         final String topic = "https://api.twitch.tv/helix/streams?user_id=" + broadcasterId;
 
-        return new WebhookRequestForm(callbackUrl, mode, topic);
+        return new WebhookRequestForm(callbackUrl, mode, topic, 1200, webhookSecret);
     }
 }

@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dao.OauthTokenDao;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
 import me.cocoblue.twitchwebhook.dto.OauthToken;
@@ -16,9 +17,12 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 
 @Service
-@AllArgsConstructor
 public class OauthTokenServiceImpl implements OauthTokenService {
     private final OauthTokenDao oauthTokenDao;
+
+    public OauthTokenServiceImpl(OauthTokenDao oauthTokenDao) {
+        this.oauthTokenDao = oauthTokenDao;
+    }
 
     @Value("${twitch.client-id}")
     private String clientId;
