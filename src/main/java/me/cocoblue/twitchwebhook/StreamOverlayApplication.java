@@ -10,5 +10,4 @@ public class StreamOverlayApplication {
     public static void main(String[] args) {
         SpringApplication.run(StreamOverlayApplication.class, args);
     }
-
 }

@@ -13,25 +13,7 @@ class EncryptDataServiceTest {
 
     @Test
     public void test() {
-        String message = "{\n" +
-                "  \"data\": [\n" +
-                "    {\n" +
-                "      \"id\": \"3d141868-46ed-4ef8-cd09-1fbb4f84535\",\n" +
-                "      \"user_id\": \"464457053\",\n" +
-                "      \"user_login\": \"testBroadcaster\",\n" +
-                "      \"user_name\": \"testBroadcaster\",\n" +
-                "      \"game_id\": \"495064\",\n" +
-                "      \"game_name\": \"Splatoon 2\",\n" +
-                "      \"type\": \"live\",\n" +
-                "      \"title\": \"Example title from the CLI!\",\n" +
-                "      \"viewer_count\": 9848,\n" +
-                "      \"started_at\": \"2021-03-20T03:18:50Z\",\n" +
-                "      \"language\": \"ko\",\n" +
-                "      \"thumbnail_url\": \"https://static-cdn.jtvnw.net/previews-ttv/live_twitch_user-{width}x{height}.jpg\",\n" +
-                "      \"tag_ids\": []\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+        String message = "{\"data\":[{\"game_id\":\"509658\",\"game_name\":\"Just Chatting\",\"id\":\"43677839309\",\"is_mature\":false,\"language\":\"ko\",\"started_at\":\"2021-09-13T13:14:47Z\",\"tag_ids\":null,\"thumbnail_url\":\"https://static-cdn.jtvnw.net/previews-ttv/live_user_soulofcoco-{width}x{height}.jpg\",\"title\":\"테스트방송!\",\"type\":\"live\",\"user_id\":\"672681145\",\"user_login\":\"soulofcoco\",\"user_name\":\"soulofcoco\",\"viewer_count\":0}]}";
 
         log.info(encryptDataService.encryptString(message));
     }

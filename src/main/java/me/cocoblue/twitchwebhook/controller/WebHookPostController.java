@@ -35,6 +35,7 @@ public class WebHookPostController {
                                             @RequestHeader HashMap<String, String> header) throws JsonProcessingException {
         // 요청이 유효한지 체크
         String signatureFromTwitch = header.get("x-hub-signature");
+        log.info(notification);
         if (dataNotValid(notification, signatureFromTwitch)) {
             return "success";
         }
