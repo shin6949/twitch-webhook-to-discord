@@ -12,6 +12,7 @@
     <artifactId>twitchwebhook</artifactId>
     <version>1.1</version>
     <name>TwitchWebhookToDiscord</name>
+    <packaging>war</packaging>
     <description>To receive Twitch Webhook Notification and send to discord webhook</description>
     <properties>
         <java.version>11</java.version>
@@ -57,10 +58,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
@@ -76,6 +84,7 @@
             <artifactId>mybatis-spring</artifactId>
             <version>2.0.6</version>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
