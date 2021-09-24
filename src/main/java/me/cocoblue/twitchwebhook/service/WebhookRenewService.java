@@ -79,6 +79,8 @@ public class WebhookRenewService {
         final String callbackUrl = webappBaseUrl + "/webhook/stream/" + broadcasterId;
         final String topic = "https://api.twitch.tv/helix/streams?user_id=" + broadcasterId;
 
-        return new WebhookRequestForm(callbackUrl, mode, topic, 1200, webhookSecret);
+        WebhookRequestForm webhookRequestForm = new WebhookRequestForm(callbackUrl, mode, topic, 1200, webhookSecret);
+        log.info(webhookRequestForm);
+        return webhookRequestForm;
     }
 }
