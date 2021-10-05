@@ -10,6 +10,8 @@ import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Field;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Footer;
+import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
+import me.cocoblue.twitchwebhook.vo.UserInfo;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;
 import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
@@ -29,14 +31,14 @@ import java.util.List;
 @AllArgsConstructor
 public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
-    private final TwitchHelixApiService twitchHelixApiService;
+    private final UserInfoService userInfoService;
     private final NotifyLogService notifyLogService;
     private final GameIndexService gameIndexService;
 
     // TODO: 메소드 간소화 필요.
     @Override
     public DiscordWebhookMessage makeStartDiscordWebhookMessage(Event event, Form form) {
-        final User twitchUser = twitchHelixApiService.getUserInfoByLoginIdFromTwitch(event.getBroadcasterUserLogin());
+        final User twitchUser = userInfoService.getUserInfoByLoginIdFromTwitch(event.getBroadcasterUserLogin());
 
         final String authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
         final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
@@ -82,7 +84,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
     @Override
     public DiscordWebhookMessage makeEndDiscordWebhookMessage(String broadcasterId, Form form) {
-        User user = twitchHelixApiService.getUserInfoByBroadcasterIdFromTwitch(broadcasterId);
+        User user = userInfoService.getUserInfoByBroadcasterIdFromTwitch(broadcasterId);
 
         String authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
         String authorURL = "https://twitch.tv/" + user.getLogin();
@@ -134,8 +136,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
     @Override
     public void insertLog(Stream stream) {
-        GameIndex gameIndex = new GameIndex(Integer.parseInt(stream.getGameId()),
-                stream.getGameName());
+        GameIndex gameIndex = new GameIndex(Integer.parseInt(stream.getGameId()), stream.getGameName());
         gameIndexService.insertGameIndex(gameIndex);
 
         NotifyLog notifyLog = new NotifyLog();

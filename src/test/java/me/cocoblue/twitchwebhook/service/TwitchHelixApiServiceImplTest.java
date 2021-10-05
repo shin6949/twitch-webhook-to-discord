@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,16 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Log4j2
 class TwitchHelixApiServiceImplTest {
     @Autowired
-    private TwitchHelixApiService twitchHelixApiService;
+    private UserInfoService userInfoService;
 
     @Test
     public void getUserInfoByBroadcasterIdFromTwitchTest() {
-        log.info(twitchHelixApiService.getUserInfoByBroadcasterIdFromTwitch("500843286"));
+        log.info(userInfoService.getUserInfoByBroadcasterIdFromTwitch("500843286"));
     }
 
     @Test
     public void getUserInfoByLoginIdFromTwitchTest() {
-        log.info(twitchHelixApiService.getUserInfoByLoginIdFromTwitch("soulofcoco"));
+        log.info(userInfoService.getUserInfoByLoginIdFromTwitch("soulofcoco"));
     }
 
 }

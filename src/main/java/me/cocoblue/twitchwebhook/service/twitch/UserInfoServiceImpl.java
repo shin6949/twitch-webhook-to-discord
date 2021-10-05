@@ -1,7 +1,8 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.vo.UserInfo;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,20 +16,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
-public class TwitchHelixApiServiceImpl implements TwitchHelixApiService {
+public class UserInfoServiceImpl implements UserInfoService {
     private final OauthTokenService oauthTokenService;
-    private final String userGetUrl = "https://api.twitch.tv/helix/users";
+    private final RequestService requestService;
 
-    @Value("${twitch.client-id}")
-    private String clientId;
+    private final String userGetUrl = "https://api.twitch.tv/helix/users";
 
     @Override
     public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Client-id", clientId);
-        headers.add("Authorization", "Bearer " + accessToken);
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+        HttpEntity<?> entity = requestService.makeRequestHeader(accessToken);
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<UserInfo> response;
@@ -46,7 +42,6 @@ public class TwitchHelixApiServiceImpl implements TwitchHelixApiService {
     @Override
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
         OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("login", loginId);
 

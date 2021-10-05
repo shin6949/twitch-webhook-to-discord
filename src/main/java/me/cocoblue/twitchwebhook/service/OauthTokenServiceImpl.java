@@ -1,7 +1,5 @@
 package me.cocoblue.twitchwebhook.service;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dao.OauthTokenDao;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
 import me.cocoblue.twitchwebhook.dto.OauthToken;

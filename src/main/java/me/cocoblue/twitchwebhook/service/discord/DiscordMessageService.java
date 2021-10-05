@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.discord;
 
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
