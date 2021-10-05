@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Repository
 public class OauthRequestForm {
     @JsonProperty("access_token")
     private String accessToken;

@@ -2,6 +2,8 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.WebhookRequestForm;
+import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
+import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +37,7 @@ public class WebhookRenewService {
     @Value("${twitch.hub.secret}")
     private String webhookSecret;
 
-    @Scheduled(cron = "0 0 */1 * * *")
+//    @Scheduled(cron = "0 0 */1 * * *")
     public void RenewCronjob() {
         // 지금은 방송 알림만 지원
         log.info("Doing Scheduled Job");
@@ -76,10 +78,10 @@ public class WebhookRenewService {
     }
 
     private WebhookRequestForm configureRequestBody(String broadcasterId, String mode) {
+        final String type = "stream.online";
         final String callbackUrl = webappBaseUrl + "/webhook/stream/" + broadcasterId;
-        final String topic = "https://api.twitch.tv/helix/streams?user_id=" + broadcasterId;
 
-        WebhookRequestForm webhookRequestForm = new WebhookRequestForm(callbackUrl, mode, topic, 1200, webhookSecret);
+        WebhookRequestForm webhookRequestForm = new WebhookRequestForm(type, new Condition(broadcasterId), new Transport(callbackUrl, webhookSecret));
         log.info(webhookRequestForm);
         return webhookRequestForm;
     }

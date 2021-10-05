@@ -8,15 +8,10 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyService;
-import me.cocoblue.twitchwebhook.service.UserChangeNotifyService;
-import me.cocoblue.twitchwebhook.vo.FollowNotifications;
-import me.cocoblue.twitchwebhook.vo.StreamNotification;
-import me.cocoblue.twitchwebhook.vo.UserChangeNotifications;
-import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
-import me.cocoblue.twitchwebhook.vo.twitch.notification.UserChange;
+import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
+import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Header;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,19 +19,17 @@ import java.util.Map;
 @Log4j2
 @AllArgsConstructor
 public class WebHookPostController {
-    private final UserChangeNotifyService userChangeNotifyService;
     private final StreamNotifyService streamNotifyService;
     private final EncryptDataService encryptDataService;
     private final NotifyLogService notifyLogService;
 
-    @PostMapping(path = "/stream/{broadcasterId}")
+    @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamNotification(@PathVariable String broadcasterId,
                                             @RequestBody String notification,
-                                            @RequestHeader HashMap<String, String> header) throws JsonProcessingException {
+                                            @RequestHeader Header header) throws JsonProcessingException {
         // 요청이 유효한지 체크
-        String signatureFromTwitch = header.get("x-hub-signature");
         log.info(notification);
-        if (dataNotValid(notification, signatureFromTwitch)) {
+        if(dataNotValid(notification, header.getSignature())) {
             return "success";
         }
 
@@ -44,16 +37,21 @@ public class WebHookPostController {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Map<String, Object> map = mapper.readValue(notification, Map.class);
-        StreamNotification streamNotification = mapper.convertValue(map, StreamNotification.class);
+        Body streamNotification = mapper.convertValue(map, Body.class);
 
-        if (streamNotification.getNotification().size() == 0) {
-            streamNotifyService.sendEndMessage(broadcasterId);
-            return "success";
+        // Challenge 요구 시, 반응
+        if(streamNotification.getChallenge() != null &&
+                streamNotification.getSubscription().getStatus().equals("webhook_callback_verification_pending")) {
+            return streamNotification.getChallenge();
         }
 
-        Stream stream = streamNotification.getNotification().get(0);
-        log.info(stream);
-        if (notifyLogService.isAlreadySend(stream.getId())) {
+
+//        if (streamNotification.getNotification().size() == 0) {
+//            streamNotifyService.sendEndMessage(broadcasterId);
+//            return "success";
+//        }
+
+        if (notifyLogService.isAlreadySend(streamNotification.getEvent().getId())) {
             return "success";
         }
 
@@ -62,54 +60,6 @@ public class WebHookPostController {
 
         // Log Insert
         streamNotifyService.insertLog(stream);
-
-        return "success";
-    }
-
-    @PostMapping(path = "/follow/from/{broadcasterId}")
-    public String receiveFollowFromNotification(@PathVariable String broadcasterId,
-                                                @RequestBody FollowNotifications notification) {
-        log.info(broadcasterId);
-        log.info(notification.toString());
-
-        return "success";
-    }
-
-    @PostMapping(path = "/follow/to/{broadcasterId}")
-    public String receiveFollowToNotification(@PathVariable String broadcasterId,
-                                              @RequestBody FollowNotifications notification) {
-        log.info(broadcasterId);
-        log.info(notification.toString());
-
-        return "success";
-    }
-
-    @PostMapping(path = "/user/{broadcasterId}")
-    public String receiveUserChangeNotification(@PathVariable String broadcasterId,
-                                                @RequestBody String notification,
-                                                @RequestHeader HashMap<String, String> header) throws JsonProcessingException {
-
-        // 요청이 유효한지 체크
-        String signatureFromTwitch = header.get("x-hub-signature");
-        if (dataNotValid(notification, signatureFromTwitch)) {
-            return "success";
-        }
-
-        // RequestBody를 Vo에 Mapping
-        ObjectMapper mapper = new ObjectMapper();
-        Map map = mapper.readValue(notification, Map.class);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        UserChangeNotifications userChangeNotifications = mapper.convertValue(map, UserChangeNotifications.class);
-
-        // Message Send
-        UserChange userChange = userChangeNotifications.getNotifications().get(0);
-
-        // 요청이 번지수 잘못 찾아 온 경우 넘기기
-        if (!userChange.getId().equals(broadcasterId)) {
-            return "success";
-        }
-
-        userChangeNotifyService.sendDiscordWebHook(userChange);
 
         return "success";
     }

@@ -11,6 +11,7 @@ import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Field;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Footer;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
+import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;
 import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,15 +35,15 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
     // TODO: 메소드 간소화 필요.
     @Override
-    public DiscordWebhookMessage makeStartDiscordWebhookMessage(Stream stream,
-                                                                Form form) {
-        User twitchUser = twitchHelixApiService.getUserInfoByLoginIdFromTwitch(stream.getUserLogin());
+    public DiscordWebhookMessage makeStartDiscordWebhookMessage(Event event, Form form) {
+        final User twitchUser = twitchHelixApiService.getUserInfoByLoginIdFromTwitch(event.getBroadcasterUserLogin());
 
-        String authorName = stream.getUserName() + "님이 방송을 시작했습니다.";
-        String authorURL = "https://twitch.tv/" + stream.getUserLogin();
-        String authorProfileURL = twitchUser.getProfileImageUrl();
-        Author author = new Author(authorName, authorURL, authorProfileURL);
+        final String authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
+        final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
+        final String authorProfileURL = twitchUser.getProfileImageUrl();
+        final Author author = new Author(authorName, authorURL, authorProfileURL);
 
+        // TODO: Channel에서 정보를 얻어올 방법 필요
         String embedTitle = stream.getTitle();
         String embedDescription = stream.getGameName();
         if (stream.getGameName().equals("")) {
