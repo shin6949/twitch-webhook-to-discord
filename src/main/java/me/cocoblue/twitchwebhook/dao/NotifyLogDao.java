@@ -12,8 +12,8 @@ public class NotifyLogDao {
         this.notifyLogMapper = notifyLogMapper;
     }
 
-    public int insertStreamNotifyLog(NotifyLog notifyLog) {
-        return notifyLogMapper.insertLog(notifyLog);
+    public void insertStreamNotifyLog(NotifyLog notifyLog) {
+        notifyLogMapper.insertLog(notifyLog);
     }
 
     public NotifyLog getLogByIdFromTwitch(String idFromTwitch) {

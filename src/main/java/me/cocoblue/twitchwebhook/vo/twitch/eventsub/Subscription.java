@@ -8,6 +8,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
@@ -28,5 +29,12 @@ public class Subscription {
     @JsonProperty("transport")
     private Transport transport;
     @JsonProperty("created_at")
+    private String createdAtString;
     private LocalDateTime createdAt;
+
+    public void setCreatedAtString(String createdAtString) {
+        this.createdAtString = createdAtString;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'");
+        this.createdAt = LocalDateTime.parse(createdAtString, formatter);
+    }
 }

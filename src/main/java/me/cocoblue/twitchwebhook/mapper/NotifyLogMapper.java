@@ -5,6 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface NotifyLogMapper {
-    int insertLog(NotifyLog notifyLog);
+    void insertLog(NotifyLog notifyLog);
     NotifyLog getLogByIdFromTwitch(String idFromTwitch);
 }

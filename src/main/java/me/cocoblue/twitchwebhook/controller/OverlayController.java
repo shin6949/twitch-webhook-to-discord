@@ -23,6 +23,6 @@ public class OverlayController {
     // pineee
     @RequestMapping("/pineee/clock")
     public String getPurpleSplatoonClock() {
-        return "cocoblue_splatoon_clock";
+        return "pineee_splatoon_clock";
     }
 }

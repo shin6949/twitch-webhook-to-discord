@@ -1,6 +1,6 @@
 package me.cocoblue.twitchwebhook.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.GameIndex;
@@ -11,13 +11,13 @@ import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Field;
 import me.cocoblue.twitchwebhook.dto.discord.embed.Footer;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
-import me.cocoblue.twitchwebhook.vo.UserInfo;
+import me.cocoblue.twitchwebhook.vo.twitch.Channel;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;
-import me.cocoblue.twitchwebhook.vo.twitch.notification.Stream;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,7 +28,7 @@ import java.util.List;
 
 @Log4j2
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
     private final UserInfoService userInfoService;
@@ -36,25 +36,23 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final GameIndexService gameIndexService;
 
     // TODO: 메소드 간소화 필요.
-    @Override
-    public DiscordWebhookMessage makeStartDiscordWebhookMessage(Event event, Form form) {
-        final User twitchUser = userInfoService.getUserInfoByLoginIdFromTwitch(event.getBroadcasterUserLogin());
+    private DiscordWebhookMessage makeStartDiscordWebhookMessage(Event event, Form form, Channel channel) {
+        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(event.getBroadcasterUserId());
 
         final String authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
         final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
         final String authorProfileURL = twitchUser.getProfileImageUrl();
         final Author author = new Author(authorName, authorURL, authorProfileURL);
 
-        // TODO: Channel에서 정보를 얻어올 방법 필요
-        String embedTitle = stream.getTitle();
-        String embedDescription = stream.getGameName();
-        if (stream.getGameName().equals("")) {
+        String embedTitle = channel.getTitle();
+        String embedDescription = channel.getGameName();
+        if (channel.getGameName().equals("")) {
             embedDescription = "지정된 게임 없음.";
         }
         String embedColor = Integer.toString(form.getColor());
 
         List<Field> fields = new ArrayList<>();
-        LocalDateTime koreanStartTime = stream.getStartedAt().plusHours(9);
+        LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
         String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         Field field = new Field("시작 시간", startTimeToString, true);
         fields.add(field);
@@ -71,12 +69,13 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Override
-    public void sendStartMessage(Stream stream) {
-        int broadcasterId = Integer.parseInt(stream.getUserId());
+    @Async
+    public void sendStartMessage(Event event, Channel channel) {
+        int broadcasterId = Integer.parseInt(event.getBroadcasterUserId());
         List<Form> notifyForms = formService.getStartFormByBroadcasterIdAndType(broadcasterId, 0);
 
         for (Form notifyForm : notifyForms) {
-            DiscordWebhookMessage discordWebhookMessage = makeStartDiscordWebhookMessage(stream, notifyForm);
+            DiscordWebhookMessage discordWebhookMessage = makeStartDiscordWebhookMessage(event, notifyForm, channel);
             sendDiscordWebHook(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
 
@@ -135,17 +134,17 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Override
-    public void insertLog(Stream stream) {
-        GameIndex gameIndex = new GameIndex(Integer.parseInt(stream.getGameId()), stream.getGameName());
+    @Async
+    public void insertLog(Event event, Channel channel) {
+        GameIndex gameIndex = channel.toGameIndex();
         gameIndexService.insertGameIndex(gameIndex);
 
         NotifyLog notifyLog = new NotifyLog();
-        log.info(stream.getId());
-        notifyLog.setIdFromTwitch(stream.getId());
-        notifyLog.setStreamerId(Integer.parseInt(stream.getUserId()));
-        notifyLog.setTitle(stream.getTitle());
-        notifyLog.setStartedAt(stream.getStartedAt().plusHours(9));
-        notifyLog.setGameId(stream.getGameIdInt());
+        notifyLog.setIdFromTwitch(event.getId());
+        notifyLog.setStreamerId(Integer.parseInt(event.getBroadcasterUserId()));
+        notifyLog.setTitle(channel.getTitle());
+        notifyLog.setStartedAt(event.getStartedAt().plusHours(9));
+        notifyLog.setGameId(gameIndex.getId());
 
         notifyLogService.insertLog(notifyLog);
     }

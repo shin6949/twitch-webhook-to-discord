@@ -37,8 +37,14 @@ public class WebhookRenewService {
     @Value("${twitch.hub.secret}")
     private String webhookSecret;
 
+    @Scheduled(cron = "0 0 */1 * * *")
+    public void dbConnection() {
+        log.info("DB Connection Start");
+        formService.getAllBroadcasterId();
+    }
+
 //    @Scheduled(cron = "0 0 */1 * * *")
-    public void RenewCronjob() {
+    public void renewCronjob() {
         // 지금은 방송 알림만 지원
         log.info("Doing Scheduled Job");
 

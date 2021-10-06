@@ -8,11 +8,14 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyService;
+import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
+import me.cocoblue.twitchwebhook.vo.twitch.Channel;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
-import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Header;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/webhook")
@@ -22,14 +25,21 @@ public class WebHookPostController {
     private final StreamNotifyService streamNotifyService;
     private final EncryptDataService encryptDataService;
     private final NotifyLogService notifyLogService;
+    private final ChannelInfoService channelInfoService;
 
     @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamNotification(@PathVariable String broadcasterId,
                                             @RequestBody String notification,
-                                            @RequestHeader Header header) throws JsonProcessingException {
+                                            @RequestHeader HttpHeaders headers) throws JsonProcessingException {
+        log.info("Header: " + headers.toString());
+        final String signature = Objects.requireNonNull(headers.get("twitch-eventsub-message-signature")).get(0);
+
         // 요청이 유효한지 체크
-        log.info(notification);
-        if(dataNotValid(notification, header.getSignature())) {
+        log.info("Body: " + notification);
+
+        final String toVerifyData = headers.get("Twitch-Eventsub-Message-Id").get(0) +
+                headers.get("Twitch-Eventsub-Message-Timestamp").get(0) + notification;
+        if(dataNotValid(toVerifyData, signature)) {
             return "success";
         }
 
@@ -45,21 +55,17 @@ public class WebHookPostController {
             return streamNotification.getChallenge();
         }
 
-
-//        if (streamNotification.getNotification().size() == 0) {
-//            streamNotifyService.sendEndMessage(broadcasterId);
-//            return "success";
-//        }
-
         if (notifyLogService.isAlreadySend(streamNotification.getEvent().getId())) {
             return "success";
         }
 
-        // Message Send
-        streamNotifyService.sendStartMessage(stream);
+        final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
-        // Log Insert
-        streamNotifyService.insertLog(stream);
+        // Message Send (Async)
+        streamNotifyService.sendStartMessage(streamNotification.getEvent(), channel);
+
+        // Log Insert (Async)
+        streamNotifyService.insertLog(streamNotification.getEvent(), channel);
 
         return "success";
     }

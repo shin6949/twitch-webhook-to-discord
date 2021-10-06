@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -22,5 +23,12 @@ public class Event {
     @JsonProperty("type")
     private String type;
     @JsonProperty("started_at")
+    private String startedAtString;
     private LocalDateTime startedAt;
+
+    public void setStartedAtString(String startedAtString) {
+        this.startedAtString = startedAtString;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        this.startedAt = LocalDateTime.parse(startedAtString, formatter);
+    }
 }

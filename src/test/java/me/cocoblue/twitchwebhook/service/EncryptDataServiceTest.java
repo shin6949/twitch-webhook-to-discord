@@ -13,26 +13,7 @@ class EncryptDataServiceTest {
 
     @Test
     public void test() {
-        String message = "{\n" +
-                "    \"data\": [\n" +
-                "        {\n" +
-                "            \"game_id\": \"509658\",\n" +
-                "            \"game_name\": \"Just Chatting\",\n" +
-                "            \"id\": \"abcabc132\",\n" +
-                "            \"is_mature\": false,\n" +
-                "            \"language\": \"ko\",\n" +
-                "            \"started_at\": \"2021-09-13T13:14:47Z\",\n" +
-                "            \"tag_ids\": null,\n" +
-                "            \"thumbnail_url\": \"https://static-cdn.jtvnw.net/previews-ttv/live_user_soulofcoco-{width}x{height}.jpg\",\n" +
-                "            \"title\": \"테스트방송!\",\n" +
-                "            \"type\": \"live\",\n" +
-                "            \"user_id\": \"672681145\",\n" +
-                "            \"user_login\": \"soulofcoco\",\n" +
-                "            \"user_name\": \"soulofcoco\",\n" +
-                "            \"viewer_count\": 0\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        String message = "{\"subscription\":{\"id\":\"de67eff0-68da-47fe-8508-1d0780d37ed1\",\"status\":\"webhook_callback_verification_pending\",\"type\":\"stream.online\",\"version\":\"1\",\"condition\":{\"broadcaster_user_id\":\"268907830\"},\"transport\":{\"method\":\"webhook\",\"callback\":\"https://deaa-115-178-87-144.ngrok.io/webhook/stream/268907830/online\"},\"created_at\":\"2021-10-06T02:47:37.846672392Z\",\"cost\":1},\"challenge\":\"a4FWlR_4jzn2Da2m6GAxvcwWWflBab4ED7QxtjCcXP4\"}";
 
         log.info(encryptDataService.encryptString(message));
     }

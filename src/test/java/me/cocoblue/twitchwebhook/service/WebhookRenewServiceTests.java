@@ -13,6 +13,6 @@ class WebhookRenewServiceTests {
 
     @Test
     public void getStartFormByBroadcasterIdAndTypeTest() {
-        webhookRenewService.RenewCronjob();
+        webhookRenewService.renewCronjob();
     }
 }
