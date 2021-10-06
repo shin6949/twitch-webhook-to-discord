@@ -111,6 +111,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Override
+    @Async
     public void sendEndMessage(String broadcasterId) {
         int broadcasterIdInt = Integer.parseInt(broadcasterId);
         List<Form> notifyForms = formService.getEndFormByBroadcasterIdAndType(broadcasterIdInt, 0);
@@ -123,6 +124,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Override
+    @Async
     public void sendDiscordWebHook(DiscordWebhookMessage discordWebhookMessage, String webhookUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");

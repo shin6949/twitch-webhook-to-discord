@@ -28,30 +28,19 @@ public class WebHookPostController {
     private final ChannelInfoService channelInfoService;
 
     @PostMapping(path = "/stream/{broadcasterId}/online")
-    public String receiveStreamNotification(@PathVariable String broadcasterId,
-                                            @RequestBody String notification,
-                                            @RequestHeader HttpHeaders headers) throws JsonProcessingException {
-        log.info("Header: " + headers.toString());
-        final String signature = Objects.requireNonNull(headers.get("twitch-eventsub-message-signature")).get(0);
-
+    public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
+                                            @RequestHeader HttpHeaders headers) {
         // 요청이 유효한지 체크
-        log.info("Body: " + notification);
-
-        final String toVerifyData = headers.get("Twitch-Eventsub-Message-Id").get(0) +
-                headers.get("Twitch-Eventsub-Message-Timestamp").get(0) + notification;
-        if(dataNotValid(toVerifyData, signature)) {
+        if(dataNotValid(headers, notification)) {
             return "success";
         }
 
         // RequestBody를 Vo에 Mapping
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        Map<String, Object> map = mapper.readValue(notification, Map.class);
-        Body streamNotification = mapper.convertValue(map, Body.class);
+        final Body streamNotification = toDto(notification);
 
         // Challenge 요구 시, 반응
-        if(streamNotification.getChallenge() != null &&
-                streamNotification.getSubscription().getStatus().equals("webhook_callback_verification_pending")) {
+        assert streamNotification != null;
+        if(isChallenge(streamNotification)) {
             return streamNotification.getChallenge();
         }
 
@@ -70,11 +59,61 @@ public class WebHookPostController {
         return "success";
     }
 
-    private boolean dataNotValid(String data, String signature) {
+    @PostMapping(path = "/stream/{broadcasterId}/offline")
+    public String receiveStreamOfflineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
+                                            @RequestHeader HttpHeaders headers) {
+        log.info("Offline Header: " + headers.toString());
+        log.info("Offline Body: " + notification);
+
+        // 요청이 유효한지 체크
+        if(dataNotValid(headers, notification)) {
+            return "success";
+        }
+
+        // RequestBody를 Vo에 Mapping
+        final Body streamNotification = toDto(notification);
+
+        // Challenge 요구 시, 반응
+        assert streamNotification != null;
+        if(isChallenge(streamNotification)) {
+            return streamNotification.getChallenge();
+        }
+
+        // Message Send (Async)
+        streamNotifyService.sendEndMessage(streamNotification.getEvent().getBroadcasterUserId());
+
+        return "success";
+    }
+
+    private boolean dataNotValid(HttpHeaders headers, String notification) {
+        final String signature = Objects.requireNonNull(headers.get("twitch-eventsub-message-signature")).get(0);
+
+        final String data = headers.get("Twitch-Eventsub-Message-Id").get(0) +
+                headers.get("Twitch-Eventsub-Message-Timestamp").get(0) + notification;
+
         String encryptValue = "sha256=" + encryptDataService.encryptString(data);
         log.info("Received Signature: " + signature);
         log.info("Encrypt Value: " + encryptValue);
 
         return !encryptValue.equals(signature);
+    }
+
+    private Body toDto(String original) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            Map<String, Object> map = mapper.readValue(original, Map.class);
+
+            return mapper.convertValue(map, Body.class);
+
+        } catch (JsonProcessingException jsonProcessingException) {
+            jsonProcessingException.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean isChallenge(Body body) {
+        return body.getChallenge() != null &&
+                body.getSubscription().getStatus().equals("webhook_callback_verification_pending");
     }
 }
