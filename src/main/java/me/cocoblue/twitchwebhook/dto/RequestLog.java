@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Repository
 public class RequestLog {
     private int id;
     private int broadcasterId;

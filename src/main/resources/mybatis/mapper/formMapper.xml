@@ -19,4 +19,10 @@
         FROM stream_notify_form
         GROUP BY broadcaster_id
     </select>
+
+    <select id="getFormByBroadcasterIdAndType" resultType="Form">
+        SELECT *
+        FROM stream_notify_form
+        WHERE broadcaster_id = #{broadcasterId} AND type LIKE #{type}
+    </select>
 </mapper>

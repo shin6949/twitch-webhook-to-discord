@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Repository
 public class Form {
     private int id;
     private int broadcasterId;
@@ -16,7 +15,6 @@ public class Form {
     private String avatarUrl;
     private String content;
     private int color;
-    private int type;
-    private Boolean endNotify;
+    private String type;
     private String webhookUrl;
 }

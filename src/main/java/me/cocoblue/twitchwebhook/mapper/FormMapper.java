@@ -8,7 +8,5 @@ import java.util.Map;
 
 @Mapper
 public interface FormMapper {
-    List<Form> getStartFormByBroadcasterIdAndType(Map<String, Object> param);
-    List<Form> getEndFormByBroadcasterIdAndType(Map<String, Object> param);
-    List<Integer> getAllBroadcasterId();
+    List<Form> getFormByBroadcasterIdAndType(Map<String, Object> param);
 }

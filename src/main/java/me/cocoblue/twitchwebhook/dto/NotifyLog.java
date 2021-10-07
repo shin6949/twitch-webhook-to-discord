@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Repository
 public class NotifyLog {
     private int id;
     private String idFromTwitch;

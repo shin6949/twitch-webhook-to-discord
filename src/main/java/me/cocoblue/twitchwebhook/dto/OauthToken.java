@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Repository
 public class OauthToken {
     private int id;
     private String accessToken;

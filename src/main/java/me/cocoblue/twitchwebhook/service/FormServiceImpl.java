@@ -13,17 +13,7 @@ public class FormServiceImpl implements FormService {
     private final FormDao formDao;
 
     @Override
-    public List<Form> getStartFormByBroadcasterIdAndType(int broadcasterId, int type) {
-        return formDao.getStartFormByBroadcasterIdAndType(broadcasterId, type);
-    }
-
-    @Override
-    public List<Form> getEndFormByBroadcasterIdAndType(int broadcasterId, int type) {
-        return formDao.getEndFormByBroadcasterIdAndType(broadcasterId, type);
-    }
-
-    @Override
-    public List<Integer> getAllBroadcasterId() {
-        return formDao.getAllBroadcasterId();
+    public List<Form> getFormByBroadcasterIdAndType(int broadcasterId, String type) {
+        return formDao.getFormByBroadcasterIdAndType(broadcasterId, type);
     }
 }

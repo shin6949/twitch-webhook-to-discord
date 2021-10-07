@@ -16,24 +16,11 @@ public class FormDao {
         this.formMapper = formMapper;
     }
 
-    public List<Form> getStartFormByBroadcasterIdAndType(int broadcasterId, int type) {
+    public List<Form> getFormByBroadcasterIdAndType(int broadcasterId, String type) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("broadcasterId", broadcasterId);
         param.put("type", type);
 
-        return formMapper.getStartFormByBroadcasterIdAndType(param);
-    }
-
-    public List<Form> getEndFormByBroadcasterIdAndType(int broadcasterId, int type) {
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("broadcasterId", broadcasterId);
-        param.put("type", type);
-
-        return formMapper.getEndFormByBroadcasterIdAndType(param);
-    }
-
-
-    public List<Integer> getAllBroadcasterId() {
-        return formMapper.getAllBroadcasterId();
+        return formMapper.getFormByBroadcasterIdAndType(param);
     }
 }

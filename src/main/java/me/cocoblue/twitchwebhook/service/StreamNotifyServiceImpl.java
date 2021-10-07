@@ -6,13 +6,11 @@ import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.GameIndex;
 import me.cocoblue.twitchwebhook.dto.NotifyLog;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
-import me.cocoblue.twitchwebhook.dto.discord.DiscordWebhookMessage;
-import me.cocoblue.twitchwebhook.dto.discord.embed.Author;
-import me.cocoblue.twitchwebhook.dto.discord.embed.Field;
-import me.cocoblue.twitchwebhook.dto.discord.embed.Footer;
+import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.vo.twitch.Channel;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
+import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,101 +32,85 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final UserInfoService userInfoService;
     private final NotifyLogService notifyLogService;
     private final GameIndexService gameIndexService;
+    private final ChannelInfoService channelInfoService;
 
-    // TODO: 메소드 간소화 필요.
-    private DiscordWebhookMessage makeStartDiscordWebhookMessage(Event event, Form form, Channel channel) {
-        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(event.getBroadcasterUserId());
-
-        final String authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
+    private DiscordEmbed.Webhook makeStreamDiscordWebhook(Event event, Form form, Channel channel, User user, boolean isStart) {
+        // Author Area
         final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
-        final String authorProfileURL = twitchUser.getProfileImageUrl();
-        final Author author = new Author(authorName, authorURL, authorProfileURL);
+        final String authorProfileURL = user.getProfileImageUrl();
+        String authorName;
 
-        String embedTitle = channel.getTitle();
-        String embedDescription = channel.getGameName();
-        if (channel.getGameName().equals("")) {
-            embedDescription = "지정된 게임 없음.";
+        // Embed Area
+        final String embedColor = Integer.toString(form.getColor());
+        String embedDescription;
+        String embedTitle;
+
+        // Embed Field Area
+        List<DiscordEmbed.Field> fields = new ArrayList<>();
+
+        // Embed Footer Area
+        DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
+
+        // 알림 유형에 따라 분기
+        if(isStart) {
+            authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
+
+            embedTitle = channel.getTitle();
+            embedDescription = channel.getGameName();
+            if (channel.getGameName().equals("")) {
+                embedDescription = "지정된 게임 없음.";
+            }
+
+            LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
+            String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            DiscordEmbed.Field field = new DiscordEmbed.Field("시작 시간", startTimeToString, true);
+            fields.add(field);
+
+        } else {
+            authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
+
+            embedTitle = "";
+            embedDescription = "다음에 만나요!";
+
+            String endTimeToString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            DiscordEmbed.Field field = new DiscordEmbed.Field("종료 시간", endTimeToString, true);
+            fields.add(field);
         }
-        String embedColor = Integer.toString(form.getColor());
 
-        List<Field> fields = new ArrayList<>();
-        LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
-        String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        Field field = new Field("시작 시간", startTimeToString, true);
-        fields.add(field);
-
-        Footer footer = new Footer("Twitch", null);
-
+        final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
                 fields, null, null, footer);
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordWebhookMessage(form.getUsername(), form.getAvatarUrl(), form.getContent(),
+        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(),
                 discordEmbeds);
     }
 
-    @Override
     @Async
-    public void sendStartMessage(Event event, Channel channel) {
-        int broadcasterId = Integer.parseInt(event.getBroadcasterUserId());
-        List<Form> notifyForms = formService.getStartFormByBroadcasterIdAndType(broadcasterId, 0);
+    public void sendMessage(Body body, Channel channel) {
+        int broadcasterId = Integer.parseInt(body.getEvent().getBroadcasterUserId());
+        List<Form> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+
+        User twitchUser = null;
+        if(!notifyForms.isEmpty()) {
+            twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
+        }
 
         for (Form notifyForm : notifyForms) {
-            DiscordWebhookMessage discordWebhookMessage = makeStartDiscordWebhookMessage(event, notifyForm, channel);
+            boolean isOnline = body.getSubscription().getType().equals("stream.online");
+            DiscordEmbed.Webhook discordWebhookMessage = makeStreamDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser, isOnline);
+
             sendDiscordWebHook(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
 
     }
 
-    @Override
-    public DiscordWebhookMessage makeEndDiscordWebhookMessage(String broadcasterId, Form form) {
-        User user = userInfoService.getUserInfoByBroadcasterIdFromTwitch(broadcasterId);
-
-        String authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
-        String authorURL = "https://twitch.tv/" + user.getLogin();
-        String authorProfileURL = user.getProfileImageUrl();
-        Author author = new Author(authorName, authorURL, authorProfileURL);
-
-        String embedTitle = "";
-        String embedDescription = "다음에 만나요!";
-        String embedColor = Integer.toString(form.getColor());
-
-        List<Field> fields = new ArrayList<>();
-
-        String endTimeToString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        Field field = new Field("종료 시간", endTimeToString, true);
-        fields.add(field);
-
-        Footer footer = new Footer("Twitch", null);
-
-        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
-                fields, null, null, footer);
-        discordEmbeds.add(discordEmbed);
-
-        return new DiscordWebhookMessage(form.getUsername(), form.getAvatarUrl(), "", discordEmbeds);
-    }
-
-    @Override
     @Async
-    public void sendEndMessage(String broadcasterId) {
-        int broadcasterIdInt = Integer.parseInt(broadcasterId);
-        List<Form> notifyForms = formService.getEndFormByBroadcasterIdAndType(broadcasterIdInt, 0);
-
-        for (Form notifyForm : notifyForms) {
-            DiscordWebhookMessage discordWebhookMessage = makeEndDiscordWebhookMessage(broadcasterId, notifyForm);
-            sendDiscordWebHook(discordWebhookMessage, notifyForm.getWebhookUrl());
-        }
-
-    }
-
-    @Override
-    @Async
-    public void sendDiscordWebHook(DiscordWebhookMessage discordWebhookMessage, String webhookUrl) {
+    void sendDiscordWebHook(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        HttpEntity<DiscordWebhookMessage> entity = new HttpEntity<>(discordWebhookMessage, headers);
+        HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(discordWebhookMessage, headers);
 
         RestTemplate rt = new RestTemplate();
         rt.exchange(webhookUrl, HttpMethod.POST, entity, String.class);

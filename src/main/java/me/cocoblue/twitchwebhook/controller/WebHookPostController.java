@@ -51,7 +51,7 @@ public class WebHookPostController {
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
-        streamNotifyService.sendStartMessage(streamNotification.getEvent(), channel);
+        streamNotifyService.sendMessage(streamNotification, channel);
 
         // Log Insert (Async)
         streamNotifyService.insertLog(streamNotification.getEvent(), channel);
@@ -79,8 +79,10 @@ public class WebHookPostController {
             return streamNotification.getChallenge();
         }
 
+        final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
+
         // Message Send (Async)
-        streamNotifyService.sendEndMessage(streamNotification.getEvent().getBroadcasterUserId());
+        streamNotifyService.sendMessage(streamNotification, channel);
 
         return "success";
     }

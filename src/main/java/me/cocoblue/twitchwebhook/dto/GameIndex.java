@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Repository
 public class GameIndex {
     private int id;
     private String name;
