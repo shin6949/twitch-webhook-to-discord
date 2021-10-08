@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
-import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 
 public interface RequestService {
-    HttpEntity<?> makeRequestHeader(String accessToken);
+    HttpHeaders makeRequestHeader(String accessToken);
 }

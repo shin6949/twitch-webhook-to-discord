@@ -24,7 +24,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
-        HttpEntity<?> entity = requestService.makeRequestHeader(accessToken);
+        HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<UserInfo> response;

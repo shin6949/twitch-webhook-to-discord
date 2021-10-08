@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
 public class ChannelInfoServiceImpl implements ChannelInfoService {
@@ -38,7 +36,7 @@ public class ChannelInfoServiceImpl implements ChannelInfoService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(channelGetUrl)
                 .queryParam("broadcaster_id", broadcasterId);
 
-        HttpEntity<?> entity = requestService.makeRequestHeader(accessToken);
+        HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<ChannelResponse> response;
