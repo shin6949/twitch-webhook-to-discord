@@ -13,11 +13,11 @@ class FormServiceTest {
 
     @Test
     public void getStartFormByBroadcasterIdAndTypeTest() {
-        log.info(formService.getStartFormByBroadcasterIdAndType(500843286, 0));
+        log.info(formService.getFormByBroadcasterIdAndType(500843286, "stream.online"));
     }
 
     @Test
     public void getEndFormByBroadcasterIdAndTypeTest() {
-        log.info(formService.getEndFormByBroadcasterIdAndType(500843286, 0));
+        log.info(formService.getFormByBroadcasterIdAndType(500843286, "stream.offline"));
     }
 }

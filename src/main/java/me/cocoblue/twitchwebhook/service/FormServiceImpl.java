@@ -16,4 +16,9 @@ public class FormServiceImpl implements FormService {
     public List<Form> getFormByBroadcasterIdAndType(int broadcasterId, String type) {
         return formDao.getFormByBroadcasterIdAndType(broadcasterId, type);
     }
+
+    @Override
+    public List<Form> getFormAll() {
+        return formDao.getFormAll();
+    }
 }

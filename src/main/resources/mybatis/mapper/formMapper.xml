@@ -7,4 +7,9 @@
         FROM stream_notify_form
         WHERE broadcaster_id = #{broadcasterId} AND type LIKE #{type}
     </select>
+
+    <select id="getFormAll" resultType="Form">
+        SELECT *
+        FROM stream_notify_form
+    </select>
 </mapper>

@@ -17,10 +17,14 @@ public class FormDao {
     }
 
     public List<Form> getFormByBroadcasterIdAndType(int broadcasterId, String type) {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         param.put("broadcasterId", broadcasterId);
         param.put("type", type);
 
         return formMapper.getFormByBroadcasterIdAndType(param);
+    }
+
+    public List<Form> getFormAll() {
+        return formMapper.getFormAll();
     }
 }

@@ -60,7 +60,7 @@ public class EventSubServiceImpl implements EventSubService {
 
     @Async
     @Override
-    public void addEventSubToTwitch(Form form, String accessToken) {
+    public void addEventSubToTwitch(Form form) {
         final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
         final String[] splitStr = form.getType().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
@@ -79,8 +79,10 @@ public class EventSubServiceImpl implements EventSubService {
         final HttpEntity<?> requestData = new HttpEntity<>(postRequestBody, requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response;
         try {
-            rt.postForEntity(requestUrl, requestData, String.class);
+            response = rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
+            log.info(response.getStatusCode());
         } catch (Exception e) {
             e.printStackTrace();
         }

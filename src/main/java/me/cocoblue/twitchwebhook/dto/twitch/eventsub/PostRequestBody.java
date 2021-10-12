@@ -17,7 +17,7 @@ public class PostRequestBody {
     private String version;
     @JsonProperty("condition")
     private Condition condition;
-    @JsonProperty("Transport")
+    @JsonProperty("transport")
     private Transport transport;
 
     public PostRequestBody(String type, Condition condition, Transport transport) {

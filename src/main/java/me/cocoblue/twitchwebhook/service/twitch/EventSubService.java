@@ -4,6 +4,6 @@ import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.SubscriptionList;
 
 public interface EventSubService {
-    void addEventSubToTwitch(Form form, String accessToken);
+    void addEventSubToTwitch(Form form);
     SubscriptionList getSubscriptionListFromTwitch();
 }

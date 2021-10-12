@@ -123,12 +123,13 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         GameIndex gameIndex = channel.toGameIndex();
         gameIndexService.insertGameIndex(gameIndex);
 
-        NotifyLog notifyLog = new NotifyLog();
-        notifyLog.setIdFromTwitch(event.getId());
-        notifyLog.setStreamerId(Integer.parseInt(event.getBroadcasterUserId()));
-        notifyLog.setTitle(channel.getTitle());
-        notifyLog.setStartedAt(event.getStartedAt().plusHours(9));
-        notifyLog.setGameId(gameIndex.getId());
+        NotifyLog notifyLog = NotifyLog.builder()
+                .idFromTwitch(event.getId())
+                .streamerId(Integer.parseInt(event.getBroadcasterUserId()))
+                .title(channel.getTitle())
+                .startedAt(event.getStartedAt().plusHours(9))
+                .gameId(gameIndex.getId())
+                .build();
 
         notifyLogService.insertLog(notifyLog);
     }
