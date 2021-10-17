@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @Getter
 @Repository
 @ToString
-public class OauthTokenVo {
+public class OauthTokenResponse {
     @JsonProperty("access_token")
     private String accessToken;
     @JsonProperty("expires_in")

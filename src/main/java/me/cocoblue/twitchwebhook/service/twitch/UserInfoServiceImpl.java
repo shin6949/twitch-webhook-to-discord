@@ -3,11 +3,9 @@ package me.cocoblue.twitchwebhook.service.twitch;
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.OauthToken;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
-import me.cocoblue.twitchwebhook.vo.UserInfo;
+import me.cocoblue.twitchwebhook.vo.twitch.UserResponse;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,14 +21,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final String userGetUrl = "https://api.twitch.tv/helix/users";
 
     @Override
-    public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
+    public UserResponse requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
         HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<UserInfo> response;
+        ResponseEntity<UserResponse> response;
 
         try {
-            response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, UserInfo.class);
+            response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, UserResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -45,13 +43,13 @@ public class UserInfoServiceImpl implements UserInfoService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("login", loginId);
 
-        UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if (userInfo == null) {
+        UserResponse userResponse = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
+        if (userResponse == null) {
             OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
-            userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
+            userResponse = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
-        return userInfo.getTwitchUsers().get(0);
+        return userResponse.getTwitchUsers().get(0);
     }
 
     @Override
@@ -61,12 +59,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("id", broadcasterId);
 
-        UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if (userInfo == null) {
+        UserResponse userResponse = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
+        if (userResponse == null) {
             OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
-            userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
+            userResponse = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
-        return userInfo.getTwitchUsers().get(0);
+        return userResponse.getTwitchUsers().get(0);
     }
 }

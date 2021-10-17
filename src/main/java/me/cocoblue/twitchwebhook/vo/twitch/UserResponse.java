@@ -1,11 +1,10 @@
-package me.cocoblue.twitchwebhook.vo;
+package me.cocoblue.twitchwebhook.vo.twitch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import me.cocoblue.twitchwebhook.vo.twitch.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 @Repository
 @Getter
 @ToString
-public class UserInfo {
+public class UserResponse {
     @JsonProperty("data")
     List<User> twitchUsers;
 }

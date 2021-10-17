@@ -3,7 +3,7 @@ package me.cocoblue.twitchwebhook.service;
 import me.cocoblue.twitchwebhook.dao.OauthTokenDao;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
 import me.cocoblue.twitchwebhook.dto.OauthToken;
-import me.cocoblue.twitchwebhook.vo.twitch.OauthTokenVo;
+import me.cocoblue.twitchwebhook.vo.twitch.OauthTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -51,16 +51,16 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         RestTemplate rt = new RestTemplate();
         String twitchOauthTokenUrl = "https://id.twitch.tv/oauth2/token";
 
-        ResponseEntity<OauthTokenVo> response = rt.exchange(
+        ResponseEntity<OauthTokenResponse> response = rt.exchange(
                 twitchOauthTokenUrl, //{요청할 서버 주소}
                 HttpMethod.POST, //{요청할 방식}
                 entity, // {요청할 때 보낼 데이터}
-                OauthTokenVo.class);
+                OauthTokenResponse.class);
 
-        OauthTokenVo receivedOauthTokenVo = response.getBody();
-        assert receivedOauthTokenVo != null;
-        OauthToken resultOauthToken = new OauthToken(0, receivedOauthTokenVo.getAccessToken(),
-                receivedOauthTokenVo.getRefreshToken(), receivedOauthTokenVo.getExpire(), LocalDateTime.now());
+        OauthTokenResponse receivedOauthTokenResponse = response.getBody();
+        assert receivedOauthTokenResponse != null;
+        OauthToken resultOauthToken = new OauthToken(0, receivedOauthTokenResponse.getAccessToken(),
+                receivedOauthTokenResponse.getRefreshToken(), receivedOauthTokenResponse.getExpire(), LocalDateTime.now());
 
         oauthTokenDao.insertOauthToken(resultOauthToken);
 

@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubscriptionList {
+public class SubscriptionResponse {
     @JsonProperty("total")
     private int total;
     @JsonProperty("data")
