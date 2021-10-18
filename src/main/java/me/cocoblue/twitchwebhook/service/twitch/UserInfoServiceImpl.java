@@ -1,14 +1,11 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
-import me.cocoblue.twitchwebhook.dto.OauthToken;
 import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.vo.UserInfo;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

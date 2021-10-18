@@ -16,13 +16,13 @@ public class StreamNotifyLog {
     private Long id;
     @Column(length = 150)
     private String idFromTwitch;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_LOG_BROADCASTER_ID"))
     private BroadcasterId broadcasterId;
     @Column(length = 300)
     private String title;
     private LocalDateTime startedAt;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="game_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_LOG_GAME_ID"))
     private GameIndexEntity gameIndexEntity;
     @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

@@ -2,7 +2,6 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Subscription;

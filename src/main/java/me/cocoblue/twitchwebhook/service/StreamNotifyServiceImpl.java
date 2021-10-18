@@ -2,9 +2,6 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.Form;
-import me.cocoblue.twitchwebhook.dto.GameIndex;
-import me.cocoblue.twitchwebhook.dto.NotifyLog;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.entity.BroadcasterId;
 import me.cocoblue.twitchwebhook.entity.GameIndexEntity;

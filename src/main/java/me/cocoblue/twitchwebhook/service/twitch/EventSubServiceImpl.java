@@ -2,7 +2,6 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.PostRequestBody;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
@@ -33,7 +32,7 @@ public class EventSubServiceImpl implements EventSubService {
     @Value("${webapp.base.url}")
     private String webappBaseUrl;
 
-    @Value("${twitch.hub.secret}")
+    @Value("${twitch.event.secret}")
     private String webhookSecret;
 
     @Override
