@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.GameIndex;
+import me.cocoblue.twitchwebhook.entity.GameIndexEntity;
 
 @Data
 @AllArgsConstructor
@@ -27,9 +28,10 @@ public class Channel {
     @JsonProperty("delay")
     private int delay;
 
-    public GameIndex toGameIndex() {
-        int gameId = Integer.parseInt(getGameId());
-
-        return new GameIndex(gameId, getGameName());
+    public GameIndexEntity toGameIndexEntity() {
+        return GameIndexEntity.builder()
+                .id(Long.parseLong(getGameId()))
+                .name(getGameName())
+                .build();
     }
 }

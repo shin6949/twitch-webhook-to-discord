@@ -6,6 +6,7 @@ import me.cocoblue.twitchwebhook.dto.Form;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.PostRequestBody;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.SubscriptionList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -60,22 +61,22 @@ public class EventSubServiceImpl implements EventSubService {
 
     @Async
     @Override
-    public void addEventSubToTwitch(Form form) {
+    public void addEventSubToTwitch(StreamNotifyForm streamNotifyForm) {
         final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
-        final String[] splitStr = form.getType().split("\\.");
+        final String[] splitStr = streamNotifyForm.getType().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
 
         for(int i = 0; i < splitStr.length; i++) {
             if(i == 0) {
-                callbackURL.append("/").append(splitStr[i]).append("/").append(form.getBroadcasterId());
+                callbackURL.append("/").append(splitStr[i]).append("/").append(streamNotifyForm.getBroadcasterId().getId());
             } else {
                 callbackURL.append("/").append(splitStr[i]);
             }
         }
 
-        final Condition condition = new Condition(form.getBroadcasterId());
+        final Condition condition = new Condition(Math.toIntExact(streamNotifyForm.getBroadcasterId().getId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
-        final PostRequestBody postRequestBody = new PostRequestBody(form.getType(), condition, transport);
+        final PostRequestBody postRequestBody = new PostRequestBody(streamNotifyForm.getType(), condition, transport);
         final HttpEntity<?> requestData = new HttpEntity<>(postRequestBody, requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();

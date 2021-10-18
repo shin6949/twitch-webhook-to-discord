@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.vo.UserInfo;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
@@ -41,13 +42,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
-        OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
+        OauthTokenEntity oauthTokenEntity = oauthTokenService.getRecentOauthToken();
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("login", loginId);
 
-        UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
+        UserInfo userInfo = requestUserInfoToTwitch(oauthTokenEntity.getAccessToken(), builder);
         if (userInfo == null) {
-            OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
+            OauthTokenEntity refreshToken = oauthTokenService.getOauthTokenFromTwitch();
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
@@ -56,14 +57,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
-        OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
+        OauthTokenEntity oauthTokenEntity = oauthTokenService.getRecentOauthToken();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("id", broadcasterId);
 
-        UserInfo userInfo = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
+        UserInfo userInfo = requestUserInfoToTwitch(oauthTokenEntity.getAccessToken(), builder);
         if (userInfo == null) {
-            OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
+            OauthTokenEntity refreshToken = oauthTokenService.getOauthTokenFromTwitch();
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
