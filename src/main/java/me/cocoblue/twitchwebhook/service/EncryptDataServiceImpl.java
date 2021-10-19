@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 @Service
 public class EncryptDataServiceImpl implements EncryptDataService {
     // hash 암호화 key
-    @Value("${twitch.hub.secret}")
+    @Value("${twitch.event.secret}")
     private String key;
 
     @Override

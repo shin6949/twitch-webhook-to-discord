@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
-import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.vo.twitch.Channel;
 import me.cocoblue.twitchwebhook.vo.twitch.ChannelResponse;
@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -20,12 +21,12 @@ public class ChannelInfoServiceImpl implements ChannelInfoService {
 
     @Override
     public Channel getChannelInformationByBroadcasterId(String broadcasterId) {
-        OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
-        Channel channel = requestChannelInformationFromTwitch(broadcasterId, oauthToken.getAccessToken());
+        OauthTokenEntity oauthTokenEntity = oauthTokenService.getRecentOauthToken();
+        Channel channel = requestChannelInformationFromTwitch(broadcasterId, oauthTokenEntity.getAccessToken());
 
         if (channel == null) {
-            oauthToken = oauthTokenService.getOauthTokenFromTwitch();
-            channel = requestChannelInformationFromTwitch(broadcasterId, oauthToken.getAccessToken());
+            oauthTokenEntity = oauthTokenService.getOauthTokenFromTwitch();
+            channel = requestChannelInformationFromTwitch(broadcasterId, oauthTokenEntity.getAccessToken());
         }
 
         return channel;
@@ -43,8 +44,7 @@ public class ChannelInfoServiceImpl implements ChannelInfoService {
 
         try {
             response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, ChannelResponse.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (HttpClientErrorException.Unauthorized e) {
             return null;
         }
 

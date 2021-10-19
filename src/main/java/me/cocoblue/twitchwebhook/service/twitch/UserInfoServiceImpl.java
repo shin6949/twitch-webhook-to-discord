@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
-import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.vo.twitch.UserResponse;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
@@ -39,14 +39,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
-        OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
+        OauthTokenEntity oauthTokenEntity = oauthTokenService.getRecentOauthToken();
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("login", loginId);
 
-        UserResponse userResponse = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if (userResponse == null) {
-            OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
-            userResponse = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
+        UserInfo userInfo = requestUserInfoToTwitch(oauthTokenEntity.getAccessToken(), builder);
+        if (userInfo == null) {
+            OauthTokenEntity refreshToken = oauthTokenService.getOauthTokenFromTwitch();
+            userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
         return userResponse.getTwitchUsers().get(0);
@@ -54,15 +54,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
-        OauthToken oauthToken = oauthTokenService.getRecentOauthToken();
+        OauthTokenEntity oauthTokenEntity = oauthTokenService.getRecentOauthToken();
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
                 .queryParam("id", broadcasterId);
 
-        UserResponse userResponse = requestUserInfoToTwitch(oauthToken.getAccessToken(), builder);
-        if (userResponse == null) {
-            OauthToken refreshToken = oauthTokenService.getOauthTokenFromTwitch();
-            userResponse = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
+        UserInfo userInfo = requestUserInfoToTwitch(oauthTokenEntity.getAccessToken(), builder);
+        if (userInfo == null) {
+            OauthTokenEntity refreshToken = oauthTokenService.getOauthTokenFromTwitch();
+            userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
         return userResponse.getTwitchUsers().get(0);

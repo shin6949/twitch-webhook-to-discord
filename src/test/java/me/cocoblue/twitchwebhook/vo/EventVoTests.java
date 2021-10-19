@@ -13,7 +13,7 @@ import java.util.Map;
 
 @SpringBootTest
 @Log4j2
-public class EventVoTests {
+class EventVoTests {
     @Test
     public void test() {
         final String time = "2021-10-06T04:32:47.613998673Z";

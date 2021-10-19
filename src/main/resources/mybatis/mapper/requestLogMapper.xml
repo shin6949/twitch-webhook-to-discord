@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="me.cocoblue.twitchwebhook.mapper.RequestLogMapper">
-    <insert id="insertStreamNotifyRequestLog">
-        INSERT INTO stream_notify_request_log(broadcaster_id, challenge, request_time)
-        VALUES (#{broadcasterId}, #{challenge}, now())
-    </insert>
-</mapper>

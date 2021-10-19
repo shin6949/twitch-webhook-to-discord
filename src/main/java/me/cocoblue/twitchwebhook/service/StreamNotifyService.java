@@ -1,7 +1,5 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.dto.Form;
-import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.vo.twitch.Channel;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
 import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;

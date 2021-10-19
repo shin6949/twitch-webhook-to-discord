@@ -1,11 +1,9 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.dto.OauthToken;
+import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 
 public interface OauthTokenService {
-    OauthToken getRecentOauthToken();
-
-    int insertOauthToken(OauthToken oauthToken);
-
-    OauthToken getOauthTokenFromTwitch();
+    OauthTokenEntity getRecentOauthToken();
+    void insertOauthToken(OauthTokenEntity oauthTokenEntity);
+    OauthTokenEntity getOauthTokenFromTwitch();
 }

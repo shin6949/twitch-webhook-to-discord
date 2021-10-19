@@ -1,9 +1,10 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.dao.OauthTokenDao;
+import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
-import me.cocoblue.twitchwebhook.dto.OauthToken;
-import me.cocoblue.twitchwebhook.vo.twitch.OauthTokenResponse;
+import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
+import me.cocoblue.twitchwebhook.repository.OauthTokenRepository;
+import me.cocoblue.twitchwebhook.vo.twitch.OauthTokenVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,12 +16,9 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class OauthTokenServiceImpl implements OauthTokenService {
-    private final OauthTokenDao oauthTokenDao;
-
-    public OauthTokenServiceImpl(OauthTokenDao oauthTokenDao) {
-        this.oauthTokenDao = oauthTokenDao;
-    }
+    private final OauthTokenRepository oauthTokenRepository;
 
     @Value("${twitch.client-id}")
     private String clientId;
@@ -29,19 +27,19 @@ public class OauthTokenServiceImpl implements OauthTokenService {
     private String clientSecret;
 
     @Override
-    public OauthToken getRecentOauthToken() {
-        return oauthTokenDao.getRecentOauthToken();
+    public OauthTokenEntity getRecentOauthToken() {
+        return oauthTokenRepository.findFirstByOrderByCreateDateDesc();
     }
 
     @Override
-    public int insertOauthToken(OauthToken oauthToken) {
-        return oauthTokenDao.insertOauthToken(oauthToken);
+    public void insertOauthToken(OauthTokenEntity oauthTokenEntity) {
+        oauthTokenRepository.save(oauthTokenEntity);
     }
 
     @Override
-    public OauthToken getOauthTokenFromTwitch() {
-        OauthToken oauthToken = getRecentOauthToken();
-        OauthRequestForm oauthRequestForm = new OauthRequestForm("", oauthToken.getRefreshToken(), 3600, "user_read",
+    public OauthTokenEntity getOauthTokenFromTwitch() {
+        OauthTokenEntity oauthTokenEntity = getRecentOauthToken();
+        OauthRequestForm oauthRequestForm = new OauthRequestForm("", oauthTokenEntity.getRefreshToken(), 3600, "user_read",
                 "bearer", clientId, clientSecret, "refresh_token");
 
         HttpHeaders headers = new HttpHeaders();
@@ -57,12 +55,15 @@ public class OauthTokenServiceImpl implements OauthTokenService {
                 entity, // {요청할 때 보낼 데이터}
                 OauthTokenResponse.class);
 
-        OauthTokenResponse receivedOauthTokenResponse = response.getBody();
-        assert receivedOauthTokenResponse != null;
-        OauthToken resultOauthToken = new OauthToken(0, receivedOauthTokenResponse.getAccessToken(),
-                receivedOauthTokenResponse.getRefreshToken(), receivedOauthTokenResponse.getExpire(), LocalDateTime.now());
-
-        oauthTokenDao.insertOauthToken(resultOauthToken);
+        OauthTokenVo receivedOauthTokenVo = response.getBody();
+        assert receivedOauthTokenVo != null;
+        OauthTokenEntity resultOauthToken = OauthTokenEntity.builder()
+                .accessToken(receivedOauthTokenVo.getAccessToken())
+                .refreshToken(receivedOauthTokenVo.getRefreshToken())
+                .expire(receivedOauthTokenVo.getExpire())
+                .createDate(LocalDateTime.now())
+                .build();
+        oauthTokenRepository.save(resultOauthToken);
 
         return resultOauthToken;
     }
