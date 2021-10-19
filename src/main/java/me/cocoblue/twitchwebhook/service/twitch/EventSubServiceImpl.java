@@ -36,7 +36,7 @@ public class EventSubServiceImpl implements EventSubService {
     private String webhookSecret;
 
     @Override
-    public SubscriptionList getSubscriptionListFromTwitch() {
+    public SubscriptionResponse getSubscriptionListFromTwitch() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         headers.add("Client-ID", clientId);
@@ -46,10 +46,10 @@ public class EventSubServiceImpl implements EventSubService {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(subscriptionGetUrl);
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<SubscriptionList> response;
+        ResponseEntity<SubscriptionResponse> response;
 
         try {
-            response = rt.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(headers), SubscriptionList.class);
+            response = rt.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(headers), SubscriptionResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

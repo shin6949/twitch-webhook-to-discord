@@ -49,11 +49,11 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         RestTemplate rt = new RestTemplate();
         String twitchOauthTokenUrl = "https://id.twitch.tv/oauth2/token";
 
-        ResponseEntity<OauthTokenVo> response = rt.exchange(
+        ResponseEntity<OauthTokenResponse> response = rt.exchange(
                 twitchOauthTokenUrl, //{요청할 서버 주소}
                 HttpMethod.POST, //{요청할 방식}
                 entity, // {요청할 때 보낼 데이터}
-                OauthTokenVo.class);
+                OauthTokenResponse.class);
 
         OauthTokenVo receivedOauthTokenVo = response.getBody();
         assert receivedOauthTokenVo != null;
@@ -63,7 +63,6 @@ public class OauthTokenServiceImpl implements OauthTokenService {
                 .expire(receivedOauthTokenVo.getExpire())
                 .createDate(LocalDateTime.now())
                 .build();
-
         oauthTokenRepository.save(resultOauthToken);
 
         return resultOauthToken;

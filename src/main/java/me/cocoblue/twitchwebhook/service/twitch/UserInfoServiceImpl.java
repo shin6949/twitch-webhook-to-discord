@@ -3,7 +3,7 @@ package me.cocoblue.twitchwebhook.service.twitch;
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
-import me.cocoblue.twitchwebhook.vo.UserInfo;
+import me.cocoblue.twitchwebhook.vo.twitch.UserResponse;
 import me.cocoblue.twitchwebhook.vo.twitch.User;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -21,14 +21,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final String userGetUrl = "https://api.twitch.tv/helix/users";
 
     @Override
-    public UserInfo requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
+    public UserResponse requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
         HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<UserInfo> response;
+        ResponseEntity<UserResponse> response;
 
         try {
-            response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, UserInfo.class);
+            response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, UserResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -49,7 +49,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
-        return userInfo.getTwitchUsers().get(0);
+        return userResponse.getTwitchUsers().get(0);
     }
 
     @Override
@@ -65,6 +65,6 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo = requestUserInfoToTwitch(refreshToken.getAccessToken(), builder);
         }
 
-        return userInfo.getTwitchUsers().get(0);
+        return userResponse.getTwitchUsers().get(0);
     }
 }
