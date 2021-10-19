@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
-import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Event;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Body;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

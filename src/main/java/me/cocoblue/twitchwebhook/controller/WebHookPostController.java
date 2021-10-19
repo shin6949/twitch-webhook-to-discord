@@ -9,8 +9,8 @@ import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
-import me.cocoblue.twitchwebhook.vo.twitch.Channel;
-import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Body;
+import me.cocoblue.twitchwebhook.dto.twitch.Channel;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Body;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
