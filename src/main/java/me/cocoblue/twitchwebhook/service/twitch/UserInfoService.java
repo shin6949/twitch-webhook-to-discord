@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
-import me.cocoblue.twitchwebhook.vo.twitch.UserResponse;
-import me.cocoblue.twitchwebhook.vo.twitch.User;
+import me.cocoblue.twitchwebhook.dto.twitch.UserResponse;
+import me.cocoblue.twitchwebhook.dto.twitch.User;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public interface UserInfoService {

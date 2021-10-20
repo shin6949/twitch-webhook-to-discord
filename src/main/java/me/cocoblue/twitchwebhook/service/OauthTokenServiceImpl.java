@@ -2,9 +2,9 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
+import me.cocoblue.twitchwebhook.dto.twitch.OauthTokenResponse;
 import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
 import me.cocoblue.twitchwebhook.repository.OauthTokenRepository;
-import me.cocoblue.twitchwebhook.vo.twitch.OauthTokenVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +55,7 @@ public class OauthTokenServiceImpl implements OauthTokenService {
                 entity, // {요청할 때 보낼 데이터}
                 OauthTokenResponse.class);
 
-        OauthTokenVo receivedOauthTokenVo = response.getBody();
+        OauthTokenResponse receivedOauthTokenVo = response.getBody();
         assert receivedOauthTokenVo != null;
         OauthTokenEntity resultOauthToken = OauthTokenEntity.builder()
                 .accessToken(receivedOauthTokenVo.getAccessToken())

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
-import me.cocoblue.twitchwebhook.vo.twitch.eventsub.Subscription;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

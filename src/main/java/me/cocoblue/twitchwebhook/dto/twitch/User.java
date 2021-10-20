@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo.twitch;
+package me.cocoblue.twitchwebhook.dto.twitch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

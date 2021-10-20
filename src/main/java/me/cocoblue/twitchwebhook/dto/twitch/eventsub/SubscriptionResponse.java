@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.vo.twitch.eventsub;
+package me.cocoblue.twitchwebhook.dto.twitch.eventsub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
