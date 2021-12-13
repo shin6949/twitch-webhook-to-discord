@@ -1,6 +1,8 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthRequestForm;
 import me.cocoblue.twitchwebhook.dto.twitch.OauthTokenResponse;
 import me.cocoblue.twitchwebhook.entity.OauthTokenEntity;
@@ -11,10 +13,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class OauthTokenServiceImpl implements OauthTokenService {
@@ -47,12 +52,12 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         HttpEntity<OauthRequestForm> entity = new HttpEntity<>(oauthRequestForm, headers);
 
         RestTemplate rt = new RestTemplate();
-        String twitchOauthTokenUrl = "https://id.twitch.tv/oauth2/token";
+        final String twitchOauthTokenUrl = "https://id.twitch.tv/oauth2/token";
 
         ResponseEntity<OauthTokenResponse> response = rt.exchange(
-                twitchOauthTokenUrl, //{요청할 서버 주소}
-                HttpMethod.POST, //{요청할 방식}
-                entity, // {요청할 때 보낼 데이터}
+                twitchOauthTokenUrl,
+                HttpMethod.POST,
+                entity,
                 OauthTokenResponse.class);
 
         OauthTokenResponse receivedOauthTokenVo = response.getBody();
@@ -63,8 +68,23 @@ public class OauthTokenServiceImpl implements OauthTokenService {
                 .expire(receivedOauthTokenVo.getExpire())
                 .createDate(LocalDateTime.now())
                 .build();
-        oauthTokenRepository.save(resultOauthToken);
+        insertOauthToken(resultOauthToken);
 
         return resultOauthToken;
+    }
+
+    public AppTokenResponse getAppTokenFromTwitch() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        final String tokenUrl = "https://id.twitch.tv/oauth2/token";
+
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+        parameters.add("client_id", clientId);
+        parameters.add("client_secret", clientSecret);
+        parameters.add("grant_type", "client_credentials");
+
+        ResponseEntity<AppTokenResponse> responseEntity = restTemplate.postForEntity(tokenUrl, parameters, AppTokenResponse.class);
+        log.info("AppTokenResponse: " + responseEntity.getBody());
+        return responseEntity.getBody();
     }
 }
