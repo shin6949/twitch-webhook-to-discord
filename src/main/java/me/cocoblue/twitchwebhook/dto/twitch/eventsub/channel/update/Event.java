@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.dto.twitch.eventsub;
+package me.cocoblue.twitchwebhook.dto.twitch.eventsub.channel.update;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -20,15 +20,14 @@ public class Event {
     private String broadcasterUserLogin;
     @JsonProperty("broadcaster_user_name")
     private String broadcasterUserName;
-    @JsonProperty("type")
-    private String type;
-    @JsonProperty("started_at")
-    private String startedAtString;
-    private LocalDateTime startedAt;
-
-    public void setStartedAtString(String startedAtString) {
-        this.startedAtString = startedAtString;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        this.startedAt = LocalDateTime.parse(startedAtString, formatter);
-    }
+    @JsonProperty("title")
+    private String title;
+    @JsonProperty("language")
+    private String language;
+    @JsonProperty("category_id")
+    private String categoryId;
+    @JsonProperty("category_name")
+    private String categoryName;
+    @JsonProperty("is_mature")
+    private boolean isMature;
 }
