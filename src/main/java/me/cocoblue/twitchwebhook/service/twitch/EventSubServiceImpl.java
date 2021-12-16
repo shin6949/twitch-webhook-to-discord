@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.PostRequestBody;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequestBody;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
@@ -84,8 +84,8 @@ public class EventSubServiceImpl implements EventSubService {
 
         final Condition condition = new Condition(Math.toIntExact(streamNotifyForm.getBroadcasterId().getId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
-        final PostRequestBody postRequestBody = new PostRequestBody(streamNotifyForm.getType(), condition, transport);
-        final HttpEntity<?> requestData = new HttpEntity<>(postRequestBody, requestService.makeRequestHeader(appToken));
+        final SubscribeRequestBody subscribeRequestBody = new SubscribeRequestBody(streamNotifyForm.getType(), condition, transport);
+        final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequestBody, requestService.makeRequestHeader(appToken));
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response;

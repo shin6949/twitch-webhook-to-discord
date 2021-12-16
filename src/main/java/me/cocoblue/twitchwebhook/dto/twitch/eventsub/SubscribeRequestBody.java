@@ -8,9 +8,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PostRequestBody {
+public class SubscribeRequestBody {
     @JsonProperty("type")
     private String type;
     @JsonProperty("version")
@@ -20,7 +18,7 @@ public class PostRequestBody {
     @JsonProperty("transport")
     private Transport transport;
 
-    public PostRequestBody(String type, Condition condition, Transport transport) {
+    public SubscribeRequestBody(String type, Condition condition, Transport transport) {
         this.type = type;
         this.version = "1";
         this.condition = condition;
