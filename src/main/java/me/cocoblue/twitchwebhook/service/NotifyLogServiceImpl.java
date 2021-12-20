@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyLog;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyLogEntity;
 import me.cocoblue.twitchwebhook.repository.StreamNotifyLogRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -13,8 +13,8 @@ public class NotifyLogServiceImpl implements NotifyLogService {
 
     @Override
     @Async
-    public void insertLog(StreamNotifyLog streamNotifyLog) {
-        streamNotifyLogRepository.save(streamNotifyLog);
+    public void insertLog(StreamNotifyLogEntity streamNotifyLogEntity) {
+        streamNotifyLogRepository.save(streamNotifyLogEntity);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class NotifyLogServiceImpl implements NotifyLogService {
         return getLogByIdFromTwitch(idFromTwitch) != null;
     }
 
-    private StreamNotifyLog getLogByIdFromTwitch(String idFromTwitch) {
+    private StreamNotifyLogEntity getLogByIdFromTwitch(String idFromTwitch) {
         return streamNotifyLogRepository.getStreamNotifyLogByIdFromTwitch(idFromTwitch);
     }
 }

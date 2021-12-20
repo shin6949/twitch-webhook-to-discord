@@ -2,7 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class ControllerProcessingServiceImpl implements ControllerProcessingServ
     }
 
     @Override
-    public boolean isChallenge(Body body) {
+    public boolean isChallenge(StreamNotifyRequest.Body body) {
         return body.getChallenge() != null &&
                 body.getSubscription().getStatus().equals("webhook_callback_verification_pending");
     }

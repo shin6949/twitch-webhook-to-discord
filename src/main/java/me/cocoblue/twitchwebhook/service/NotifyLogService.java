@@ -1,8 +1,8 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.entity.StreamNotifyLog;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyLogEntity;
 
 public interface NotifyLogService {
-    void insertLog(StreamNotifyLog streamNotifyNotifyLog);
+    void insertLog(StreamNotifyLogEntity streamNotifyNotifyLog);
     Boolean isAlreadySend(String idFromTwitch);
 }

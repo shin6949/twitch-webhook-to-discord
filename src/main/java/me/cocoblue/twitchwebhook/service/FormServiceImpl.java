@@ -1,8 +1,8 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
-import me.cocoblue.twitchwebhook.entity.BroadcasterId;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
+import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
 import me.cocoblue.twitchwebhook.repository.StreamNotifyFormRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +14,14 @@ public class FormServiceImpl implements FormService {
     private final StreamNotifyFormRepository streamNotifyFormRepository;
 
     @Override
-    public List<StreamNotifyForm> getFormByBroadcasterIdAndType(Long broadcasterId, String type) {
+    public List<StreamNotifyFormEntity> getFormByBroadcasterIdAndType(Long broadcasterId, String type) {
 
         return streamNotifyFormRepository.getStreamNotifyFormsByBroadcasterIdAndType(
-                        BroadcasterId.builder().id(broadcasterId).build(), type);
+                        BroadcasterIdEntity.builder().id(broadcasterId).build(), type);
     }
 
     @Override
-    public List<StreamNotifyForm> getFormAll() {
+    public List<StreamNotifyFormEntity> getFormAll() {
         return streamNotifyFormRepository.findAll();
     }
 }

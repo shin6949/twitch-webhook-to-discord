@@ -2,7 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,13 +29,13 @@ public class ScheduledService {
         log.info("Event Subscription Check Start");
 
         final List<Subscription> subscriptionListFromTwitch = eventSubService.getSubscriptionListFromTwitch().getSubscriptionList();
-        final List<StreamNotifyForm> formList = formService.getFormAll();
+        final List<StreamNotifyFormEntity> formList = formService.getFormAll();
         log.info("formList Number: " + formList.size());
 
-        List<StreamNotifyForm> requiredToEnrollEventList = new ArrayList<>();
-        for(StreamNotifyForm form : formList) {
+        List<StreamNotifyFormEntity> requiredToEnrollEventList = new ArrayList<>();
+        for(StreamNotifyFormEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
-                if(form.getBroadcasterId().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
+                if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
                 && form.getType().equals(subscriptionListFromTwitch.get(i).getType())
                 && subscriptionListFromTwitch.get(i).getTransport().getCallback().startsWith(webappBaseUrl)) {
                     break;
@@ -49,7 +49,7 @@ public class ScheduledService {
 
         log.info("Need To Enroll Form Number: " + requiredToEnrollEventList.size());
 
-        for(StreamNotifyForm form : requiredToEnrollEventList) {
+        for(StreamNotifyFormEntity form : requiredToEnrollEventList) {
             log.info("To Enroll Form: " + form);
             eventSubService.addEventSubToTwitch(form);
         }

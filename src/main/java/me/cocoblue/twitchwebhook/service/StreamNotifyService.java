@@ -1,10 +1,9 @@
 package me.cocoblue.twitchwebhook.service;
 
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Event;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 
 public interface StreamNotifyService {
-    void sendMessage(Body body, Channel channel);
-    void insertLog(Event event, Channel channel);
+    void sendMessage(StreamNotifyRequest.Body body, Channel channel);
+    void insertLog(StreamNotifyRequest.Event event, Channel channel);
 }

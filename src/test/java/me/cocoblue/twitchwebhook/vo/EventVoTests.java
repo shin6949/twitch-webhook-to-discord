@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Event;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,7 +17,7 @@ class EventVoTests {
     public void test() {
         final String time = "2021-10-06T04:32:47.613998673Z";
 
-        Event event = new Event();
+        StreamNotifyRequest.Event event = new StreamNotifyRequest.Event();
         event.setStartedAtString(time);
         log.info(event.getStartedAt());
     }
@@ -30,7 +29,7 @@ class EventVoTests {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Map<String, Object> map = mapper.readValue(testString, Map.class);
-        Body streamNotification = mapper.convertValue(map, Body.class);
+        StreamNotifyRequest.Body streamNotification = mapper.convertValue(map, StreamNotifyRequest.Body.class);
 
         log.info(streamNotification);
     }
