@@ -6,7 +6,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 
 @Data
-public class SubscribeRequestBody {
+public class SubscribeRequest {
     @JsonProperty("type")
     private String type;
     @JsonProperty("version")
@@ -16,7 +16,7 @@ public class SubscribeRequestBody {
     @JsonProperty("transport")
     private Transport transport;
 
-    public SubscribeRequestBody(String type, Condition condition, Transport transport) {
+    public SubscribeRequest(String type, Condition condition, Transport transport) {
         this.type = type;
         this.version = "1";
         this.condition = condition;

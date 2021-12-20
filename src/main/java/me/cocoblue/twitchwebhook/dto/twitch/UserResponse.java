@@ -16,5 +16,5 @@ import java.util.List;
 @ToString
 public class UserResponse {
     @JsonProperty("data")
-    List<User> twitchUsers;
+    private List<User> twitchUsers;
 }

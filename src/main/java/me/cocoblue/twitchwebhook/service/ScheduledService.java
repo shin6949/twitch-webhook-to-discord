@@ -2,7 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
+import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,11 +29,11 @@ public class ScheduledService {
         log.info("Event Subscription Check Start");
 
         final List<Subscription> subscriptionListFromTwitch = eventSubService.getSubscriptionListFromTwitch().getSubscriptionList();
-        final List<StreamNotifyFormEntity> formList = formService.getFormAll();
+        final List<SubscriptionFormEntity> formList = formService.getFormAll();
         log.info("formList Number: " + formList.size());
 
-        List<StreamNotifyFormEntity> requiredToEnrollEventList = new ArrayList<>();
-        for(StreamNotifyFormEntity form : formList) {
+        List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
+        for(SubscriptionFormEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
                 if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
                 && form.getType().equals(subscriptionListFromTwitch.get(i).getType())
@@ -49,7 +49,7 @@ public class ScheduledService {
 
         log.info("Need To Enroll Form Number: " + requiredToEnrollEventList.size());
 
-        for(StreamNotifyFormEntity form : requiredToEnrollEventList) {
+        for(SubscriptionFormEntity form : requiredToEnrollEventList) {
             log.info("To Enroll Form: " + form);
             eventSubService.addEventSubToTwitch(form);
         }
