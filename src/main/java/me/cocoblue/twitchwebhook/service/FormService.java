@@ -1,10 +1,10 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
 
 import java.util.List;
 
 public interface FormService {
-    List<StreamNotifyForm> getFormByBroadcasterIdAndType(Long broadcasterId, String type);
-    List<StreamNotifyForm> getFormAll();
+    List<StreamNotifyFormEntity> getFormByBroadcasterIdAndType(Long broadcasterId, String type);
+    List<StreamNotifyFormEntity> getFormAll();
 }

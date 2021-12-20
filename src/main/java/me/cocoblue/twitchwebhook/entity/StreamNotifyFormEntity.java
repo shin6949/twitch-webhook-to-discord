@@ -11,13 +11,13 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "stream_notify_form")
-public class StreamNotifyForm {
+public class StreamNotifyFormEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_FORM_BROADCASTER_ID"))
-    private BroadcasterId broadcasterId;
+    private BroadcasterIdEntity broadcasterIdEntity;
     @Column(length = 100)
     private String username;
     @Column(length = 600)

@@ -1,9 +1,9 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import org.springframework.http.HttpHeaders;
 
 public interface ControllerProcessingService {
     boolean dataNotValid(HttpHeaders headers, String notification);
-    boolean isChallenge(Body body);
+    boolean isChallenge(StreamNotifyRequest.Body body);
 }

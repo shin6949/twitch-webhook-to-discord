@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyService;
@@ -35,7 +35,7 @@ public class StreamNotifyController {
         }
 
         // RequestBody를 Vo에 Mapping
-        final Body streamNotification = toDto(notification);
+        final StreamNotifyRequest.Body streamNotification = toDto(notification);
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
@@ -70,7 +70,7 @@ public class StreamNotifyController {
         }
 
         // RequestBody를 Vo에 Mapping
-        final Body streamNotification = toDto(notification);
+        final StreamNotifyRequest.Body streamNotification = toDto(notification);
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
@@ -86,13 +86,13 @@ public class StreamNotifyController {
         return "success";
     }
 
-    private Body toDto(String original) {
+    private StreamNotifyRequest.Body toDto(String original) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             Map<String, Object> map = mapper.readValue(original, Map.class);
 
-            return mapper.convertValue(map, Body.class);
+            return mapper.convertValue(map, StreamNotifyRequest.Body.class);
 
         } catch (JsonProcessingException jsonProcessingException) {
             jsonProcessingException.printStackTrace();

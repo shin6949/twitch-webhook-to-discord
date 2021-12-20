@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "stream_notify_log")
 @Builder
-public class StreamNotifyLog {
+public class StreamNotifyLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,7 +18,7 @@ public class StreamNotifyLog {
     private String idFromTwitch;
     @ManyToOne()
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_LOG_BROADCASTER_ID"))
-    private BroadcasterId broadcasterId;
+    private BroadcasterIdEntity broadcasterIdEntity;
     @Column(length = 300)
     private String title;
     private LocalDateTime startedAt;

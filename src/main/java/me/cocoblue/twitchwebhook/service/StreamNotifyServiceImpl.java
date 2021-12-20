@@ -3,15 +3,14 @@ package me.cocoblue.twitchwebhook.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
-import me.cocoblue.twitchwebhook.entity.BroadcasterId;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
+import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.GameIndexEntity;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyForm;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyLog;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
+import me.cocoblue.twitchwebhook.entity.StreamNotifyLogEntity;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Body;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.stream.Event;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,7 +32,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final NotifyLogService notifyLogService;
     private final GameIndexService gameIndexService;
 
-    private DiscordEmbed.Webhook makeStreamDiscordWebhook(Event event, StreamNotifyForm form, Channel channel, User user, boolean isStart) {
+    private DiscordEmbed.Webhook makeStreamDiscordWebhook(StreamNotifyRequest.Event event, StreamNotifyFormEntity form, Channel channel, User user, boolean isStart) {
         // Author Area
         final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
@@ -87,16 +86,16 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Async
-    public void sendMessage(Body body, Channel channel) {
-        Long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
-        List<StreamNotifyForm> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+    public void sendMessage(StreamNotifyRequest.Body body, Channel channel) {
+        long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
+        List<StreamNotifyFormEntity> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
 
         User twitchUser = null;
         if(!notifyForms.isEmpty()) {
             twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
         }
 
-        for (StreamNotifyForm notifyForm : notifyForms) {
+        for (StreamNotifyFormEntity notifyForm : notifyForms) {
             boolean isOnline = body.getSubscription().getType().equals("stream.online");
             DiscordEmbed.Webhook discordWebhookMessage = makeStreamDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser, isOnline);
 
@@ -107,33 +106,32 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
     @Async
     void sendDiscordWebHook(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(discordWebhookMessage, headers);
+        final HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(discordWebhookMessage, headers);
 
-        RestTemplate rt = new RestTemplate();
+        final RestTemplate rt = new RestTemplate();
         rt.exchange(webhookUrl, HttpMethod.POST, entity, String.class);
-
     }
 
     @Override
     @Async
-    public void insertLog(Event event, Channel channel) {
-        GameIndexEntity gameIndexEntity = channel.toGameIndexEntity();
+    public void insertLog(StreamNotifyRequest.Event event, Channel channel) {
+        final GameIndexEntity gameIndexEntity = channel.toGameIndexEntity();
         gameIndexService.insertGameIndex(gameIndexEntity);
 
-        BroadcasterId broadcasterId = BroadcasterId.builder()
+        final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder()
                 .id(Long.parseLong(event.getBroadcasterUserId()))
                 .build();
 
-        StreamNotifyLog streamNotifyLog = StreamNotifyLog.builder()
+        final StreamNotifyLogEntity streamNotifyLogEntity = StreamNotifyLogEntity.builder()
                 .idFromTwitch(event.getId())
-                .broadcasterId(broadcasterId)
+                .broadcasterIdEntity(broadcasterIdEntity)
                 .title(channel.getTitle())
                 .startedAt(event.getStartedAt().plusHours(9))
                 .gameIndexEntity(gameIndexEntity)
                 .build();
 
-        notifyLogService.insertLog(streamNotifyLog);
+        notifyLogService.insertLog(streamNotifyLogEntity);
     }
 }
