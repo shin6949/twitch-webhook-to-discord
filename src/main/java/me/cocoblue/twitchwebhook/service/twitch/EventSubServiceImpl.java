@@ -1,11 +1,11 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequestBody;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequest;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
-import me.cocoblue.twitchwebhook.entity.StreamNotifyFormEntity;
+import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -69,23 +69,23 @@ public class EventSubServiceImpl implements EventSubService {
 
     @Async
     @Override
-    public void addEventSubToTwitch(StreamNotifyFormEntity streamNotifyFormEntity) {
+    public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity) {
         final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
-        final String[] splitStr = streamNotifyFormEntity.getType().split("\\.");
+        final String[] splitStr = subscriptionFormEntity.getType().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
 
         for(int i = 0; i < splitStr.length; i++) {
             if(i == 0) {
-                callbackURL.append("/").append(splitStr[i]).append("/").append(streamNotifyFormEntity.getBroadcasterIdEntity().getId());
+                callbackURL.append("/").append(splitStr[i]).append("/").append(subscriptionFormEntity.getBroadcasterIdEntity().getId());
             } else {
                 callbackURL.append("/").append(splitStr[i]);
             }
         }
 
-        final Condition condition = new Condition(Math.toIntExact(streamNotifyFormEntity.getBroadcasterIdEntity().getId()));
+        final Condition condition = new Condition(Math.toIntExact(subscriptionFormEntity.getBroadcasterIdEntity().getId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
-        final SubscribeRequestBody subscribeRequestBody = new SubscribeRequestBody(streamNotifyFormEntity.getType(), condition, transport);
-        final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequestBody, requestService.makeRequestHeader(appToken));
+        final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionFormEntity.getType(), condition, transport);
+        final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequest, requestService.makeRequestHeader(appToken));
 
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response;
@@ -94,7 +94,7 @@ public class EventSubServiceImpl implements EventSubService {
             log.info(response.getStatusCode());
         } catch (org.springframework.web.client.HttpClientErrorException e) {
             appToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-            addEventSubToTwitch(streamNotifyFormEntity);
+            addEventSubToTwitch(subscriptionFormEntity);
         } catch (Exception e) {
             e.printStackTrace();
         }

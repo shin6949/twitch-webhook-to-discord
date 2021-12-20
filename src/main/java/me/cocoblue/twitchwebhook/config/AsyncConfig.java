@@ -16,7 +16,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("cocoblue-twitch-async-");
+        executor.setThreadNamePrefix("twitch-async-");
         executor.initialize();
 
         return executor;

@@ -11,6 +11,7 @@ public class RequestServiceImpl implements RequestService{
     @Value("${twitch.client-id}")
     private String clientId;
 
+    @Override
     public HttpHeaders makeRequestHeader(String accessToken) {
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
