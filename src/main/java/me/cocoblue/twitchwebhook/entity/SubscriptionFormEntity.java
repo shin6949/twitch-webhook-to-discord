@@ -11,14 +11,13 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "subscription_form")
 public class SubscriptionFormEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_FORM_BROADCASTER_ID"))
+    @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_BROADCASTER_ID"))
     private BroadcasterIdEntity broadcasterIdEntity;
     @Column(length = 100)
     private String username;
@@ -27,8 +26,9 @@ public class SubscriptionFormEntity {
     @Column(length = 2000)
     private String content;
     private int color;
-    @Column(length = 30)
-    private String type;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="type", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_TYPE"))
+    private SubscriptionTypeEntity subscriptionTypeEntity;
     @Column(length = 500)
     private String webhookUrl;
 

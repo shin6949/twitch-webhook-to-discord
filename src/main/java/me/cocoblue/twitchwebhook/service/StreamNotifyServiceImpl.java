@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.entity.GameIndexEntity;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
@@ -30,18 +29,52 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
     private final UserInfoService userInfoService;
     private final NotifyLogService notifyLogService;
-    private final GameIndexService gameIndexService;
 
-    private DiscordEmbed.Webhook makeStreamDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, Channel channel, User user, boolean isStart) {
+    private final String twitchUrl = "https://twitch.tv/";
+
+    private DiscordEmbed.Webhook makeStreamOnlineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, Channel channel, User user) {
         // Author Area
-        final String authorURL = "https://twitch.tv/" + event.getBroadcasterUserLogin();
+        final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
-        String authorName;
+        final String authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
 
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
-        String embedDescription;
-        String embedTitle;
+        final String gameName = channel.getGameName();
+        final String embedDescription = gameName.equals("") ? gameName : "지정된 게임 없음.";
+        final String embedTitle = channel.getTitle();
+
+        // Embed Field Area
+        List<DiscordEmbed.Field> fields = new ArrayList<>();
+
+        // Embed Footer Area
+        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
+
+        final LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
+        final String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        final DiscordEmbed.Field field = new DiscordEmbed.Field("시작 시간", startTimeToString, true);
+        fields.add(field);
+
+        final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
+
+        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
+        final DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
+                fields, null, null, footer);
+        discordEmbeds.add(discordEmbed);
+
+        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+    }
+
+    private DiscordEmbed.Webhook makeStreamOfflineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, User user) {
+        // Author Area
+        final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
+        final String authorProfileURL = user.getProfileImageUrl();
+        final String authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
+
+        // Embed Area
+        final String embedColor = Integer.toString(form.getColor());
+        final String embedDescription = "다음에 만나요!";
+        final String embedTitle = "";
 
         // Embed Field Area
         List<DiscordEmbed.Field> fields = new ArrayList<>();
@@ -49,46 +82,24 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // Embed Footer Area
         DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
 
-        // 알림 유형에 따라 분기
-        if(isStart) {
-            authorName = event.getBroadcasterUserName() + "님이 방송을 시작했습니다.";
-
-            embedTitle = channel.getTitle();
-            embedDescription = channel.getGameName();
-            if (channel.getGameName().equals("")) {
-                embedDescription = "지정된 게임 없음.";
-            }
-
-            LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
-            String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            DiscordEmbed.Field field = new DiscordEmbed.Field("시작 시간", startTimeToString, true);
-            fields.add(field);
-
-        } else {
-            authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
-
-            embedTitle = "";
-            embedDescription = "다음에 만나요!";
-
-            String endTimeToString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            DiscordEmbed.Field field = new DiscordEmbed.Field("종료 시간", endTimeToString, true);
-            fields.add(field);
-        }
+        final String endTimeToString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        final DiscordEmbed.Field field = new DiscordEmbed.Field("종료 시간", endTimeToString, true);
+        fields.add(field);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
+
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
+        final DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
                 fields, null, null, footer);
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(),
-                discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
     }
 
     @Async
     public void sendMessage(StreamNotifyRequest.Body body, Channel channel) {
         long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
-        List<SubscriptionFormEntity> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+        final List<SubscriptionFormEntity> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
 
         User twitchUser = null;
         if(!notifyForms.isEmpty()) {
@@ -96,8 +107,12 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         }
 
         for (SubscriptionFormEntity notifyForm : notifyForms) {
-            boolean isOnline = body.getSubscription().getType().equals("stream.online");
-            DiscordEmbed.Webhook discordWebhookMessage = makeStreamDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser, isOnline);
+            DiscordEmbed.Webhook discordWebhookMessage;
+            if(body.getSubscription().getType().equals("stream.online")) {
+                discordWebhookMessage = makeStreamOnlineDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser);
+            } else {
+                discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
+            }
 
             sendDiscordWebHook(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
@@ -117,9 +132,6 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     @Override
     @Async
     public void insertLog(StreamNotifyRequest.Event event, Channel channel) {
-        final GameIndexEntity gameIndexEntity = channel.toGameIndexEntity();
-        gameIndexService.insertGameIndex(gameIndexEntity);
-
         final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder()
                 .id(Long.parseLong(event.getBroadcasterUserId()))
                 .build();
@@ -129,7 +141,6 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
                 .broadcasterIdEntity(broadcasterIdEntity)
                 .title(channel.getTitle())
                 .startedAt(event.getStartedAt().plusHours(9))
-                .gameIndexEntity(gameIndexEntity)
                 .build();
 
         notifyLogService.insertLog(notificationLogEntity);

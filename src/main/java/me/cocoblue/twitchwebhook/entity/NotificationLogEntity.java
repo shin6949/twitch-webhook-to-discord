@@ -12,7 +12,6 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "notification_log")
 @Builder
 public class NotificationLogEntity {
@@ -21,15 +20,15 @@ public class NotificationLogEntity {
     private Long id;
     @Column(length = 150)
     private String idFromTwitch;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="type", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_TYPE"))
+    private SubscriptionTypeEntity subscriptionTypeEntity;
     @ManyToOne()
-    @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_LOG_BROADCASTER_ID"))
+    @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_BROADCASTER_ID"))
     private BroadcasterIdEntity broadcasterIdEntity;
     @Column(length = 300)
     private String title;
     private LocalDateTime startedAt;
-    @ManyToOne()
-    @JoinColumn(name="game_id", foreignKey = @ForeignKey(name="FK_STREAM_NOTIFY_LOG_GAME_ID"))
-    private GameIndexEntity gameIndexEntity;
     @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime recordTimeToDb;
 

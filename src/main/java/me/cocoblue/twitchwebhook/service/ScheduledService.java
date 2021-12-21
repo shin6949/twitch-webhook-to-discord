@@ -36,7 +36,7 @@ public class ScheduledService {
         for(SubscriptionFormEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
                 if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
-                && form.getType().equals(subscriptionListFromTwitch.get(i).getType())
+                && form.getSubscriptionTypeEntity().getName().equals(subscriptionListFromTwitch.get(i).getType())
                 && subscriptionListFromTwitch.get(i).getTransport().getCallback().startsWith(webappBaseUrl)) {
                     break;
                 }
