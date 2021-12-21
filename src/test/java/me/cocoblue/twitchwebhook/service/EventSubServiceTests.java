@@ -13,7 +13,7 @@ public class EventSubServiceTests {
     private EventSubService eventSubService;
 
     @Test
-    public void  getSubscriptionListTest() {
+    public void getSubscriptionListTest() {
         log.info(eventSubService.getSubscriptionListFromTwitch().toString());
     }
 }
