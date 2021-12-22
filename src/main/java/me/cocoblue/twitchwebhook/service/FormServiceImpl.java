@@ -3,7 +3,6 @@ package me.cocoblue.twitchwebhook.service;
 import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.entity.SubscriptionTypeEntity;
 import me.cocoblue.twitchwebhook.repository.SubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.repository.SubscriptionTypeRepository;
 import org.springframework.stereotype.Service;
