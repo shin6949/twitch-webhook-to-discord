@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
-import me.cocoblue.twitchwebhook.dto.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.repository.SubscriptionFormRepository;

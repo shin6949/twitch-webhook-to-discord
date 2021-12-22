@@ -1,7 +1,7 @@
 package me.cocoblue.twitchwebhook.entity;
 
 import lombok.*;
-import me.cocoblue.twitchwebhook.dto.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
