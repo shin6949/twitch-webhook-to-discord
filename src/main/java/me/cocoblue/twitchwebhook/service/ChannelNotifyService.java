@@ -5,5 +5,4 @@ import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 
 public interface ChannelNotifyService {
     void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, Channel channel);
-    void insertChannelUpdateLog(ChannelUpdateRequest.Event event, Channel channel);
 }

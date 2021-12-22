@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScheduledService {
     private final EventSubService eventSubService;
-    private final FormService formService;
+    private final NotificationFormService notificationFormService;
 
     @Value("${webapp.base.url}")
     private String webappBaseUrl;
@@ -29,14 +29,14 @@ public class ScheduledService {
         log.info("Event Subscription Check Start");
 
         final List<Subscription> subscriptionListFromTwitch = eventSubService.getSubscriptionListFromTwitch().getSubscriptionList();
-        final List<SubscriptionFormEntity> formList = formService.getFormAll();
+        final List<SubscriptionFormEntity> formList = notificationFormService.getFormAll();
         log.info("formList Number: " + formList.size());
 
         List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
         for(SubscriptionFormEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
                 if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
-                && form.getSubscriptionTypeEntity().getName().equals(subscriptionListFromTwitch.get(i).getType())
+                && form.getSubscriptionType().getTwitchName().equals(subscriptionListFromTwitch.get(i).getType())
                 && subscriptionListFromTwitch.get(i).getTransport().getCallback().startsWith(webappBaseUrl)) {
                     break;
                 }

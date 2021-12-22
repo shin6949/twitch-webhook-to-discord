@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
 import java.time.LocalDateTime;
@@ -20,10 +21,13 @@ public class CommonEvent {
 
     public NotificationLogEntity toNotificationLogEntity() {
         final SubscriptionType subscriptionType = SubscriptionType.find(getSubscriptionType());
+        final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder().id(broadcasterId).build();
 
         return NotificationLogEntity.builder()
                 .idFromTwitch(notificationIdFromTwitch)
                 .subscriptionType(subscriptionType)
+                .broadcasterIdEntity(broadcasterIdEntity)
+                .generatedAt(generatedAt)
                 .build();
     }
 }

@@ -1,26 +1,26 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.AllArgsConstructor;
+import me.cocoblue.twitchwebhook.dto.SubscriptionType;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.repository.SubscriptionFormRepository;
-import me.cocoblue.twitchwebhook.repository.SubscriptionTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class FormServiceImpl implements FormService {
+public class NotificationFormServiceImpl implements NotificationFormService {
     private final SubscriptionFormRepository subscriptionFormRepository;
-    private final SubscriptionTypeRepository subscriptionTypeRepository;
 
     @Override
     public List<SubscriptionFormEntity> getFormByBroadcasterIdAndType(Long broadcasterId, String type) {
+        final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder().id(broadcasterId).build();
+        final SubscriptionType subscriptionType = SubscriptionType.find(type);
 
-        final SubscriptionTypeEntity subscriptionTypeEntity = subscriptionTypeRepository.getSubscriptionTypeEntityByNameEquals(type);
-        return subscriptionFormRepository.getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionTypeEntity(
-                        BroadcasterIdEntity.builder().id(broadcasterId).build(), subscriptionTypeEntity);
+        return subscriptionFormRepository.getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(
+                broadcasterIdEntity, subscriptionType);
     }
 
     @Override

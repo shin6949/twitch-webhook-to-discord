@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
@@ -22,9 +20,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StreamNotifyServiceImpl implements StreamNotifyService {
-    private final FormService formService;
+    private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
-    private final NotifyLogService notifyLogService;
     private final DiscordWebhookService discordWebhookService;
 
     private final String twitchUrl = "https://twitch.tv/";
@@ -94,12 +91,15 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     @Async
+    @Override
     public void sendMessage(StreamNotifyRequest.Body body, Channel channel) {
         long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
-        final List<SubscriptionFormEntity> notifyForms = formService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+        final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
 
         User twitchUser = null;
-        if(!notifyForms.isEmpty()) {
+        if(notifyForms.isEmpty()) {
+            return;
+        } else {
             twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
         }
 
@@ -113,21 +113,5 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
             discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
-    }
-
-    @Override
-    @Async
-    public void insertLog(StreamNotifyRequest.Event event, Channel channel) {
-        final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder()
-                .id(Long.parseLong(event.getBroadcasterUserId()))
-                .build();
-
-        final NotificationLogEntity notificationLogEntity = NotificationLogEntity.builder()
-                .idFromTwitch(event.getId())
-                .broadcasterIdEntity(broadcasterIdEntity)
-                .generatedAt(event.getStartedAt().plusHours(9))
-                .build();
-
-        notifyLogService.insertLog(notificationLogEntity);
     }
 }
