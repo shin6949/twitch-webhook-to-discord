@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -39,4 +40,12 @@ public class User {
     private String email;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+
+    public BroadcasterIdEntity toBroadcasterIdEntity() {
+        return BroadcasterIdEntity.builder()
+                .id(Long.parseLong(String.valueOf(id)))
+                .loginId(login)
+                .displayName(displayName)
+                .build();
+    }
 }

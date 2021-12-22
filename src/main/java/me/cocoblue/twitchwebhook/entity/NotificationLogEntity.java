@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.entity;
 
 import lombok.*;
+import me.cocoblue.twitchwebhook.dto.SubscriptionType;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -20,15 +21,13 @@ public class NotificationLogEntity {
     private Long id;
     @Column(length = 150)
     private String idFromTwitch;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="type", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_TYPE"))
-    private SubscriptionTypeEntity subscriptionTypeEntity;
+    @Enumerated(EnumType.STRING)
+    @Column(name="type")
+    private SubscriptionType subscriptionType;
     @ManyToOne()
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_BROADCASTER_ID"))
     private BroadcasterIdEntity broadcasterIdEntity;
-    @Column(length = 300)
-    private String title;
-    private LocalDateTime startedAt;
+    private LocalDateTime generatedAt;
     @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime recordTimeToDb;
 
@@ -43,5 +42,9 @@ public class NotificationLogEntity {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void test() {
+
     }
 }

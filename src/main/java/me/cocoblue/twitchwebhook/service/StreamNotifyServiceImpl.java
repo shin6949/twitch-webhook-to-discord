@@ -10,12 +10,8 @@ import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +25,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final FormService formService;
     private final UserInfoService userInfoService;
     private final NotifyLogService notifyLogService;
+    private final DiscordWebhookService discordWebhookService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -114,19 +111,8 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
                 discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
             }
 
-            sendDiscordWebHook(discordWebhookMessage, notifyForm.getWebhookUrl());
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
-
-    }
-
-    @Async
-    void sendDiscordWebHook(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        final HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(discordWebhookMessage, headers);
-
-        final RestTemplate rt = new RestTemplate();
-        rt.exchange(webhookUrl, HttpMethod.POST, entity, String.class);
     }
 
     @Override
@@ -139,8 +125,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         final NotificationLogEntity notificationLogEntity = NotificationLogEntity.builder()
                 .idFromTwitch(event.getId())
                 .broadcasterIdEntity(broadcasterIdEntity)
-                .title(channel.getTitle())
-                .startedAt(event.getStartedAt().plusHours(9))
+                .generatedAt(event.getStartedAt().plusHours(9))
                 .build();
 
         notifyLogService.insertLog(notificationLogEntity);

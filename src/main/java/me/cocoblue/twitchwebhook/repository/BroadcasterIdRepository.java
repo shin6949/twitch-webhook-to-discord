@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BroadcasterIdRepository extends JpaRepository<BroadcasterIdEntity, Long> {
-
+    BroadcasterIdEntity getBroadcasterIdEntityByIdEquals(long id);
+    void updateBroadcasterIdEntity(BroadcasterIdEntity broadcasterIdEntity);
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,8 +43,21 @@ public class StreamNotifyRequest {
 
         public void setStartedAtString(String startedAtString) {
             this.startedAtString = startedAtString;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
             this.startedAt = LocalDateTime.parse(startedAtString, formatter);
         }
+
+        public NotificationLogEntity toNotificationLogEntity() {
+            final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder()
+                    .id(Long.parseLong(getBroadcasterUserId()))
+                    .build();
+
+            return NotificationLogEntity.builder()
+                    .idFromTwitch(getId())
+                    .broadcasterIdEntity(broadcasterIdEntity)
+                    .generatedAt(getStartedAt().plusHours(9))
+                    .build();
+        }
+
     }
 }
