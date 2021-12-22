@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
