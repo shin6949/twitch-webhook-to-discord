@@ -53,7 +53,7 @@ public class StreamNotifyController {
         streamNotifyService.sendMessage(streamNotification, channel);
 
         // Log Insert (Async)
-        streamNotifyService.insertLog(streamNotification.getEvent(), channel);
+        notifyLogService.insertLog(streamNotification.getEvent().toCommonEvent());
 
         return "success";
     }
@@ -61,6 +61,7 @@ public class StreamNotifyController {
     @PostMapping(path = "/stream/{broadcasterId}/offline")
     public String receiveStreamOfflineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
+        log.info("stream.offline Event Received");
         log.info("Offline Header: " + headers.toString());
         log.info("Offline Body: " + notification);
 
@@ -82,6 +83,9 @@ public class StreamNotifyController {
 
         // Message Send (Async)
         streamNotifyService.sendMessage(streamNotification, channel);
+
+        // Log Insert (Async)
+        notifyLogService.insertLog(streamNotification.getEvent().toCommonEvent());
 
         return "success";
     }

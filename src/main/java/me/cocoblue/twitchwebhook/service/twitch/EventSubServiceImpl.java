@@ -71,7 +71,7 @@ public class EventSubServiceImpl implements EventSubService {
     @Override
     public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity) {
         final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
-        final String[] splitStr = subscriptionFormEntity.getSubscriptionTypeEntity().getTypeName().getTwitchName().split("\\.");
+        final String[] splitStr = subscriptionFormEntity.getSubscriptionType().getTwitchName().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
 
         for(int i = 0; i < splitStr.length; i++) {
@@ -84,7 +84,7 @@ public class EventSubServiceImpl implements EventSubService {
 
         final Condition condition = new Condition(String.valueOf(subscriptionFormEntity.getBroadcasterIdEntity().getId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
-        final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionFormEntity.getSubscriptionTypeEntity().getTypeName().getTwitchName(), condition, transport);
+        final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionFormEntity.getSubscriptionType().getTwitchName(), condition, transport);
         final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequest, requestService.makeRequestHeader(appToken));
 
         RestTemplate rt = new RestTemplate();

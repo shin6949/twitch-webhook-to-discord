@@ -7,17 +7,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Log4j2
-class FormServiceTest {
+class NotificationFormServiceTest {
     @Autowired
-    private FormService formService;
+    private NotificationFormService notificationFormService;
 
     @Test
     public void getStartFormByBroadcasterIdAndTypeTest() {
-        log.info(formService.getFormByBroadcasterIdAndType(500843286L, "stream.online"));
+        log.info(notificationFormService.getFormByBroadcasterIdAndType(500843286L, "stream.online"));
     }
 
     @Test
     public void getEndFormByBroadcasterIdAndTypeTest() {
-        log.info(formService.getFormByBroadcasterIdAndType(500843286L, "stream.offline"));
+        log.info(notificationFormService.getFormByBroadcasterIdAndType(500843286L, "stream.offline"));
     }
 }

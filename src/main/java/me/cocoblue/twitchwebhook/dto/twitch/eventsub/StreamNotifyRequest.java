@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.dto.CommonEvent;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
@@ -43,19 +44,18 @@ public class StreamNotifyRequest {
 
         public void setStartedAtString(String startedAtString) {
             this.startedAtString = startedAtString;
+            // String Value를 LocalDateTime에도 반영
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
             this.startedAt = LocalDateTime.parse(startedAtString, formatter);
         }
 
-        public NotificationLogEntity toNotificationLogEntity() {
-            final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder()
-                    .id(Long.parseLong(getBroadcasterUserId()))
-                    .build();
-
-            return NotificationLogEntity.builder()
-                    .idFromTwitch(getId())
-                    .broadcasterIdEntity(broadcasterIdEntity)
-                    .generatedAt(getStartedAt().plusHours(9))
+        public CommonEvent toCommonEvent() {
+            return CommonEvent.builder()
+                    .notificationIdFromTwitch(id)
+                    .subscriptionType(type)
+                    .broadcasterId(Long.parseLong(broadcasterUserId))
+                    // KST 반영
+                    .generatedAt(startedAt.plusHours(9))
                     .build();
         }
 

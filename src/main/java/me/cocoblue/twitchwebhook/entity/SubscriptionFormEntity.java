@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.entity;
 
 import lombok.*;
+import me.cocoblue.twitchwebhook.dto.SubscriptionType;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -26,9 +27,9 @@ public class SubscriptionFormEntity {
     @Column(length = 2000)
     private String content;
     private int color;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="type", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_TYPE"))
-    private SubscriptionTypeEntity subscriptionTypeEntity;
+    @Enumerated(EnumType.STRING)
+    @Column(name="type")
+    private SubscriptionType subscriptionType;
     @Column(length = 500)
     private String webhookUrl;
 
