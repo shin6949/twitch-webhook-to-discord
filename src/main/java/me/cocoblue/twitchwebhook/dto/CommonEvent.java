@@ -8,8 +8,6 @@ import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,7 +16,6 @@ public class CommonEvent {
     private String notificationIdFromTwitch;
     private String subscriptionType;
     private long broadcasterId;
-    private LocalDateTime generatedAt;
 
     public NotificationLogEntity toNotificationLogEntity() {
         final SubscriptionType subscriptionType = SubscriptionType.find(getSubscriptionType());
@@ -28,7 +25,6 @@ public class CommonEvent {
                 .idFromTwitch(notificationIdFromTwitch)
                 .subscriptionType(subscriptionType)
                 .broadcasterIdEntity(broadcasterIdEntity)
-                .generatedAt(generatedAt)
                 .build();
     }
 }
