@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.dto.CommonEvent;
 
 public class ChannelUpdateRequest {
     @Data
@@ -16,6 +17,16 @@ public class ChannelUpdateRequest {
         private Subscription subscription;
         @JsonProperty("event")
         private Event event;
+
+        public CommonEvent toCommonEvent() {
+            final ChannelUpdateRequest.Event event = getEvent();
+
+            return CommonEvent.builder()
+                    .notificationIdFromTwitch(event.getId())
+                    .subscriptionType(subscription.getType())
+                    .broadcasterId(Long.parseLong(event.getBroadcasterUserId()))
+                    .build();
+        }
     }
 
     @Data

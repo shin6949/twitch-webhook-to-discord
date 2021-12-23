@@ -27,9 +27,8 @@ public class NotificationLogEntity {
     @ManyToOne()
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_BROADCASTER_ID"))
     private BroadcasterIdEntity broadcasterIdEntity;
-    private LocalDateTime generatedAt;
     @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime recordTimeToDb;
+    private LocalDateTime receivedTime;
 
     @Override
     public boolean equals(Object o) {

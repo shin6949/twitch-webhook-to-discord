@@ -53,7 +53,7 @@ public class StreamNotifyController {
         streamNotifyService.sendMessage(streamNotification, channel);
 
         // Log Insert (Async)
-        notifyLogService.insertLog(streamNotification.getEvent().toCommonEvent());
+        notifyLogService.insertLog(streamNotification.toCommonEvent());
 
         return "success";
     }
@@ -85,7 +85,7 @@ public class StreamNotifyController {
         streamNotifyService.sendMessage(streamNotification, channel);
 
         // Log Insert (Async)
-        notifyLogService.insertLog(streamNotification.getEvent().toCommonEvent());
+        notifyLogService.insertLog(streamNotification.toCommonEvent());
 
         return "success";
     }

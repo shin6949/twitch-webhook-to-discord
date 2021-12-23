@@ -73,7 +73,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         final BroadcasterIdEntity userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
 
         if(!user.toBroadcasterIdEntity().equals(userFromDb)) {
-            broadcasterIdRepository.updateBroadcasterIdEntity(user.toBroadcasterIdEntity());
+            broadcasterIdRepository.save(user.toBroadcasterIdEntity());
         }
     }
 

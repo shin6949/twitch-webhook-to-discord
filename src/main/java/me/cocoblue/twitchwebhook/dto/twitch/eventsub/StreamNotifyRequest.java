@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.CommonEvent;
-import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +20,16 @@ public class StreamNotifyRequest {
         private Subscription subscription;
         @JsonProperty("event")
         private Event event;
+
+        public CommonEvent toCommonEvent() {
+            final StreamNotifyRequest.Event event = getEvent();
+
+            return CommonEvent.builder()
+                    .notificationIdFromTwitch(event.getId())
+                    .subscriptionType(subscription.getType())
+                    .broadcasterId(Long.parseLong(event.getBroadcasterUserId()))
+                    .build();
+        }
     }
 
     @Data
@@ -48,16 +56,5 @@ public class StreamNotifyRequest {
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
             this.startedAt = LocalDateTime.parse(startedAtString, formatter);
         }
-
-        public CommonEvent toCommonEvent() {
-            return CommonEvent.builder()
-                    .notificationIdFromTwitch(id)
-                    .subscriptionType(type)
-                    .broadcasterId(Long.parseLong(broadcasterUserId))
-                    // KST 반영
-                    .generatedAt(startedAt.plusHours(9))
-                    .build();
-        }
-
     }
 }
