@@ -46,5 +46,6 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         parameters.add("token", appAccessToken);
 
         restTemplate.postForEntity(revokeUrl, parameters, String.class);
+        log.info("Revoke OAuth Token Successfully");
     }
 }
