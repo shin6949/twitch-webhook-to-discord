@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.CommonEvent;
 import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.repository.NotificationLogRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,10 @@ public class NotifyLogServiceImpl implements NotifyLogService {
 
     @Async
     @Override
-    public void insertLog(CommonEvent event) {
+    public void insertLog(CommonEvent event, HttpHeaders headers) {
+        final String messageId = headers.get("twitch-eventsub-message-id").get(0);
+        event.setNotificationIdFromTwitch(messageId);
+
         notificationLogRepository.save(event.toNotificationLogEntity());
     }
 

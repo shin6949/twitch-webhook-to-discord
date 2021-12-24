@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
@@ -35,7 +36,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
         final String gameName = channel.getGameName();
-        final String embedDescription = gameName.equals("") ? gameName : "지정된 게임 없음.";
+        final String embedDescription = gameName.equals("") ? "지정된 게임 없음." : gameName;
         final String embedTitle = channel.getTitle();
 
         // Embed Field Area
@@ -46,8 +47,12 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
         final LocalDateTime koreanStartTime = event.getStartedAt().plusHours(9);
         final String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        final DiscordEmbed.Field field = new DiscordEmbed.Field("시작 시간", startTimeToString, true);
-        fields.add(field);
+        final DiscordEmbed.Field startTimeField = new DiscordEmbed.Field("시작 시간", startTimeToString, true);
+        fields.add(startTimeField);
+
+        final String languageIsoData = LanguageIsoData.find(channel.getBroadcasterLanguage()).getKoreanName();
+        final DiscordEmbed.Field languageField = new DiscordEmbed.Field("언어", languageIsoData, true);
+        fields.add(languageField);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 

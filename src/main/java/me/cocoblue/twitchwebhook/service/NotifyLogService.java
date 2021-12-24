@@ -1,9 +1,9 @@
 package me.cocoblue.twitchwebhook.service;
 
 import me.cocoblue.twitchwebhook.dto.CommonEvent;
-import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
+import org.springframework.http.HttpHeaders;
 
 public interface NotifyLogService {
-    void insertLog(CommonEvent commonEvent);
+    void insertLog(CommonEvent event, HttpHeaders headers);
     Boolean isAlreadySend(String idFromTwitch);
 }
