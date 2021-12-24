@@ -1,0 +1,17 @@
+@font-face {
+    font-family: Splat2K;
+    src: local(Splat2K),
+    local(스플래2K),
+    url(/fonts/splat2k.eot#iefix) format('embedded-opentype'),
+    url(/fonts/splat2k.woff) format('woff'),
+    url(/fonts/splat2k.ttf) format('truetype');
+  }
+
+h1 {
+    text-align : left;
+    color: #FFFFFF;
+    font-size: 32pt;
+    opacity: 0.6;
+    font-family: "Splat2K", "스플래2K", serif;
+    text-shadow: -5px 0 #FF8200, 0 5px #FF8200, 5px 0  #FF8200, 0 -5px #FF8200;
+}
