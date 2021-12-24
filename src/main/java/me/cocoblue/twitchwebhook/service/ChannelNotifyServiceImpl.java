@@ -26,6 +26,7 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
     private final String twitchUrl = "https://twitch.tv/";
 
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {
+        log.info("ChannelUpdateRequest.Body: " + body.toString());
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
@@ -36,7 +37,7 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
         final String gameName = event.getCategoryName();
-        final String embedDescription = gameName.equals("") ? gameName : "지정된 게임 없음.";
+        final String embedDescription = gameName.equals("") ? "지정된 게임 없음." : gameName;
         final String embedTitle = event.getTitle();
 
         // Embed Field Area
@@ -45,9 +46,9 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
         // Embed Footer Area
         final DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
 
-        final LocalDateTime koreanStartTime = body.getSubscription().getCreatedAt().plusHours(9);
-        final String startTimeToString = koreanStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        final DiscordEmbed.Field changeTimeField = new DiscordEmbed.Field("변경 시간", startTimeToString, true);
+        final LocalDateTime generatedTime = LocalDateTime.now();
+        final String generatedTimeString = generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        final DiscordEmbed.Field changeTimeField = new DiscordEmbed.Field("변경 시간", generatedTimeString, true);
         fields.add(changeTimeField);
 
         final String languageIsoData = LanguageIsoData.find(event.getLanguage()).getKoreanName();

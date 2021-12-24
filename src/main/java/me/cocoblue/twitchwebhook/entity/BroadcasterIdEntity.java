@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.entity;
 
+import com.sun.istack.NotNull;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -15,10 +16,13 @@ import java.util.Objects;
 @Builder
 public class BroadcasterIdEntity {
     @Id
+    @NotNull
     private Long id;
     @Column(length = 300)
+    @NotNull
     private String loginId;
     @Column(length = 300)
+    @NotNull
     private String displayName;
 
     @Override

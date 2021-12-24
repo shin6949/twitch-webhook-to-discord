@@ -21,7 +21,7 @@ public class ControllerProcessingServiceImpl implements ControllerProcessingServ
         final String data = headers.get("Twitch-Eventsub-Message-Id").get(0) +
                 headers.get("Twitch-Eventsub-Message-Timestamp").get(0) + notification;
 
-        String encryptValue = "sha256=" + encryptDataService.encryptString(data);
+        final String encryptValue = "sha256=" + encryptDataService.encryptString(data);
         log.info("Received Signature: " + signature);
         log.info("Encrypt Value: " + encryptValue);
 
