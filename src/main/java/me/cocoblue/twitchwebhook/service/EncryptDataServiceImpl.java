@@ -11,14 +11,14 @@ import java.security.NoSuchAlgorithmException;
 @Service
 public class EncryptDataServiceImpl implements EncryptDataService {
     // hash 암호화 key
-    @Value("${twitch.event.secret}")
+    @Value("${twitch.event-secret}")
     private String key;
 
     @Override
     public String encryptString(String message) {
         try {
             // hash 알고리즘과 암호화 key 적용
-            String algorithm = "HmacSHA256";
+            final String algorithm = "HmacSHA256";
             Mac mac = Mac.getInstance(algorithm);
             mac.init(new SecretKeySpec(key.getBytes(), algorithm));
 

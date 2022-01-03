@@ -18,19 +18,35 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ScheduledService {
+    private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
 
-    @Value("${webapp.base.url}")
+    @Value("${webapp.base-url}")
     private String webappBaseUrl;
 
     @Scheduled(cron = "0 30 */1 * * *")
     public void eventSubscriptionCheck() {
         log.info("Event Subscription Check Start");
 
-        final List<Subscription> subscriptionListFromTwitch = eventSubService.getSubscriptionListFromTwitch().getSubscriptionList();
+        // Getting Access Token From Twitch
+        final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+
+        List<Subscription> subscriptionListFromTwitch;
+        try {
+            subscriptionListFromTwitch = eventSubService.getSubscriptionListFromTwitch(accessToken).getSubscriptionList();
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.warn("Not valid token error occurred.");
+            return;
+        } catch (Exception e) {
+            log.error("This is not token error. other error is occurred.");
+            e.printStackTrace();
+            return;
+        }
+
         final List<SubscriptionFormEntity> formList = notificationFormService.getFormAll();
         log.info("formList Number: " + formList.size());
+        log.debug("formList Data: " + formList);
 
         List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
         for(SubscriptionFormEntity form : formList) {
@@ -50,10 +66,11 @@ public class ScheduledService {
         log.info("Need To Enroll Form Number: " + requiredToEnrollEventList.size());
 
         for(SubscriptionFormEntity form : requiredToEnrollEventList) {
-            log.info("To Enroll Form: " + form);
-            eventSubService.addEventSubToTwitch(form);
+            log.debug("To Enroll Form: " + form);
+            eventSubService.addEventSubToTwitch(form, accessToken);
         }
 
+        oauthTokenService.revokeAppTokenToTwitch(accessToken);
         log.info("Scheduled Event Subscription Check Finished");
     }
 }

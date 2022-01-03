@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
@@ -14,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Objects;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ChannelInfoServiceImpl implements ChannelInfoService {
@@ -22,8 +24,12 @@ public class ChannelInfoServiceImpl implements ChannelInfoService {
 
     @Override
     public Channel getChannelInformationByBroadcasterId(String broadcasterId) {
+        log.info("Getting Channel Information Twitch");
+
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
         final Channel channel = requestChannelInformationFromTwitch(broadcasterId, appTokenResponse.getAccessToken());
+        log.info("Channel Information Received");
+        log.debug("Received Channel Information: " + channel);
 
         oauthTokenService.revokeAppTokenToTwitch(appTokenResponse.getAccessToken());
         return channel;
@@ -33,6 +39,7 @@ public class ChannelInfoServiceImpl implements ChannelInfoService {
         final String channelGetUrl = "https://api.twitch.tv/helix/channels";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(channelGetUrl)
                 .queryParam("broadcaster_id", broadcasterId);
+        log.debug("Built Uri: " + builder.toUriString());
 
         final HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 

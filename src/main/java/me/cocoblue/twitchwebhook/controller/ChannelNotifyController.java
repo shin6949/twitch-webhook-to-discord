@@ -26,7 +26,10 @@ public class ChannelNotifyController {
     @PostMapping(path = "/channel/{broadcasterId}/update")
     public String receiveChannelUpdateNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                                   @RequestHeader HttpHeaders headers) {
-        log.info("Headers: " + headers.toString());
+        log.info("%C: Channel Update Event Received");
+        log.info("Received BroadcasterId: " + broadcasterId);
+        log.debug("Header: " + headers.toString());
+        log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
         if(controllerProcessingService.dataNotValid(headers, notification)) {

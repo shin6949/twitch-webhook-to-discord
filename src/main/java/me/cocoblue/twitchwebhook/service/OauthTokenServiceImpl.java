@@ -26,26 +26,30 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         final RestTemplate restTemplate = new RestTemplate();
         final String tokenUrl = "https://id.twitch.tv/oauth2/token";
 
-        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-        parameters.add("client_id", clientId);
-        parameters.add("client_secret", clientSecret);
-        parameters.add("grant_type", "client_credentials");
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+        body.add("grant_type", "client_credentials");
+        log.debug("Body Data: " + body);
 
-        final ResponseEntity<AppTokenResponse> responseEntity = restTemplate.postForEntity(tokenUrl, parameters, AppTokenResponse.class);
+        final ResponseEntity<AppTokenResponse> responseEntity = restTemplate.postForEntity(tokenUrl, body, AppTokenResponse.class);
         return responseEntity.getBody();
     }
 
     @Override
     @Async
     public void revokeAppTokenToTwitch(String appAccessToken) {
+        log.info("Revoke App Access Token Started");
+        log.debug("Revoking App Access Token: " + appAccessToken);
         final RestTemplate restTemplate = new RestTemplate();
         final String revokeUrl = "https://id.twitch.tv/oauth2/revoke";
 
-        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-        parameters.add("client_id", clientId);
-        parameters.add("token", appAccessToken);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+        body.add("client_id", clientId);
+        body.add("token", appAccessToken);
+        log.debug("Body Data: " + body);
 
-        restTemplate.postForEntity(revokeUrl, parameters, String.class);
+        restTemplate.postForEntity(revokeUrl, body, String.class);
         log.info("Revoke OAuth Token Successfully");
     }
 }

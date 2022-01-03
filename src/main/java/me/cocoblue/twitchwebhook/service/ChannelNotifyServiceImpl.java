@@ -25,8 +25,31 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
 
     private final String twitchUrl = "https://twitch.tv/";
 
+    @Override
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body) {
+        log.info("Send Channel Update Message");
+
+        long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
+        final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+        log.debug("Received Notify Forms: " + notifyForms);
+
+        User twitchUser;
+        if(notifyForms.isEmpty()) {
+            log.info("Notify Forms is empty. Do Nothing");
+            return;
+        } else {
+            twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
+        }
+
+        for (SubscriptionFormEntity notifyForm : notifyForms) {
+            final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
+            log.debug("Made Webhook Message: " + discordWebhookMessage);
+
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
+        }
+    }
+
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {
-        log.info("ChannelUpdateRequest.Body: " + body.toString());
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
@@ -63,24 +86,5 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
-    }
-
-    @Override
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body) {
-        long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
-        final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
-
-        User twitchUser = null;
-        if(notifyForms.isEmpty()) {
-            return;
-        } else {
-            twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
-        }
-
-        for (SubscriptionFormEntity notifyForm : notifyForms) {
-            DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
-
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
-        }
     }
 }
