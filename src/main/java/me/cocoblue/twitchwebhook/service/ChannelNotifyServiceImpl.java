@@ -8,12 +8,14 @@ import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Log4j2
@@ -22,12 +24,14 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
     private final DiscordWebhookService discordWebhookService;
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
+    private final MessageSource messageSource;
 
     private final String twitchUrl = "https://twitch.tv/";
 
     @Override
     public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body) {
         log.info("Send Channel Update Message");
+        log.debug("Received Body: " + body);
 
         long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
         final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
@@ -50,39 +54,55 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
     }
 
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {
+        // 설정한 언어 받아오기
+        final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
+
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
-        final String authorName = event.getBroadcasterUserName() + "님의 채널 정보가 변경되었습니다.";
+        final String authorName = String.format("%s%s", event.getBroadcasterUserName(),
+                messageSource.getMessage("channel.update.event-message", null, locale));
+
+        // Thumbnail
+        final String thumbnailUrl = String.format("https://static-cdn.jtvnw.net/ttv-boxart/%s.jpg", event.getCategoryId());
+        final DiscordEmbed.Thumbnail thumbnail = DiscordEmbed.Thumbnail.builder().url(thumbnailUrl).build();
 
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
         final String gameName = event.getCategoryName();
-        final String embedDescription = gameName.equals("") ? "지정된 게임 없음." : gameName;
+        final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : gameName;
         final String embedTitle = event.getTitle();
 
         // Embed Field Area
         List<DiscordEmbed.Field> fields = new ArrayList<>();
 
         // Embed Footer Area
-        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
+        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("channel.update.footer", null, locale), null);
 
-        final LocalDateTime generatedTime = LocalDateTime.now();
-        final String generatedTimeString = generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        final DiscordEmbed.Field changeTimeField = new DiscordEmbed.Field("변경 시간", generatedTimeString, true);
-        fields.add(changeTimeField);
+        // Embed Timestamp Area
+        final LocalDateTime generatedTime = LocalDateTime.now(ZoneOffset.UTC);
 
         final String languageIsoData = LanguageIsoData.find(event.getLanguage()).getKoreanName();
-        final DiscordEmbed.Field languageField = new DiscordEmbed.Field("언어", languageIsoData, true);
+        final DiscordEmbed.Field languageField = new DiscordEmbed.Field(messageSource.getMessage("channel.update.language", null, locale), languageIsoData, true);
         fields.add(languageField);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        final DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
-                fields, null, null, footer);
+        final DiscordEmbed discordEmbed = DiscordEmbed.builder()
+                .author(author)
+                .title(embedTitle)
+                .url(authorURL)
+                .description(embedDescription)
+                .color(embedColor)
+                .fields(fields)
+                .footer(footer)
+                .timestamp(generatedTime.toString())
+                .thumbnail(thumbnail)
+                .build();
+
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);

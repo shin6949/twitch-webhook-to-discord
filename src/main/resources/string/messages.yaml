@@ -1,1 +1,64 @@
-test: 테스트 메시지입니다. (Default)
+stream:
+  online:
+    event-message: has started the stream.
+    event-time: Started At
+    datetime-format: yyyy-MM-dd HH:mm
+    language: Language
+    footer: Twitch
+
+  offline:
+    event-message: "'s stream has ended."
+    event-time: Ended At
+    embed-description: See you next time!
+    datetime-format: yyyy-MM-dd HH:mm
+    embed-title: ""
+    footer: Twitch
+
+channel:
+  update:
+    event-message: "'s channal info has changed."
+    event-time: Chanaged At
+    datetime-format: yyyy-MM-dd HH:mm
+    language: Language
+    footer: Twitch
+
+game:
+  none: None
+
+language:
+  en: English
+  ko: Korean
+  es: Spanish
+  de: German
+  pt: Portuguese
+  ru: Russian
+  fr: French
+  ja: Japanese
+  zh: Chinese
+  it: Italian
+  tr: Turkish
+  pl: Polish
+  ar: Arabic
+  th: Thai
+  cs: Czech
+  hu: Hungarian
+  nl: Dutch
+  fi: Finnish
+  sv: Swedish
+  da: Danish
+  no: Norwegian
+  el: Greek
+  sk: Slovak
+  ro: Romanian
+  bg: Bulgarian
+  id: Indonesian
+  uk: Ukrainian
+  tl: Tagalog
+  ca: Catalan
+  hi: Hindi
+  ms: Malay
+  vi: Vietnamese
+  uz: Uzbek
+  asl: American Sign Language
+  zh-hk: Hong Kong Traditional
+  other: Other
