@@ -7,4 +7,5 @@ import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 public interface EventSubService {
     void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity, String AccessToken);
     SubscriptionResponse getSubscriptionListFromTwitch(String accessToken);
+    void deleteEventSub(String eventSubId, String accessToken);
 }

@@ -7,6 +7,7 @@ import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class StreamNotifyServiceImpl implements StreamNotifyService {
     private final NotificationFormService notificationFormService;
+    private final EventSubService eventSubService;
+    private final OauthTokenService oauthTokenService;
     private final UserInfoService userInfoService;
     private final DiscordWebhookService discordWebhookService;
     private final MessageSource messageSource;
@@ -38,8 +42,14 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
-        final String authorName = String.format("%s%s", event.getBroadcasterUserName(),
-                messageSource.getMessage("stream.online.event-message", null, locale));
+        String authorName;
+        if(user.getDisplayName().equals(user.getLogin())) {
+            authorName = String.format("%s%s", user.getDisplayName(),
+                    messageSource.getMessage("stream.online.event-message", null, locale));
+        } else {
+            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
+                    messageSource.getMessage("stream.online.event-message", null, locale));
+        }
 
         // Thumbnail
         final String thumbnailUrl = String.format("https://static-cdn.jtvnw.net/ttv-boxart/%s.jpg", channel.getGameId());
@@ -48,7 +58,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
         final String gameName = channel.getGameName();
-        final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : gameName;
+        final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
         final String embedTitle = channel.getTitle();
 
         // Embed Field Area
@@ -60,8 +70,9 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // UTC, Embed Timestamp
         final LocalDateTime startTime = event.getStartedAt();
 
-        final String languageIsoData = LanguageIsoData.find(channel.getBroadcasterLanguage()).getKoreanName();
-        final DiscordEmbed.Field languageField = new DiscordEmbed.Field(messageSource.getMessage("stream.online.language", null, locale), languageIsoData, true);
+        final String languageIsoCode = LanguageIsoData.find(channel.getBroadcasterLanguage()).getCode();
+        final DiscordEmbed.Field languageField = new DiscordEmbed.Field(messageSource.getMessage("stream.online.language", null, locale),
+                messageSource.getMessage("language." + languageIsoCode, null, locale), true);
         fields.add(languageField);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
@@ -85,15 +96,26 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
     }
 
     private DiscordEmbed.Webhook makeStreamOfflineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, User user) {
+        // Form의 Locale 얻기
+        final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
+        log.debug("locale: " + locale);
+
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
-        final String authorName = user.getDisplayName() + "님의 방송이 종료되었습니다.";
+        String authorName;
+        if(user.getDisplayName().equals(user.getLogin())) {
+            authorName = String.format("%s%s", user.getDisplayName(),
+                    messageSource.getMessage("stream.offline.event-message", null, locale));
+        } else {
+            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
+                    messageSource.getMessage("stream.offline.event-message", null, locale));
+        }
 
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
-        final String embedDescription = "다음에 만나요!";
-        final String embedTitle = "";
+        final String embedDescription = messageSource.getMessage("stream.offline.embed-description", null, locale);
+        final String embedTitle = messageSource.getMessage("stream.offline.embed-title", null, locale);
 
         // Embed Field Area
         List<DiscordEmbed.Field> fields = new ArrayList<>();
@@ -101,15 +123,22 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
         // Embed Footer Area
         DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
 
-        final String endTimeToString = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        final DiscordEmbed.Field field = new DiscordEmbed.Field("종료 시간", endTimeToString, true);
-        fields.add(field);
+        final LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        final DiscordEmbed discordEmbed = new DiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor,
-                fields, null, null, footer, null);
+
+        final DiscordEmbed discordEmbed = DiscordEmbed.builder()
+                .author(author)
+                .title(embedTitle)
+                .url(authorURL)
+                .description(embedDescription)
+                .color(embedColor)
+                .fields(fields)
+                .footer(footer)
+                .timestamp(endTime.toString())
+                .build();
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
@@ -127,7 +156,10 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
 
         User twitchUser;
         if(notifyForms.isEmpty()) {
-            log.info("Form is empty. Do nothing");
+            log.info("Form is empty. Delete the Subscription");
+            final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+            eventSubService.deleteEventSub(body.getSubscription().getId(), accessToken);
+            oauthTokenService.revokeAppTokenToTwitch(accessToken);
             return;
         } else {
             twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
@@ -142,7 +174,7 @@ public class StreamNotifyServiceImpl implements StreamNotifyService {
                 discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
             }
 
-            log.debug("Configured Webhook Message: " + discordWebhookMessage.toString());
+            log.debug("Configured Webhook Message: " + discordWebhookMessage);
             discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
         }
     }

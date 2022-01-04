@@ -29,7 +29,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
-        log.info("%C: Getting user information by login id from twitch");
+        log.info("Getting user information by login id from twitch");
 
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
@@ -48,7 +48,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
-        log.info("%C: Getting user information by Broadcaster Id from twitch");
+        log.info("Getting user information by Broadcaster Id from twitch");
 
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
 

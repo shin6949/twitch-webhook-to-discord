@@ -1,5 +1,5 @@
 message:
-  basenames: string/messages
+  basenames: string/string
 
 spring:
   main:

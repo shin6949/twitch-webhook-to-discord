@@ -1,3 +1,6 @@
+message:
+  basenames: string/string
+
 spring:
   main:
     allow-bean-definition-overriding: true

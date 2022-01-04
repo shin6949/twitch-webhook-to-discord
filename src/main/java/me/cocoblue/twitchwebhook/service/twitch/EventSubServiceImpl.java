@@ -78,4 +78,23 @@ public class EventSubServiceImpl implements EventSubService {
         RestTemplate rt = new RestTemplate();
         rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
     }
+
+    @Override
+    @Async
+    public void deleteEventSub(String eventSubId, String accessToken) {
+        log.info("Deleting EventSub");
+        log.debug("To Delete Event ID: " + eventSubId);
+
+        final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        log.debug("Request Header: " + headers.toString());
+
+        final String deleteEventSubURL = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(deleteEventSubURL)
+                .queryParam("id", eventSubId);
+        log.debug("Built URL: " + builder.toUriString());
+
+        RestTemplate rt = new RestTemplate();
+        rt.delete(builder.toUriString(), headers);
+        log.info("Delete Finished");
+    }
 }

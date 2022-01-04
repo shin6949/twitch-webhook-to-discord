@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CookieLocaleResolver localeResolver() {
         final CookieLocaleResolver localeResolver = new CookieLocaleResolver();
-        localeResolver.setDefaultLocale(Locale.KOREA);
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
         localeResolver.setCookieName("locale");
         localeResolver.setCookieMaxAge(60 * 60);
         localeResolver.setCookiePath("/");
@@ -42,10 +42,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public MessageSource messageSource(@Value("${message.basenames}") List<String> basenames) {
-        log.info("basenames: " + basenames);
-
         final YamlMessageSource messageSource = new YamlMessageSource();
         messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setFallbackToSystemLocale(false);
+        messageSource.setDefaultLocale(Locale.ENGLISH);
 
         String[] messageList = new String[basenames.size()];
         messageList = basenames.toArray(messageList);

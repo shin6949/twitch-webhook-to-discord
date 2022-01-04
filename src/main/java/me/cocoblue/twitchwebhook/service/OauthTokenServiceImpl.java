@@ -47,7 +47,7 @@ public class OauthTokenServiceImpl implements OauthTokenService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
         body.add("client_id", clientId);
         body.add("token", appAccessToken);
-        log.debug("Body Data: " + body);
+        log.debug("Parameter Data: " + body);
 
         restTemplate.postForEntity(revokeUrl, body, String.class);
         log.info("Revoke OAuth Token Successfully");

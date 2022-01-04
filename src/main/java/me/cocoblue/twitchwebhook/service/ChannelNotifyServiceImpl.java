@@ -7,6 +7,7 @@ import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import java.util.Locale;
 @AllArgsConstructor
 public class ChannelNotifyServiceImpl implements ChannelNotifyService {
     private final DiscordWebhookService discordWebhookService;
+    private final OauthTokenService oauthTokenService;
+    private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
@@ -39,7 +42,10 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
 
         User twitchUser;
         if(notifyForms.isEmpty()) {
-            log.info("Notify Forms is empty. Do Nothing");
+            log.info("Form is empty. Delete the Subscription");
+            final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+            eventSubService.deleteEventSub(body.getSubscription().getId(), accessToken);
+            oauthTokenService.revokeAppTokenToTwitch(accessToken);
             return;
         } else {
             twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
@@ -56,14 +62,23 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {
         // 설정한 언어 받아오기
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
+        log.debug("locale: " + locale);
 
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
-        final String authorName = String.format("%s%s", event.getBroadcasterUserName(),
-                messageSource.getMessage("channel.update.event-message", null, locale));
+        String authorName;
+        if(user.getDisplayName().equals(user.getLogin())) {
+            authorName = String.format("%s%s", user.getDisplayName(),
+                    messageSource.getMessage("channel.update.event-message", null, locale));
+            log.info("messageSource: " + messageSource.getMessage("channel.update.event-message", null, locale));
+            log.info("original messageSource: " + messageSource.getMessage("channel.update.event-message", null, Locale.forLanguageTag("ja")));
+        } else {
+            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
+                    messageSource.getMessage("channel.update.event-message", null, locale));
+        }
 
         // Thumbnail
         final String thumbnailUrl = String.format("https://static-cdn.jtvnw.net/ttv-boxart/%s.jpg", event.getCategoryId());
@@ -72,7 +87,7 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
         final String gameName = event.getCategoryName();
-        final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : gameName;
+        final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
         final String embedTitle = event.getTitle();
 
         // Embed Field Area
@@ -84,8 +99,9 @@ public class ChannelNotifyServiceImpl implements ChannelNotifyService {
         // Embed Timestamp Area
         final LocalDateTime generatedTime = LocalDateTime.now(ZoneOffset.UTC);
 
-        final String languageIsoData = LanguageIsoData.find(event.getLanguage()).getKoreanName();
-        final DiscordEmbed.Field languageField = new DiscordEmbed.Field(messageSource.getMessage("channel.update.language", null, locale), languageIsoData, true);
+        final String languageIsoCode = LanguageIsoData.find(event.getLanguage()).getCode();
+        final DiscordEmbed.Field languageField = new DiscordEmbed.Field(messageSource.getMessage("channel.update.language", null, locale),
+                messageSource.getMessage("language." + languageIsoCode, null, locale), true);
         fields.add(languageField);
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);

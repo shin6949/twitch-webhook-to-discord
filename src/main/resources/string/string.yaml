@@ -1,29 +1,24 @@
 stream:
   online:
-    event-message: has started the stream.
-    event-time: Started At
-    datetime-format: yyyy-MM-dd HH:mm
+    event-message: " has started the stream."
     language: Language
     footer: Twitch
 
   offline:
     event-message: "'s stream has ended."
-    event-time: Ended At
     embed-description: See you next time!
-    datetime-format: yyyy-MM-dd HH:mm
     embed-title: ""
     footer: Twitch
 
 channel:
   update:
     event-message: "'s channal info has changed."
-    event-time: Chanaged At
-    datetime-format: yyyy-MM-dd HH:mm
     language: Language
     footer: Twitch
 
 game:
-  none: None
+  prefix: ":video_game: "
+  none: ":video_game: None"
 
 language:
   en: English

@@ -39,7 +39,7 @@ public class SubscriptionFormEntity {
     @NotNull
     private SubscriptionType subscriptionType;
     @Enumerated(EnumType.STRING)
-    @Column(name="language")
+    @Column(name = "language")
     private LanguageIsoData languageIsoData;
     @Column(length = 500)
     @NotNull

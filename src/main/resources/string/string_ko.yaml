@@ -6,9 +6,7 @@ stream:
 
   offline:
     event-message: 님의 방송이 종료되었습니다.
-    event-time: 종료 시간
     embed-description: 다음에 만나요!
-    datetime-format: yyyy-MM-dd HH:mm
     embed-title: ""
     footer: Twitch
 
@@ -19,7 +17,8 @@ channel:
     footer: Twitch
 
 game:
-  none: 지정된 게임 없음.
+  prefix: ":video_game: "
+  none: ":joystick: 지정된 게임 없음."
 
 language:
   en: 영어
