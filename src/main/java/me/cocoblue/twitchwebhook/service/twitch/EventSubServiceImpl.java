@@ -1,12 +1,12 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequest;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,58 +19,45 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class EventSubServiceImpl implements EventSubService {
     private final RequestService requestService;
-    private final OauthTokenService oauthTokenService;
 
-    private String appToken;
-
-    public EventSubServiceImpl(RequestService requestService, OauthTokenService oauthTokenService) {
-        this.requestService = requestService;
-        this.oauthTokenService = oauthTokenService;
-        appToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-    }
-
-    @Value("${twitch.client-id}")
-    private String clientId;
-
-    @Value("${webapp.base.url}")
+    @Value("${webapp.base-url}")
     private String webappBaseUrl;
 
-    @Value("${twitch.event.secret}")
+    @Value("${twitch.event-secret}")
     private String webhookSecret;
 
     @Override
-    public SubscriptionResponse getSubscriptionListFromTwitch() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("Client-ID", clientId);
-        headers.add("Authorization", "Bearer " + appToken);
+    public SubscriptionResponse getSubscriptionListFromTwitch(String accessToken) {
+        log.info("Getting Subscription List From Twitch");
+
+        final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        log.debug("Request Header: " + headers.toString());
 
         final String subscriptionGetUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(subscriptionGetUrl);
+        log.debug("Request URL: " + builder.toUriString());
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<SubscriptionResponse> response;
+        final ResponseEntity<SubscriptionResponse> response = rt.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(headers), SubscriptionResponse.class);;
 
-        try {
-            response = rt.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(headers), SubscriptionResponse.class);
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            appToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-            return getSubscriptionListFromTwitch();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        log.info(response.getBody());
+        log.debug("Response Body Data: " + response.getBody());
         return response.getBody();
     }
 
     @Async
     @Override
-    public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity) {
+    public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity, String accessToken) {
+        log.info("Adding EventSub To Twitch");
+
+        final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        log.debug("Request Header: " + headers.toString());
+
         final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        log.debug("Request URL: " + requestUrl);
+
         final String[] splitStr = subscriptionFormEntity.getSubscriptionType().getTwitchName().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
 
@@ -85,18 +72,29 @@ public class EventSubServiceImpl implements EventSubService {
         final Condition condition = new Condition(String.valueOf(subscriptionFormEntity.getBroadcasterIdEntity().getId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
         final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionFormEntity.getSubscriptionType().getTwitchName(), condition, transport);
-        final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequest, requestService.makeRequestHeader(appToken));
+        final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequest, headers);
+        log.debug("Request Body: " + requestData);
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response;
-        try {
-            response = rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
-            log.info(response.getStatusCode());
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            appToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-            addEventSubToTwitch(subscriptionFormEntity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
+    }
+
+    @Override
+    @Async
+    public void deleteEventSub(String eventSubId, String accessToken) {
+        log.info("Deleting EventSub");
+        log.debug("To Delete Event ID: " + eventSubId);
+
+        final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        log.debug("Request Header: " + headers.toString());
+
+        final String deleteEventSubURL = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(deleteEventSubURL)
+                .queryParam("id", eventSubId);
+        log.debug("Built URL: " + builder.toUriString());
+
+        RestTemplate rt = new RestTemplate();
+        rt.delete(builder.toUriString(), headers);
+        log.info("Delete Finished");
     }
 }

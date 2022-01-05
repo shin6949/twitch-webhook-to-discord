@@ -1,0 +1,53 @@
+message:
+  basenames: string/string
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    # DB Config
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+    # hikari
+    hikari:
+      connection-timeout: 9000
+      idle-timeout: 20000
+      max-lifetime: 30000
+
+  devtools:
+    livereload:
+      enabled: false
+
+  # Thymeleaf
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    check-template-location: true
+
+  # JPA
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddl-auto: ${DDL_AUTO}
+
+twitch:
+  client-id: ${TWITCH_CLIENT_ID}
+  client-secret: ${TWITCH_CLIENT_SECRET}
+  event-secret: ${TWITCH_EVENT_SECRET}
+
+webapp:
+  base-url: ${WEBAPP_BASE_URL}
+
+logging:
+  level:
+    root: debug

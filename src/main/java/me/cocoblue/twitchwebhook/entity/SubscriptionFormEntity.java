@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.entity;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import org.hibernate.Hibernate;
 
@@ -37,6 +38,9 @@ public class SubscriptionFormEntity {
     @Column(name="type")
     @NotNull
     private SubscriptionType subscriptionType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language")
+    private LanguageIsoData languageIsoData;
     @Column(length = 500)
     @NotNull
     private String webhookUrl;

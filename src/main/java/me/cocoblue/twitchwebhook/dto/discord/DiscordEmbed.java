@@ -2,12 +2,14 @@ package me.cocoblue.twitchwebhook.dto.discord;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiscordEmbed {
@@ -29,6 +31,8 @@ public class DiscordEmbed {
     private Image image;
     @JsonProperty("footer")
     private DiscordEmbed.Footer footer;
+    @JsonProperty("timestamp")
+    private String timestamp;
 
     @Data
     @NoArgsConstructor
@@ -77,20 +81,21 @@ public class DiscordEmbed {
         @JsonProperty("embeds")
         private List<DiscordEmbed> embeds;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Thumbnail {
+        @JsonProperty("url")
+        private String url;
+    }
 }
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 class Image {
-    @JsonProperty("url")
-    private String url;
-}
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class Thumbnail {
     @JsonProperty("url")
     private String url;
 }

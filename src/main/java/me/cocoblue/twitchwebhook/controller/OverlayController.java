@@ -11,18 +11,21 @@ public class OverlayController {
     // 410
     @RequestMapping("/clock")
     public String getGreenSplatoonClock() {
+        log.info("410 Clock Accessed");
         return "splatoon_2_style_clock";
     }
 
     // COCOBLUE
     @RequestMapping("/cocoblue/clock")
     public String getOrangeSplatoonClock() {
+        log.info("COCOBLUE Clock Accessed");
         return "cocoblue_splatoon_clock";
     }
 
     // pineee
     @RequestMapping("/pineee/clock")
     public String getPurpleSplatoonClock() {
+        log.info("Pineee Clock Accessed");
         return "pineee_splatoon_clock";
     }
 }

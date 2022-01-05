@@ -12,8 +12,12 @@ public class EventSubServiceTests {
     @Autowired
     private EventSubService eventSubService;
 
+    @Autowired
+    private OauthTokenService oauthTokenService;
+
     @Test
     public void getSubscriptionListTest() {
-        log.info(eventSubService.getSubscriptionListFromTwitch().toString());
+        final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+        log.info(eventSubService.getSubscriptionListFromTwitch(accessToken).toString());
     }
 }

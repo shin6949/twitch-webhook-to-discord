@@ -29,9 +29,17 @@ public class StreamNotifyController {
     @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
+        log.info("%C: Stream Online Event Received");
+        log.info("Received BroadcasterId: " + broadcasterId);
+        log.debug("Header: " + headers.toString());
+        log.debug("Body: " + notification);
+
         // 요청이 유효한지 체크
         if(controllerProcessingService.dataNotValid(headers, notification)) {
+            log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
+        } else {
+            log.info("This req is valid");
         }
 
         // RequestBody를 Vo에 Mapping
@@ -40,10 +48,12 @@ public class StreamNotifyController {
         // Challenge 요구 시, 반응
         assert streamNotification != null;
         if(controllerProcessingService.isChallenge(streamNotification)) {
+            log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
 
         if (notifyLogService.isAlreadySend(streamNotification.getEvent().getId())) {
+            log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
 
@@ -61,13 +71,17 @@ public class StreamNotifyController {
     @PostMapping(path = "/stream/{broadcasterId}/offline")
     public String receiveStreamOfflineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
-        log.info("stream.offline Event Received");
-        log.info("Offline Header: " + headers.toString());
-        log.info("Offline Body: " + notification);
+        log.info("%C: Stream Offline Event Received");
+        log.info("Received BroadcasterId: " + broadcasterId);
+        log.debug("Header: " + headers.toString());
+        log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
         if(controllerProcessingService.dataNotValid(headers, notification)) {
+            log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
+        } else {
+            log.info("This req is valid");
         }
 
         // RequestBody를 Vo에 Mapping
@@ -76,6 +90,7 @@ public class StreamNotifyController {
         // Challenge 요구 시, 반응
         assert streamNotification != null;
         if(controllerProcessingService.isChallenge(streamNotification)) {
+            log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
 

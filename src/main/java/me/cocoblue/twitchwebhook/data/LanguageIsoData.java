@@ -48,8 +48,7 @@ public enum LanguageIsoData {
     Uzbek("uz", "우즈베키스탄어"),
     American_Sign_Language("asl", "미국 수화"),
     ZH_HK("zh-hk", "홍콩 번체"),
-    Other("other", "기타"),
-    NOT_DEFINED("not", "기타");
+    Other("other", "기타");
 
     private final String code;
     private final String koreanName;
@@ -57,6 +56,6 @@ public enum LanguageIsoData {
     private static final Map<String, LanguageIsoData> descriptions = Collections.unmodifiableMap(Stream.of(values()) .collect(Collectors.toMap(LanguageIsoData::getCode, Function.identity())));
 
     public static LanguageIsoData find(String code) {
-        return Optional.ofNullable(descriptions.get(code)).orElse(NOT_DEFINED);
+        return Optional.ofNullable(descriptions.get(code)).orElse(Other);
     }
 }
