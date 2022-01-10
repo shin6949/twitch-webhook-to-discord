@@ -44,6 +44,7 @@ twitch:
   client-id: ${TWITCH_CLIENT_ID}
   client-secret: ${TWITCH_CLIENT_SECRET}
   event-secret: ${TWITCH_EVENT_SECRET}
+  event-renew: false
 
 webapp:
   base-url: ${WEBAPP_BASE_URL}

@@ -25,9 +25,17 @@ public class ScheduledService {
     @Value("${webapp.base-url}")
     private String webappBaseUrl;
 
+    @Value("${twitch.event-renew}")
+    private boolean eventEnabled;
+
     @Scheduled(cron = "0 30 */1 * * *")
     public void eventSubscriptionCheck() {
         log.info("Event Subscription Check Start");
+
+        if(!eventEnabled) {
+            log.info("Event Renew Function Disabled. Do Not Processing.");
+            return;
+        }
 
         // Getting Access Token From Twitch
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
