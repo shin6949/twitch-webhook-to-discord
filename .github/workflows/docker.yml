@@ -76,7 +76,7 @@ jobs:
       - name: Move jar file
         run: |
           mkdir target
-          mv twitchwebhook ./target/twitchwebhook-${{ env.RELEASE_VERSION }}.jar
+          mv ./twitchwebhook/twitchwebhook-${{ env.RELEASE_VERSION }}.jar ./target/twitchwebhook-${{ env.RELEASE_VERSION }}.jar
 
       - name: Docker Build
         run: |
