@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/openjdk/jdk:11-ubuntu
+LABEL org.opencontainers.image.source='https://github.com/shin6949/twitch-webhook-to-discord'
 
 ADD ./target/twitchwebhook-*.jar /usr/src/myapp/twitchwebhook.jar
 
