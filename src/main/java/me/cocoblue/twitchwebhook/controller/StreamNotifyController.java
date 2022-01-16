@@ -29,7 +29,7 @@ public class StreamNotifyController {
     @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
-        log.info("%C: Stream Online Event Received");
+        log.info("Stream Online Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
         log.debug("Body: " + notification);
@@ -52,7 +52,7 @@ public class StreamNotifyController {
             return streamNotification.getChallenge();
         }
 
-        if (notifyLogService.isAlreadySend(streamNotification.getEvent().getId())) {
+        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -71,7 +71,7 @@ public class StreamNotifyController {
     @PostMapping(path = "/stream/{broadcasterId}/offline")
     public String receiveStreamOfflineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
-        log.info("%C: Stream Offline Event Received");
+        log.info("Stream Offline Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
         log.debug("Body: " + notification);
@@ -92,6 +92,11 @@ public class StreamNotifyController {
         if(controllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
+        }
+
+        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+            log.info("This req is already sent. Stop the Processing.");
+            return "success";
         }
 
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());

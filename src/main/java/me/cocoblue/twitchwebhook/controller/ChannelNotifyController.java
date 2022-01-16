@@ -26,7 +26,7 @@ public class ChannelNotifyController {
     @PostMapping(path = "/channel/{broadcasterId}/update")
     public String receiveChannelUpdateNotification(@PathVariable String broadcasterId, @RequestBody String notification,
                                                   @RequestHeader HttpHeaders headers) {
-        log.info("%C: Channel Update Event Received");
+        log.info("Channel Update Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
         log.debug("Body: " + notification);
@@ -46,7 +46,7 @@ public class ChannelNotifyController {
             return channelUpdateNotification.getChallenge();
         }
 
-        if (notifyLogService.isAlreadySend(channelUpdateNotification.getEvent().getId())) {
+        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             return "success";
         }
 
