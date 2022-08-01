@@ -21,20 +21,21 @@ jobs:
           java-version: 11
           distribution: 'adopt'
 
-      - name: Load Maven Cache
+      - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-gradle-
 
-      - name: Make Package With Maven
-        run: mvn package
+      - name: Make Package With Gradle
+        run: gradle build
 
       - name: Move app file
-        run: mv ./target/twitchwebhook*.jar ./twitchwebhook-${{ env.RELEASE_VERSION }}.jar
+        run: mv ./build/libs/twitchwebhook*.jar ./twitchwebhook-${{ env.RELEASE_VERSION }}.jar
 
       - name: Upload jar file to Artifact
         uses: actions/upload-artifact@master
