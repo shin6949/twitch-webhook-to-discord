@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,windows,macos,intellij+all,eclipse,maven
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,windows,macos,intellij+all,eclipse,maven
 
+./test.db
+
 ### Eclipse ###
 .metadata
 bin/
