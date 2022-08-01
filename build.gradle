@@ -8,6 +8,10 @@ plugins {
     id 'org.springframework.boot' version '2.7.1'
 }
 
+jar {
+    enabled = false
+}
+
 apply plugin: 'java'
 apply plugin: 'io.spring.dependency-management'
 
