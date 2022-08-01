@@ -12,6 +12,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Entity(name = "subscription_form")

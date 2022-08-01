@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    implementation group: 'com.h2database', name: 'h2', version: '2.1.214'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
@@ -40,7 +41,7 @@ dependencies {
 }
 
 group = 'me.cocoblue'
-version = '2.5.4'
+version = '2.5.5'
 description = 'TwitchWebhookToDiscord'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
