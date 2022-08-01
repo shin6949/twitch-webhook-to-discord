@@ -1,7 +1,5 @@
-/db_docker-compose.yaml
-
-# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,intellij+all,java,maven,eclipse
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,intellij+all,java,maven,eclipse
+# Created by https://www.toptal.com/developers/gitignore/api/gradle,windows,macos,intellij+all,eclipse,maven
+# Edit at https://www.toptal.com/developers/gitignore?templates=gradle,windows,macos,intellij+all,eclipse,maven
 
 ### Eclipse ###
 .metadata
@@ -133,6 +131,9 @@ atlassian-ide-plugin.xml
 # Cursive Clojure plugin
 .idea/replstate.xml
 
+# SonarLint plugin
+.idea/sonarlint/
+
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
@@ -146,45 +147,13 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 ### Intellij+all Patch ###
-# Ignores the whole .idea folder and all .iml files
-# See https://github.com/joeblau/gitignore.io/issues/186 and https://github.com/joeblau/gitignore.io/issues/360
+# Ignore everything but code style settings and run configurations
+# that are supposed to be shared within teams.
 
-.idea/
+.idea/*
 
-# Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
-
-*.iml
-modules.xml
-.idea/misc.xml
-*.ipr
-
-# Sonarlint plugin
-.idea/sonarlint
-
-### Java ###
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+!.idea/codeStyles
+!.idea/runConfigurations
 
 ### macOS ###
 # General
@@ -215,6 +184,10 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### macOS Patch ###
+# iCloud generated files
+*.icloud
+
 ### Maven ###
 target/
 pom.xml.tag
@@ -228,7 +201,6 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
-### Maven Patch ###
 # Eclipse m2e generated files
 # Eclipse Core
 .project
@@ -261,4 +233,29 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij+all,java,maven,eclipse
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+# Eclipse Gradle plugin generated files
+# Eclipse Core
+# JDT-specific (Eclipse Java Development Tools)
+
+### Gradle Patch ###
+# Java heap dump
+*.hprof
+
+# End of https://www.toptal.com/developers/gitignore/api/gradle,windows,macos,intellij+all,eclipse,maven

@@ -38,7 +38,7 @@ spring:
         format_sql: true
         use_sql_comments: true
     hibernate:
-      ddl-auto: ${DDL_AUTO}
+      ddl-auto: update
 
 twitch:
   client-id: ${TWITCH_CLIENT_ID}
