@@ -115,6 +115,11 @@ public class StreamNotifyService {
         final String embedColor = Integer.toString(form.getColor());
         final String embedDescription = messageSource.getMessage("stream.offline.embed-description", null, locale);
         final String embedTitle = messageSource.getMessage("stream.offline.embed-title", null, locale);
+        final DiscordEmbed.Image image = DiscordEmbed.Image.builder()
+                .url(user.getOfflineImageUrl())
+                .height(300)
+                .width(300)
+                .build();
 
         // Embed Field Area
         List<DiscordEmbed.Field> fields = new ArrayList<>();
@@ -132,6 +137,7 @@ public class StreamNotifyService {
                 .author(author)
                 .title(embedTitle)
                 .url(authorURL)
+                .image(image)
                 .description(embedDescription)
                 .color(embedColor)
                 .fields(fields)

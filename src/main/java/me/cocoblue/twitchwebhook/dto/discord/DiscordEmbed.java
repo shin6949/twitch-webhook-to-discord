@@ -29,7 +29,7 @@ public class DiscordEmbed {
     @JsonProperty("thumbnail")
     private Thumbnail thumbnail;
     @JsonProperty("image")
-    private Image image;
+    private DiscordEmbed.Image image;
     @JsonProperty("footer")
     private DiscordEmbed.Footer footer;
     @JsonProperty("timestamp")
@@ -91,12 +91,18 @@ public class DiscordEmbed {
         @JsonProperty("url")
         private String url;
     }
-}
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class Image {
-    @JsonProperty("url")
-    private String url;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Image {
+        @JsonProperty("url")
+        private String url;
+        @JsonProperty("height")
+        private int height;
+        @JsonProperty("width")
+        private int width;
+    }
+
 }
