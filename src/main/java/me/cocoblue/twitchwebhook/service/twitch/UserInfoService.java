@@ -8,6 +8,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.UserResponse;
 import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.repository.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +25,14 @@ public class UserInfoService {
     private final OauthTokenService oauthTokenService;
     private final RequestService requestService;
 
-    private final String userGetUrl = "https://api.twitch.tv/helix/users";
+    @Value("${twitch.api-endpoint}")
+    private String twitchApiUrl;
 
     public User getUserInfoByLoginIdFromTwitch(String loginId) {
         log.info("Getting user information by login id from twitch");
 
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(twitchApiUrl + "/users")
                 .queryParam("login", loginId);
         log.debug("Built URL: " + builder.toUriString());
 
@@ -49,7 +51,7 @@ public class UserInfoService {
 
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
 
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(userGetUrl)
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(twitchApiUrl + "/users")
                 .queryParam("id", broadcasterId);
         log.debug("Built URL: " + builder.toUriString());
 

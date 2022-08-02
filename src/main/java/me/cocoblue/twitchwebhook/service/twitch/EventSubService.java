@@ -29,13 +29,16 @@ public class EventSubService {
     @Value("${twitch.event-secret}")
     private String webhookSecret;
 
+    @Value("${twitch.api-endpoint}")
+    private String twitchApiUrl;
+
     public SubscriptionResponse getSubscriptionListFromTwitch(String accessToken) {
         log.info("Getting Subscription List From Twitch");
 
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
         log.debug("Request Header: " + headers.toString());
 
-        final String subscriptionGetUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        final String subscriptionGetUrl = twitchApiUrl + "/eventsub/subscriptions";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(subscriptionGetUrl);
         log.debug("Request URL: " + builder.toUriString());
 
@@ -53,7 +56,7 @@ public class EventSubService {
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
         log.debug("Request Header: " + headers.toString());
 
-        final String requestUrl = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        final String requestUrl = twitchApiUrl + "/eventsub/subscriptions";
         log.debug("Request URL: " + requestUrl);
 
         final String[] splitStr = subscriptionFormEntity.getSubscriptionType().getTwitchName().split("\\.");
@@ -85,7 +88,7 @@ public class EventSubService {
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
         log.debug("Request Header: " + headers.toString());
 
-        final String deleteEventSubURL = "https://api.twitch.tv/helix/eventsub/subscriptions";
+        final String deleteEventSubURL = twitchApiUrl + "/eventsub/subscriptions";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(deleteEventSubURL)
                 .queryParam("id", eventSubId);
         log.debug("Built URL: " + builder.toUriString());

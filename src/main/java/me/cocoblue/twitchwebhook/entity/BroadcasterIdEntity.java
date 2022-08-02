@@ -19,10 +19,8 @@ public class BroadcasterIdEntity {
     @NotNull
     private Long id;
     @Column(length = 300)
-    @NotNull
     private String loginId;
     @Column(length = 300)
-    @NotNull
     private String displayName;
 
     @Override

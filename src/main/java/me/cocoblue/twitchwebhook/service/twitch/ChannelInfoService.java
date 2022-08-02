@@ -6,6 +6,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.ChannelResponse;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ public class ChannelInfoService {
     private final OauthTokenService oauthTokenService;
     private final RequestService requestService;
 
+    @Value("${twitch.api-endpoint}")
+    private String twitchApiUrl;
+
     public Channel getChannelInformationByBroadcasterId(String broadcasterId) {
         log.info("Getting Channel Information Twitch");
 
@@ -35,7 +39,7 @@ public class ChannelInfoService {
     }
 
     private Channel requestChannelInformationFromTwitch(String broadcasterId, String accessToken) {
-        final String channelGetUrl = "https://api.twitch.tv/helix/channels";
+        final String channelGetUrl = twitchApiUrl + "/channels";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(channelGetUrl)
                 .queryParam("broadcaster_id", broadcasterId);
         log.debug("Built Uri: " + builder.toUriString());

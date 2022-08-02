@@ -1,13 +1,17 @@
 package me.cocoblue.twitchwebhook.dto.twitch.eventsub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.CommonEvent;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 
 public class StreamNotifyRequest {
     @Data
@@ -47,14 +51,27 @@ public class StreamNotifyRequest {
         @JsonProperty("type")
         private String type;
         @JsonProperty("started_at")
-        private String startedAtString;
         private LocalDateTime startedAt;
 
-        public void setStartedAtString(String startedAtString) {
-            this.startedAtString = startedAtString;
-            // String Value를 LocalDateTime에도 반영
-            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            this.startedAt = LocalDateTime.parse(startedAtString, formatter);
+        public void setStartedAt(String startedAtString) {
+            // TEST Case에는 소수점이 있으므로 삭제.
+            final int dotIndex = startedAtString.indexOf('.');
+            String cutString;
+
+            if(dotIndex > 0) {
+                cutString = startedAtString.substring(0, dotIndex);
+            } else {
+                cutString = startedAtString;
+            }
+
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                    .withResolverStyle(ResolverStyle.LENIENT);
+
+            this.startedAt = LocalDateTime.parse(cutString, formatter);
+        }
+
+        public void setStartedAt(LocalDateTime startedAt) {
+            this.startedAt = startedAt;
         }
     }
 }

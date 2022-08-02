@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@Log4j2
 public class DiscordWebhookService {
     @Async
     public void send(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {

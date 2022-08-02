@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Log4j2
 @Service
@@ -21,17 +22,19 @@ public class OauthTokenService {
     @Value("${twitch.client-secret}")
     private String clientSecret;
 
+    @Value("${twitch.token-endpoint}")
+    private String tokenEndpoint;
+
     public AppTokenResponse getAppTokenFromTwitch() {
         final RestTemplate restTemplate = new RestTemplate();
-        final String tokenUrl = "https://id.twitch.tv/oauth2/token";
+        final String tokenUrl = tokenEndpoint + "/token";
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tokenUrl)
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret)
+                .queryParam("grant_type", "client_credentials");
+        log.debug("built URI: " + builder.toUriString());
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
-        body.add("client_id", clientId);
-        body.add("client_secret", clientSecret);
-        body.add("grant_type", "client_credentials");
-        log.debug("Body Data: " + body);
-
-        final ResponseEntity<AppTokenResponse> responseEntity = restTemplate.postForEntity(tokenUrl, body, AppTokenResponse.class);
+        final ResponseEntity<AppTokenResponse> responseEntity = restTemplate.postForEntity(builder.toUriString(), null, AppTokenResponse.class);
         return responseEntity.getBody();
     }
 
@@ -40,7 +43,7 @@ public class OauthTokenService {
         log.info("Revoke App Access Token Started");
         log.debug("Revoking App Access Token: " + appAccessToken);
         final RestTemplate restTemplate = new RestTemplate();
-        final String revokeUrl = "https://id.twitch.tv/oauth2/revoke";
+        final String revokeUrl = tokenEndpoint + "/revoke";
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
         body.add("client_id", clientId);

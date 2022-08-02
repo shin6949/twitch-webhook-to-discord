@@ -85,7 +85,7 @@ public class StreamNotifyService {
                 .color(embedColor)
                 .fields(fields)
                 .footer(footer)
-                .timestamp(startTime.toString())
+                .timestamp(String.valueOf(startTime))
                 .thumbnail(thumbnail)
                 .build();
 
@@ -136,7 +136,7 @@ public class StreamNotifyService {
                 .color(embedColor)
                 .fields(fields)
                 .footer(footer)
-                .timestamp(endTime.toString())
+                .timestamp(String.valueOf(endTime))
                 .build();
         discordEmbeds.add(discordEmbed);
 

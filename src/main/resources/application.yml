@@ -45,13 +45,11 @@ twitch:
   client-secret: ${TWITCH_CLIENT_SECRET}
   event-secret: ${TWITCH_EVENT_SECRET}
   event-renew: true
+  api-endpoint: https://api.twitch.tv/helix
+  token-endpoint: https://id.twitch.tv/oauth2
 
 webapp:
   base-url: ${WEBAPP_BASE_URL}
-
----
-spring:
-  profiles: prod
 
 logging:
   level:
@@ -76,3 +74,7 @@ spring:
 logging:
   level:
     root: debug
+
+twitch:
+  api-endpoint: http://localhost:3000/mock
+  token-endpoint: http://localhost:3000/auth

@@ -38,8 +38,6 @@ public class StreamNotifyController {
         if(controllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
-        } else {
-            log.info("This req is valid");
         }
 
         // RequestBody를 Vo에 Mapping
@@ -52,11 +50,19 @@ public class StreamNotifyController {
             return streamNotification.getChallenge();
         }
 
+        // 옳은 broadcasterId를 제시했는지 판단
+        if(!streamNotification.getEvent().getBroadcasterUserId().equals(broadcasterId)) {
+            log.warn("It doesn't match between paths broadcaster id and event broadcaster id. So, This req is invalid.");
+            return "success";
+        }
+
+        // 이미 전송한 알림인지 파악
         if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
 
+        log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
@@ -80,8 +86,6 @@ public class StreamNotifyController {
         if(controllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
-        } else {
-            log.info("This req is valid");
         }
 
         // RequestBody를 Vo에 Mapping
@@ -94,11 +98,18 @@ public class StreamNotifyController {
             return streamNotification.getChallenge();
         }
 
+        // 옳은 broadcasterId를 제시했는지 판단
+        if(!streamNotification.getEvent().getBroadcasterUserId().equals(broadcasterId)) {
+            log.warn("It doesn't match between paths broadcaster id and event broadcaster id. So, This req is invalid.");
+            return "success";
+        }
+
         if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
 
+        log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
@@ -116,6 +127,7 @@ public class StreamNotifyController {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             Map<String, Object> map = mapper.readValue(original, Map.class);
 
+            log.debug("map: " + map.toString());
             return mapper.convertValue(map, StreamNotifyRequest.Body.class);
 
         } catch (JsonProcessingException jsonProcessingException) {

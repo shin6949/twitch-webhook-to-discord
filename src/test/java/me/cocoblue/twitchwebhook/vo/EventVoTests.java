@@ -8,6 +8,8 @@ import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @SpringBootTest
@@ -18,7 +20,7 @@ class EventVoTests {
         final String time = "2021-10-06T04:32:47.613998673Z";
 
         StreamNotifyRequest.Event event = new StreamNotifyRequest.Event();
-        event.setStartedAtString(time);
+        event.setStartedAt(time);
         log.info(event.getStartedAt());
     }
 

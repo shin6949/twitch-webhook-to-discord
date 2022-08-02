@@ -12,6 +12,7 @@ import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class ChannelNotifyService {
                 .color(embedColor)
                 .fields(fields)
                 .footer(footer)
-                .timestamp(generatedTime.toString())
+                .timestamp(String.valueOf(generatedTime))
                 .thumbnail(thumbnail)
                 .build();
 
