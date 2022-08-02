@@ -57,14 +57,17 @@ public class StreamNotifyRequest {
             // TEST Case에는 소수점이 있으므로 삭제.
             final int dotIndex = startedAtString.indexOf('.');
             String cutString;
+            String timePattern;
 
             if(dotIndex > 0) {
                 cutString = startedAtString.substring(0, dotIndex);
+                timePattern = "yyyy-MM-dd'T'HH:mm:ss";
             } else {
                 cutString = startedAtString;
+                timePattern = "yyyy-MM-dd'T'HH:mm:ss'Z'";
             }
 
-            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timePattern)
                     .withResolverStyle(ResolverStyle.LENIENT);
 
             this.startedAt = LocalDateTime.parse(cutString, formatter);
