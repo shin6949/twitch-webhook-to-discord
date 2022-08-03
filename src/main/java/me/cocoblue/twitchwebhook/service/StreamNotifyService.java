@@ -6,10 +6,12 @@ import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
+import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
+import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Async;
@@ -31,12 +33,17 @@ public class StreamNotifyService {
     private final UserInfoService userInfoService;
     private final DiscordWebhookService discordWebhookService;
     private final MessageSource messageSource;
+    private final GameInfoService gameInfoService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    private DiscordEmbed.Webhook makeStreamOnlineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, Channel channel, User user) {
+    private DiscordEmbed.Webhook makeStreamOnlineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form,
+                                                                Channel channel, User user) {
         // Form의 Locale 얻기
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
+
+        // Game 정보 얻어오기
+        final Game game = gameInfoService.getGameInfoByIdFromTwitch(channel.getGameId());
 
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
@@ -51,11 +58,12 @@ public class StreamNotifyService {
         }
 
         // Thumbnail
-        final String thumbnailUrl = String.format("https://static-cdn.jtvnw.net/ttv-boxart/%s.jpg", channel.getGameId());
+        final String thumbnailUrl = game.removeSizeMentionInBoxArtUrl();
         final DiscordEmbed.Thumbnail thumbnail = DiscordEmbed.Thumbnail.builder().url(thumbnailUrl).build();
 
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
+
         final String gameName = channel.getGameName();
         final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
         final String embedTitle = channel.getTitle();
