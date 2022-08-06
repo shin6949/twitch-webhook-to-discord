@@ -64,7 +64,7 @@ public class StreamNotifyService {
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
 
-        final String gameName = channel.getGameName();
+        final String gameName = game.getName();
         final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
         final String embedTitle = channel.getTitle();
 

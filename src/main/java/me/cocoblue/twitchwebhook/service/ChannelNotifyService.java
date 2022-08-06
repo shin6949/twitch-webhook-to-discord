@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
+import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
+import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ChannelNotifyService {
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
+    private final GameInfoService gameInfoService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -64,6 +67,9 @@ public class ChannelNotifyService {
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
         log.debug("locale: " + locale);
 
+        // Game 정보 얻어오기
+        final Game game = gameInfoService.getGameInfoByIdFromTwitch(body.getEvent().getCategoryId());
+
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
@@ -81,12 +87,12 @@ public class ChannelNotifyService {
         }
 
         // Thumbnail
-        final String thumbnailUrl = String.format("https://static-cdn.jtvnw.net/ttv-boxart/%s_IGDB.jpg", event.getCategoryId());
+        final String thumbnailUrl = game.removeSizeMentionInBoxArtUrl();
         final DiscordEmbed.Thumbnail thumbnail = DiscordEmbed.Thumbnail.builder().url(thumbnailUrl).build();
 
         // Embed Area
         final String embedColor = Integer.toString(form.getColor());
-        final String gameName = event.getCategoryName();
+        final String gameName = game.getName();
         final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
         final String embedTitle = event.getTitle();
 
