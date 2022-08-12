@@ -62,7 +62,7 @@ public class StreamNotifyService {
         final DiscordEmbed.Thumbnail thumbnail = DiscordEmbed.Thumbnail.builder().url(thumbnailUrl).build();
 
         // Embed Area
-        final String embedColor = Integer.toString(form.getColor());
+        final String embedColor = Integer.toString(form.getDecimalColor());
 
         final String gameName = game.getName();
         final String embedDescription = gameName.equals("") ? messageSource.getMessage("game.none", null, locale) : messageSource.getMessage("game.prefix", null, locale) + gameName;
@@ -120,7 +120,7 @@ public class StreamNotifyService {
         }
 
         // Embed Area
-        final String embedColor = Integer.toString(form.getColor());
+        final String embedColor = Integer.toString(form.getDecimalColor());
         final String embedDescription = messageSource.getMessage("stream.offline.embed-description", null, locale);
         final String embedTitle = messageSource.getMessage("stream.offline.embed-title", null, locale);
         final DiscordEmbed.Image image = DiscordEmbed.Image.builder()
