@@ -34,7 +34,7 @@ public class SubscriptionFormEntity {
     @NotNull
     private String content;
     @NotNull
-    private int color;
+    private String colorHex;
     @Enumerated(EnumType.STRING)
     @Column(name="type")
     @NotNull
@@ -46,16 +46,7 @@ public class SubscriptionFormEntity {
     @NotNull
     private String webhookUrl;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        SubscriptionFormEntity that = (SubscriptionFormEntity) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public int getDecimalColor() {
+        return Integer.parseInt(getColorHex(),16);
     }
 }

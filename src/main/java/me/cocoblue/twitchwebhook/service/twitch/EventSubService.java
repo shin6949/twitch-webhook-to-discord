@@ -49,7 +49,6 @@ public class EventSubService {
         return response.getBody();
     }
 
-    @Async
     public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity, String accessToken) {
         log.info("Adding EventSub To Twitch");
 
