@@ -1,6 +1,6 @@
-package me.cocoblue.twitchwebhook.repository;
+package me.cocoblue.twitchwebhook.domain;
 
-import me.cocoblue.twitchwebhook.entity.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

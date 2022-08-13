@@ -9,7 +9,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;

@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.entity;
+package me.cocoblue.twitchwebhook.domain;
 
 import com.sun.istack.NotNull;
 import lombok.*;

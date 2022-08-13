@@ -1,8 +1,8 @@
-package me.cocoblue.twitchwebhook.repository;
+package me.cocoblue.twitchwebhook.domain;
 
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
-import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
