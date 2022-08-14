@@ -57,7 +57,7 @@ public class ChannelNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
         }
     }
 
@@ -126,6 +126,7 @@ public class ChannelNotifyService {
 
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(), form.getBotProfileId().getAvatarUrl(),
+                form.getContent(), discordEmbeds);
     }
 }

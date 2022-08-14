@@ -99,7 +99,8 @@ public class StreamNotifyService {
 
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
+                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
     }
 
     private DiscordEmbed.Webhook makeStreamOfflineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, User user) {
@@ -154,7 +155,8 @@ public class StreamNotifyService {
                 .build();
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
+                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
     }
 
     @Async
@@ -187,7 +189,7 @@ public class StreamNotifyService {
             }
 
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
         }
     }
 }

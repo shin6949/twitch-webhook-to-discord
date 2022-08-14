@@ -17,7 +17,7 @@ public class WebhookDataEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(length = 500)
     private String name;
 
     @Column(length = 500)
@@ -26,4 +26,9 @@ public class WebhookDataEntity {
 
     @Column
     private String meno;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="owner_id", foreignKey = @ForeignKey(name="FK_WEBHOOK_DATA_OWNER_ID"))
+    @NotNull
+    private BroadcasterIdEntity ownerId;
 }

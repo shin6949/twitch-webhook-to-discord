@@ -19,6 +19,7 @@ public class SubscriptionFormEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 누구를 안내할지
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_BROADCASTER_ID"))
     @NotNull
@@ -27,7 +28,7 @@ public class SubscriptionFormEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="bot_profile_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID"))
     @NotNull
-    private BotProfileDataEntity botProfileDataEntity;
+    private BotProfileDataEntity botProfileId;
 
     @Column(length = 2000)
     @NotNull
@@ -45,12 +46,14 @@ public class SubscriptionFormEntity {
     @Column(name = "language")
     private LanguageIsoData languageIsoData;
 
-    @Column(length = 500)
-    @NotNull
-    private String webhookUrl;
-
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_OWNDER_BROADCASTER_ID"))
+    @JoinColumn(name="webhook_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_WEBHOOK_ID"))
+    @NotNull
+    private WebhookDataEntity webhookId;
+
+    // 누가 이 폼을 만들었는지
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_OWNER_BROADCASTER_ID"))
     private BroadcasterIdEntity formOwner;
 
     public int getDecimalColor() {

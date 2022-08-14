@@ -11,7 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Entity(name = "bot_profile_data_entity")
+@Entity(name = "bot_profile_data")
 public class BotProfileDataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
