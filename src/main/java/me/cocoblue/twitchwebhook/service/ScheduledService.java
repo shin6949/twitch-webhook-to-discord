@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
@@ -30,14 +31,13 @@ public class ScheduledService {
 
     @Scheduled(cron = "0 30 */1 * * *")
     public void eventSubscriptionCheck() {
-        log.info("Event Subscription Check Start");
-
         if(!eventEnabled) {
             log.info("Event Renew Function Disabled. Do Not Processing.");
             return;
         }
 
-        // Getting Access Token From Twitch
+        log.info("Event Subscription Check Start");
+
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
 
         List<Subscription> subscriptionListFromTwitch;
@@ -59,11 +59,7 @@ public class ScheduledService {
         List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
         for(SubscriptionFormEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
-                if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
-                && form.getSubscriptionType().getTwitchName().equals(subscriptionListFromTwitch.get(i).getType())
-                && subscriptionListFromTwitch.get(i).getTransport().getCallback().startsWith(webappBaseUrl)) {
-                    break;
-                }
+                if(judgeSameForm(form, subscriptionListFromTwitch.get(i))) break;
 
                 if(i == (subscriptionListFromTwitch.size() - 1)) {
                     requiredToEnrollEventList.add(form);
@@ -80,5 +76,20 @@ public class ScheduledService {
 
         oauthTokenService.revokeAppTokenToTwitch(accessToken);
         log.info("Scheduled Event Subscription Check Finished");
+    }
+
+    private boolean judgeSameForm(SubscriptionFormEntity form, Subscription subscription) {
+        // 같은 유저를 바라보고 있는지.
+        if(form.getBroadcasterIdEntity().getId() != Long.parseLong(subscription.getCondition().getBroadcasterUserId())) {
+            return false;
+        }
+
+        // 같은 타입의 구독인지.
+        if(!form.getSubscriptionType().getTwitchName().equals(subscription.getType())) {
+            return false;
+        }
+
+        // Callback URL이 맞는지.
+        return subscription.getTransport().getCallback().startsWith(webappBaseUrl);
     }
 }

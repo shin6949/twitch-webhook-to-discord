@@ -4,8 +4,11 @@ import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,6 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
 @Entity(name = "subscription_form")
 public class SubscriptionFormEntity {
     @Id
@@ -30,20 +34,18 @@ public class SubscriptionFormEntity {
     @NotNull
     private BotProfileDataEntity botProfileId;
 
-    @Column(length = 2000)
-    @NotNull
+    @Column(length = 2000, name="content", nullable = false)
     private String content;
 
-    @NotNull
+    @Column(name = "color_hex", nullable = false)
     private String colorHex;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="type")
-    @NotNull
+    @Column(name="type", nullable = false)
     private SubscriptionType subscriptionType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "language")
+    @Column(name = "language", nullable = false)
     private LanguageIsoData languageIsoData;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -54,7 +56,16 @@ public class SubscriptionFormEntity {
     // 누가 이 폼을 만들었는지
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_OWNER_BROADCASTER_ID"))
+    @NotNull
     private BroadcasterIdEntity formOwner;
+
+    @Column(name="created_at")
+    @NotNull
+    private LocalDateTime createdAt;
+
+    @Column(name="enabled", nullable = false)
+    @ColumnDefault("false")
+    private boolean enabled;
 
     public int getDecimalColor() {
         return Integer.parseInt(getColorHex(),16);
