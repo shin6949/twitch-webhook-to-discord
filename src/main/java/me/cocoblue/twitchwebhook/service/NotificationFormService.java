@@ -21,8 +21,4 @@ public class NotificationFormService {
         return subscriptionFormRepository.getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(
                 broadcasterIdEntity, subscriptionType);
     }
-
-    public List<SubscriptionFormEntity> getFormAll() {
-        return subscriptionFormRepository.findAll();
-    }
 }
