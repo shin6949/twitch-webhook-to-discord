@@ -21,12 +21,12 @@ public class UserLogEntity {
 
     // 누구 대상의 로그인지
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="log_owner", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_OWNER"))
+    @JoinColumn(name="log_owner_id", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_OWNER"))
     @NotNull
     private BroadcasterIdEntity logOwner;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="log_id", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_id"))
+    @JoinColumn(name="log_id", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_ID"))
     @NotNull
     private NotificationLogEntity logId;
 
