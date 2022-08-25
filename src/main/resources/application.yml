@@ -63,8 +63,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
-  hibernate:
-    ddl-auto: update
+
+  jpa:
+    hibernate:
+      ddl-auto: update
 
   h2:
     console:
@@ -87,8 +89,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
-  hibernate:
-    ddl-auto: update
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
 
   h2:
     console:

@@ -1,20 +1,40 @@
+-- 테스트용 시작
 ALTER TABLE subscription_form DROP FOREIGN KEY FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID;
+ALTER TABLE subscription_form DROP FOREIGN KEY FK_SUBSCRIPTION_FORM_WEBHOOK_ID;
+ALTER TABLE subscription_form DROP FOREIGN KEY FK_SUBSCRIPTION_FORM_FORM_OWNER;
 ALTER TABLE subscription_form DROP bot_profile_id;
+ALTER TABLE subscription_form DROP form_owner;
+DROP VIEW subscription_group_view;
 DROP TABLE IF EXISTS bot_profile_data;
 DROP TABLE IF EXISTS webhook_data;
 DROP TABLE IF EXISTS user_log;
--- 테스트용 시작
 DROP TABLE IF EXISTS subscription_form;
 DROP TABLE IF EXISTS notification_log;
 DROP TABLE IF EXISTS broadcaster_id;
+
 CREATE TABLE IF NOT EXISTS broadcaster_id SELECT * FROM twitch.broadcaster_id;
 CREATE TABLE IF NOT EXISTS notification_log SELECT * FROM twitch.notification_log;
 CREATE TABLE IF NOT EXISTS subscription_form SELECT * FROM twitch.subscription_form;
-ALTER TABLE subscription_form MODIFY id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
-ALTER TABLE notification_log MODIFY id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
-ALTER TABLE notification_log ADD CONSTRAINT FK_NOTIFICATION_LOG_BROADCASTER_ID FOREIGN KEY (broadcaster_id) REFERENCES broadcaster_id (id);
-ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_BROADCASTER_ID FOREIGN KEY (broadcaster_id) REFERENCES broadcaster_id (id);
+ALTER TABLE `broadcaster_id` ADD PRIMARY KEY (`id`);
+ALTER TABLE `notification_log`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_NOTIFICATION_LOG_BROADCASTER_ID` (`broadcaster_id`);
+ALTER TABLE `subscription_form`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_SUBSCRIPTION_FORM_BROADCASTER_ID` (`broadcaster_id`);
+ALTER TABLE `notification_log`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `subscription_form`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `notification_log`
+  ADD CONSTRAINT `FK_NOTIFICATION_LOG_BROADCASTER_ID` FOREIGN KEY (`broadcaster_id`) REFERENCES `broadcaster_id` (`id`);
+ALTER TABLE `subscription_form`
+  ADD CONSTRAINT `FK_SUBSCRIPTION_FORM_BROADCASTER_ID` FOREIGN KEY (`broadcaster_id`) REFERENCES `broadcaster_id` (`id`);
 -- 테스트용 끝
+
+DROP TABLE IF EXISTS bot_profile_data;
+DROP TABLE IF EXISTS webhook_data;
+DROP TABLE IF EXISTS user_log;
 
 CREATE TABLE webhook_data (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -53,14 +73,53 @@ SELECT broadcaster_id AS owner_id, username, avatar_url
 FROM subscription_form
 GROUP BY avatar_url, username;
 
+-- Bot Profile Column 추가
 ALTER TABLE subscription_form ADD COLUMN bot_profile_id BIGINT NOT NULL default 0;
--- 데이터 반영
+-- Bot Profile 데이터 반영
 UPDATE subscription_form SF INNER JOIN bot_profile_data BPD
 ON SF.avatar_url = BPD.avatar_url
 SET SF.bot_profile_id = BPD.id;
--- 제약 조건 설정
+-- Bot Profile 제약 조건 설정
 ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID
 FOREIGN KEY (bot_profile_id)
 REFERENCES bot_profile_data (id);
--- 중복 데이터 제거
-ALTER TABLE subscription_form DROP bot_profile_id;
+
+-- webhook_id Column 추가
+ALTER TABLE subscription_form ADD COLUMN webhook_id BIGINT NOT NULL default 0;
+-- Webhook Data 데이터 반영
+UPDATE subscription_form SF INNER JOIN webhook_data WD
+ON SF.webhook_url = WD.webhook_url
+SET SF.webhook_id = WD.id;
+-- Webhook Data 제약 조건 설정
+ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_WEBHOOK_ID
+FOREIGN KEY (webhook_id)
+REFERENCES webhook_data (id);
+
+-- Form Owner 추가
+ALTER TABLE subscription_form ADD COLUMN form_owner BIGINT NOT NULL;
+-- Form Owner 데이터 반영
+UPDATE subscription_form SF INNER JOIN webhook_data WD
+ON SF.webhook_url = WD.webhook_url
+SET SF.form_owner = WD.owner_id;
+-- Form Owner 제약 조건 설정
+ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_FORM_OWNER
+FOREIGN KEY (form_owner)
+REFERENCES broadcaster_id (id);
+
+
+ALTER TABLE subscription_form ADD COLUMN enabled Boolean NOT NULL default false;
+UPDATE subscription_form SET enabled = 1;
+
+ALTER TABLE subscription_form ADD COLUMN created_at DATETIME NOT NULL default now();
+UPDATE subscription_form SET created_at = '2022-06-01 00:00:00';
+
+CREATE VIEW subscription_group_view AS (
+  SELECT broadcaster_id, type, enabled
+  FROM subscription_form
+  GROUP BY broadcaster_id, type
+);
+
+-- 불필요 데이터 제거
+ALTER TABLE subscription_form DROP avatar_url;
+ALTER TABLE subscription_form DROP username;
+ALTER TABLE subscription_form DROP webhook_url;

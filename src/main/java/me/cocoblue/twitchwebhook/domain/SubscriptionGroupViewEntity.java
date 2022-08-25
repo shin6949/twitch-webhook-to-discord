@@ -11,10 +11,10 @@ import java.io.Serializable;
 @Entity
 @Data
 @Immutable
-@Table(name = "subscription_list_view")
-public class SubscriptionListViewEntity implements Serializable {
+@Table(name = "subscription_group_view")
+public class SubscriptionGroupViewEntity implements Serializable {
     @EmbeddedId
-    private subscriptionListViewId subscriptionListViewId;
+    private SubscriptionGroupViewId subscriptionListViewId;
 
     @Column(name="enabled")
     private boolean enabled;
@@ -22,7 +22,7 @@ public class SubscriptionListViewEntity implements Serializable {
 
 @Data
 @Embeddable
-class subscriptionListViewId implements Serializable {
+class SubscriptionGroupViewId implements Serializable {
     @Column(name = "broadcaster_id")
     private long broadcasterId;
 

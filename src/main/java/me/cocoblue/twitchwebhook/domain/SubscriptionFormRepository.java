@@ -15,9 +15,9 @@ public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFo
     List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, SubscriptionType type);
     List<SubscriptionFormEntity> getSubscriptionFormEntitiesByEnabledFalseAndCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
     List<SubscriptionFormEntity> getSubscriptionFormEntitiesByEnabledTrueAndBroadcasterIdEntityAndSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, SubscriptionType type);
-    @Query("UPDATE subscription_form SET enabled = true " +
-            "WHERE broadcaster_id = :id " +
-            "AND type = :type")
-    @Modifying
-    void updateEnabledTrueByBroadcasterIdAndType(@Param("id") long broadcasterId, @Param("type") String Type);
+//    @Query("UPDATE subscription_form SET enabled = true " +
+//            "WHERE broadcaster_id = :id " +
+//            "AND type = :type")
+//    @Modifying
+//    void updateEnabledTrueByBroadcasterIdAndType(@Param("id") long broadcasterId, @Param("type") String Type);
 }
