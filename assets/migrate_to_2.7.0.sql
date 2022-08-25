@@ -1,7 +1,20 @@
+ALTER TABLE subscription_form DROP FOREIGN KEY FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID;
+ALTER TABLE subscription_form DROP bot_profile_id;
 DROP TABLE IF EXISTS bot_profile_data;
 DROP TABLE IF EXISTS webhook_data;
 DROP TABLE IF EXISTS user_log;
-ALTER TABLE subscription_form DROP bot_profile_id;
+-- 테스트용 시작
+DROP TABLE IF EXISTS subscription_form;
+DROP TABLE IF EXISTS notification_log;
+DROP TABLE IF EXISTS broadcaster_id;
+CREATE TABLE IF NOT EXISTS broadcaster_id SELECT * FROM twitch.broadcaster_id;
+CREATE TABLE IF NOT EXISTS notification_log SELECT * FROM twitch.notification_log;
+CREATE TABLE IF NOT EXISTS subscription_form SELECT * FROM twitch.subscription_form;
+ALTER TABLE subscription_form MODIFY id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE notification_log MODIFY id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+ALTER TABLE notification_log ADD CONSTRAINT FK_NOTIFICATION_LOG_BROADCASTER_ID FOREIGN KEY (broadcaster_id) REFERENCES broadcaster_id (id);
+ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_BROADCASTER_ID FOREIGN KEY (broadcaster_id) REFERENCES broadcaster_id (id);
+-- 테스트용 끝
 
 CREATE TABLE webhook_data (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -41,7 +54,13 @@ FROM subscription_form
 GROUP BY avatar_url, username;
 
 ALTER TABLE subscription_form ADD COLUMN bot_profile_id BIGINT NOT NULL default 0;
-
+-- 데이터 반영
 UPDATE subscription_form SF INNER JOIN bot_profile_data BPD
 ON SF.avatar_url = BPD.avatar_url
 SET SF.bot_profile_id = BPD.id;
+-- 제약 조건 설정
+ALTER TABLE subscription_form ADD CONSTRAINT FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID
+FOREIGN KEY (bot_profile_id)
+REFERENCES bot_profile_data (id);
+-- 중복 데이터 제거
+ALTER TABLE subscription_form DROP bot_profile_id;
