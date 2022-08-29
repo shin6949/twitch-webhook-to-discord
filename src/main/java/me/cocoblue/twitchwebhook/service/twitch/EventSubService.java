@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.domain.SubscriptionGroupViewEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequest;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
@@ -49,7 +50,7 @@ public class EventSubService {
         return response.getBody();
     }
 
-    public void addEventSubToTwitch(SubscriptionFormEntity subscriptionFormEntity, String accessToken) {
+    public void addEventSubToTwitch(SubscriptionGroupViewEntity subscriptionGroupViewEntity, String accessToken) {
         log.info("Adding EventSub To Twitch");
 
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
@@ -58,20 +59,20 @@ public class EventSubService {
         final String requestUrl = twitchApiUrl + "/eventsub/subscriptions";
         log.debug("Request URL: " + requestUrl);
 
-        final String[] splitStr = subscriptionFormEntity.getSubscriptionType().getTwitchName().split("\\.");
+        final String[] splitStr = subscriptionGroupViewEntity.getSubscriptionType().getTwitchName().split("\\.");
         StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
 
         for(int i = 0; i < splitStr.length; i++) {
             if(i == 0) {
-                callbackURL.append("/").append(splitStr[i]).append("/").append(subscriptionFormEntity.getBroadcasterIdEntity().getId());
+                callbackURL.append("/").append(splitStr[i]).append("/").append(subscriptionGroupViewEntity.getBroadcasterId());
             } else {
                 callbackURL.append("/").append(splitStr[i]);
             }
         }
 
-        final Condition condition = new Condition(String.valueOf(subscriptionFormEntity.getBroadcasterIdEntity().getId()));
+        final Condition condition = new Condition(String.valueOf(subscriptionGroupViewEntity.getBroadcasterId()));
         final Transport transport = new Transport(callbackURL.toString(), webhookSecret);
-        final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionFormEntity.getSubscriptionType().getTwitchName(), condition, transport);
+        final SubscribeRequest subscribeRequest = new SubscribeRequest(subscriptionGroupViewEntity.getSubscriptionType().getTwitchName(), condition, transport);
         final HttpEntity<?> requestData = new HttpEntity<>(subscribeRequest, headers);
         log.debug("Request Body: " + requestData);
 

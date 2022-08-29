@@ -2,9 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.*;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +22,7 @@ public class ScheduledService {
     private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
     private final SubscriptionFormRepository subscriptionFormRepository;
+    private final SubscriptionGroupViewRepository subscriptionGroupViewRepository;
 
     @Value("${webapp.base-url}")
     private String webappBaseUrl;
@@ -33,11 +32,6 @@ public class ScheduledService {
 
     @Scheduled(cron = "0 30 */1 * * *")
     public void eventSubscriptionCheck() {
-        /*
-            TODO: 스케쥴 연산을 줄이기 위한 구현 전략
-            - 동일 ID + 동일 Type으로 GROUP BY하여 ROW를 최소화하여 받아오도록.
-            -> 주기적으로 확인해야하므로 DB에서 View으로 정의할 필요가 있음.
-         */
         if(!eventEnabled) {
             log.info("Event Renew Function Disabled. Do Not Processing.");
             return;
@@ -59,12 +53,12 @@ public class ScheduledService {
             return;
         }
 
-        final List<SubscriptionFormEntity> formList = subscriptionFormRepository.findAll();
+        final List<SubscriptionGroupViewEntity> formList = subscriptionGroupViewRepository.findAll();
         log.info("formList Number: " + formList.size());
         log.debug("formList Data: " + formList);
 
-        List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
-        for(SubscriptionFormEntity form : formList) {
+        List<SubscriptionGroupViewEntity> requiredToEnrollEventList = new ArrayList<>();
+        for(SubscriptionGroupViewEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
                 if(judgeSameForm(form, subscriptionListFromTwitch.get(i))) break;
 
@@ -76,7 +70,7 @@ public class ScheduledService {
 
         log.info("Need To Enroll Form Number: " + requiredToEnrollEventList.size());
 
-        for(SubscriptionFormEntity form : requiredToEnrollEventList) {
+        for(SubscriptionGroupViewEntity form : requiredToEnrollEventList) {
             log.debug("To Enroll Form: " + form);
             eventSubService.addEventSubToTwitch(form, accessToken);
         }
@@ -111,9 +105,9 @@ public class ScheduledService {
         }
     }
 
-    private boolean judgeSameForm(SubscriptionFormEntity form, Subscription subscription) {
+    private boolean judgeSameForm(SubscriptionGroupViewEntity form, Subscription subscription) {
         // 같은 유저를 바라보고 있는지.
-        if(form.getBroadcasterIdEntity().getId() != Long.parseLong(subscription.getCondition().getBroadcasterUserId())) {
+        if(form.getBroadcasterId() != Long.parseLong(subscription.getCondition().getBroadcasterUserId())) {
             return false;
         }
 

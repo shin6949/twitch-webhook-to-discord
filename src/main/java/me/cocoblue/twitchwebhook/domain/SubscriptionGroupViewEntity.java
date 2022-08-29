@@ -18,6 +18,14 @@ public class SubscriptionGroupViewEntity implements Serializable {
 
     @Column(name="enabled")
     private boolean enabled;
+
+    public long getBroadcasterId() {
+        return getSubscriptionListViewId().getBroadcasterId();
+    }
+
+    public SubscriptionType getSubscriptionType() {
+        return getSubscriptionListViewId().getSubscriptionType();
+    }
 }
 
 @Data

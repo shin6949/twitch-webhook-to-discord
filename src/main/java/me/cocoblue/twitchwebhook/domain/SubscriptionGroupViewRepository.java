@@ -2,6 +2,8 @@ package me.cocoblue.twitchwebhook.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubscriptionGroupViewRepository extends JpaRepository<SubscriptionGroupViewEntity, SubscriptionGroupViewId> {
+import java.util.List;
 
+public interface SubscriptionGroupViewRepository extends JpaRepository<SubscriptionGroupViewEntity, SubscriptionGroupViewId> {
+    List<SubscriptionGroupViewEntity> findAllByEnabled(boolean enabled);
 }
