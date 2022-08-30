@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.UserLogEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
@@ -14,6 +16,7 @@ import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -160,7 +163,7 @@ public class StreamNotifyService {
     }
 
     @Async
-    public void sendMessage(StreamNotifyRequest.Body body, Channel channel) {
+    public void sendMessage(StreamNotifyRequest.Body body, Channel channel, Long logId) {
         log.info("Stream Notify Service Called");
         log.debug("Received Body: " + body.toString());
 
@@ -189,7 +192,16 @@ public class StreamNotifyService {
             }
 
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+
+            if(logId != null) {
+                final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+                final NotificationLogEntity notificationLogEntity = new NotificationLogEntity().builder().build();
+
+                UserLogEntity userLogEntity = new UserLogEntity().builder()
+                        .logId(logId)
+                        .logOwner()
+                        .build();
+            }
         }
     }
 }
