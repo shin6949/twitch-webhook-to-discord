@@ -13,11 +13,10 @@ import java.util.List;
 @Repository
 public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFormEntity, Long> {
     List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, SubscriptionType type);
-    List<SubscriptionFormEntity> getSubscriptionFormEntitiesByEnabledFalseAndCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
-    List<SubscriptionFormEntity> getSubscriptionFormEntitiesByEnabledTrueAndBroadcasterIdEntityAndSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, SubscriptionType type);
-//    @Query("UPDATE subscription_form SET enabled = true " +
-//            "WHERE broadcaster_id = :id " +
-//            "AND type = :type")
-//    @Modifying
-//    void updateEnabledTrueByBroadcasterIdAndType(@Param("id") long broadcasterId, @Param("type") String Type);
+    @Modifying
+    @Query("UPDATE subscription_form " +
+            "SET enabled = true " +
+            "WHERE broadcaster_id = :broadcaster_id " +
+            "AND 'type' = :type")
+    int updateEnabled(@Param(value = "broadcaster_id") long broadcasterId, @Param(value = "type") String type);
 }

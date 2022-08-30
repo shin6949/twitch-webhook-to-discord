@@ -14,17 +14,17 @@ import java.io.Serializable;
 @Table(name = "subscription_group_view")
 public class SubscriptionGroupViewEntity implements Serializable {
     @EmbeddedId
-    private SubscriptionGroupViewId subscriptionListViewId;
+    private SubscriptionGroupViewId subscriptionGroupViewId;
 
     @Column(name="enabled")
     private boolean enabled;
 
     public long getBroadcasterId() {
-        return getSubscriptionListViewId().getBroadcasterId();
+        return getSubscriptionGroupViewId().getBroadcasterId();
     }
 
     public SubscriptionType getSubscriptionType() {
-        return getSubscriptionListViewId().getSubscriptionType();
+        return getSubscriptionGroupViewId().getSubscriptionType();
     }
 }
 

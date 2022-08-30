@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +20,8 @@ import java.util.List;
 public class ScheduledService {
     private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
-    private final SubscriptionFormRepository subscriptionFormRepository;
     private final SubscriptionGroupViewRepository subscriptionGroupViewRepository;
+    private final SubscriptionFormRepository subscriptionFormRepository;
 
     @Value("${webapp.base-url}")
     private String webappBaseUrl;
@@ -89,20 +88,26 @@ public class ScheduledService {
         log.info("Event Subscription Add Start");
         log.info("Getting Not Enabled Form");
 
-        final LocalDateTime nowTime = LocalDateTime.now();
-        /*
-            TODO: 스케쥴 연산을 줄이기 위한 구현 전략
-             1. 미 구독된 webhook 요청의 경우에는 동일 ID + 동일 Type으로 GROUP BY하여 ROW를 최소화하여 받아오도록.
-             -> 주기적으로 확인해야하므로 DB에서 View으로 정의할 필요가 있음.
-             2. FE 단에서 데이터를 추가했을 때 이미 추가되어 있는 구독인지 확인한다. 이미 추가되어 있다면 enabled를 처음부터 True로 설정.
-         */
-        final List<SubscriptionFormEntity> toAddSubscriptionForms = subscriptionFormRepository
-                .getSubscriptionFormEntitiesByEnabledFalseAndCreatedAtBetween(nowTime.minusMinutes(6), nowTime);
+        final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
 
-        // 중복 구독이 있다면 TRUE로 변경, 없다면 등록 진행
-        for(SubscriptionFormEntity subscriptionFormEntity : toAddSubscriptionForms) {
+        final List<SubscriptionGroupViewEntity> toAddSubscriptionForms = subscriptionGroupViewRepository.findAllByEnabled(false);
 
+        for(SubscriptionGroupViewEntity subscriptionGroupViewEntity : toAddSubscriptionForms) {
+            // 이미 활성화된 다른 항목이 있다면 바로 true로 변경
+            int count = subscriptionGroupViewRepository.countSubscriptionGroupViewEntitiesBySubscriptionGroupViewIdAndEnabled(
+                    subscriptionGroupViewEntity.getSubscriptionGroupViewId(), true);
+            if(count > 0) {
+                updateEnabledTrue(subscriptionGroupViewEntity);
+                continue;
+            }
+
+            if(eventSubService.addEventSubToTwitch(subscriptionGroupViewEntity, accessToken)) {
+                updateEnabledTrue(subscriptionGroupViewEntity);
+            }
         }
+
+        oauthTokenService.revokeAppTokenToTwitch(accessToken);
+        log.info("Event Subscription Add Finished");
     }
 
     private boolean judgeSameForm(SubscriptionGroupViewEntity form, Subscription subscription) {
@@ -118,5 +123,12 @@ public class ScheduledService {
 
         // Callback URL이 맞는지.
         return subscription.getTransport().getCallback().startsWith(webappBaseUrl);
+    }
+
+    private void updateEnabledTrue(SubscriptionGroupViewEntity subscriptionGroupViewEntity) {
+        // 등록 완료되었으면 같은 타입 전체를 true로 변경
+        final int result = subscriptionFormRepository.updateEnabled(subscriptionGroupViewEntity.getBroadcasterId(),
+                subscriptionGroupViewEntity.getSubscriptionType().getTwitchName());
+        log.info("Updated " + result + " Rows. To enabled=true");
     }
 }

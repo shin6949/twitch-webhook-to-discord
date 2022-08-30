@@ -50,7 +50,7 @@ public class EventSubService {
         return response.getBody();
     }
 
-    public void addEventSubToTwitch(SubscriptionGroupViewEntity subscriptionGroupViewEntity, String accessToken) {
+    public boolean addEventSubToTwitch(SubscriptionGroupViewEntity subscriptionGroupViewEntity, String accessToken) {
         log.info("Adding EventSub To Twitch");
 
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
@@ -77,7 +77,14 @@ public class EventSubService {
         log.debug("Request Body: " + requestData);
 
         RestTemplate rt = new RestTemplate();
-        rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
+        try {
+            rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     @Async

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SubscriptionGroupViewRepository extends JpaRepository<SubscriptionGroupViewEntity, SubscriptionGroupViewId> {
     List<SubscriptionGroupViewEntity> findAllByEnabled(boolean enabled);
+    int countSubscriptionGroupViewEntitiesBySubscriptionGroupViewIdAndEnabled(SubscriptionGroupViewId subscriptionGroupViewId, boolean enabled);
 }
