@@ -37,6 +37,7 @@ public class StreamNotifyService {
     private final DiscordWebhookService discordWebhookService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
+    private final UserLogService userLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -192,15 +193,10 @@ public class StreamNotifyService {
             }
 
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(logId != null) {
-                final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
-                final NotificationLogEntity notificationLogEntity = new NotificationLogEntity().builder().build();
-
-                UserLogEntity userLogEntity = new UserLogEntity().builder()
-                        .logId(logId)
-                        .logOwner()
-                        .build();
+                userLogService.insertUserLog(notifyForm, logId, httpStatus);
             }
         }
     }
