@@ -67,6 +67,7 @@ public class UserInfoService {
     @Async
     protected void updateUserToDb(User user) {
         final BroadcasterIdEntity userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
+        log.info("Got User Info From DB: " + userFromDb);
 
         if(!user.toBroadcasterIdEntity().equals(userFromDb)) {
             broadcasterIdRepository.save(user.toBroadcasterIdEntity());

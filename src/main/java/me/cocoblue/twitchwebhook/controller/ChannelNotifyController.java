@@ -50,11 +50,10 @@ public class ChannelNotifyController {
             return "success";
         }
 
-        // Message Send (Async)
-        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification);
+        final Long logId = notifyLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
 
-        // Log Insert (Async)
-        notifyLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
+        // Message Send (Async)
+        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, logId);
 
         return "success";
     }

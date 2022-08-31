@@ -7,9 +7,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "broadcaster_id")
@@ -23,16 +21,9 @@ public class BroadcasterIdEntity {
     @Column(length = 300)
     private String displayName;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        BroadcasterIdEntity that = (BroadcasterIdEntity) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public boolean equals(BroadcasterIdEntity broadcasterIdEntity) {
+        if(!broadcasterIdEntity.getId().equals(this.id)) return false;
+        if(!broadcasterIdEntity.getLoginId().equals(this.loginId)) return false;
+        return broadcasterIdEntity.getDisplayName().equals(this.displayName);
     }
 }

@@ -12,6 +12,7 @@ import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,10 +32,11 @@ public class ChannelNotifyService {
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
+    private final UserLogService userLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body) {
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body,Long logId) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
@@ -57,7 +59,11 @@ public class ChannelNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+
+            if(logId != null) {
+                userLogService.insertUserLog(notifyForm, logId, httpStatus);
+            }
         }
     }
 
