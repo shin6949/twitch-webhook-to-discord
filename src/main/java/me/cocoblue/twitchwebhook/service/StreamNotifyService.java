@@ -164,7 +164,7 @@ public class StreamNotifyService {
     }
 
     @Async
-    public void sendMessage(StreamNotifyRequest.Body body, Channel channel, Long logId) {
+    public void sendMessage(StreamNotifyRequest.Body body, Channel channel, NotificationLogEntity notificationLogEntity) {
         log.info("Stream Notify Service Called");
         log.debug("Received Body: " + body.toString());
 
@@ -195,8 +195,8 @@ public class StreamNotifyService {
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
-            if(logId != null) {
-                userLogService.insertUserLog(notifyForm, logId, httpStatus);
+            if(notificationLogEntity != null) {
+                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus);
             }
         }
     }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
@@ -113,10 +114,10 @@ public class StreamNotifyController {
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Log Insert
-        final Long logId = notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        final NotificationLogEntity notificationLogEntity = notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel, logId);
+        streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);
 
         return "success";
     }

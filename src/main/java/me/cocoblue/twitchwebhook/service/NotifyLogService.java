@@ -18,12 +18,12 @@ public class NotifyLogService {
         return getLogByIdFromTwitch(idFromTwitch) != null;
     }
 
-    public Long insertLog(CommonEvent event, HttpHeaders headers) {
+    public NotificationLogEntity insertLog(CommonEvent event, HttpHeaders headers) {
         log.debug("event: " + event);
         final String messageId = headers.get("twitch-eventsub-message-id").get(0);
         event.setNotificationIdFromTwitch(messageId);
 
-        return notificationLogRepository.save(event.toNotificationLogEntity()).getId();
+        return notificationLogRepository.save(event.toNotificationLogEntity());
     }
 
     private NotificationLogEntity getLogByIdFromTwitch(String idFromTwitch) {

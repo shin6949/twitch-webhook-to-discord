@@ -17,9 +17,7 @@ public class UserLogService {
     private final UserLogRepository userLogRepository;
 
     @Async
-    public void insertUserLog(SubscriptionFormEntity notifyForm, Long logId, HttpStatus httpStatus) {
-        final NotificationLogEntity notificationLogEntity = NotificationLogEntity.builder().id(logId).build();
-
+    public void insertUserLog(SubscriptionFormEntity notifyForm, NotificationLogEntity notificationLogEntity, HttpStatus httpStatus) {
         final UserLogEntity userLogEntity = UserLogEntity.builder()
                 .logId(notificationLogEntity)
                 .logOwner(notifyForm.getFormOwner())
