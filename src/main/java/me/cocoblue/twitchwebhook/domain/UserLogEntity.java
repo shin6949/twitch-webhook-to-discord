@@ -32,10 +32,10 @@ public class UserLogEntity {
     private NotificationLogEntity logId;
 
     // 잘 전송되었는지
-    @Column(name = "status", nullable = false, columnDefinition = "false")
+    @Column(name = "status", nullable = false, columnDefinition = "BIT", length = 1)
     private boolean status;
 
     // return code
-    @Column(name = "result")
+    @Column(name = "result", columnDefinition = "TEXT")
     private String result;
 }

@@ -24,7 +24,7 @@ public class WebhookDataEntity {
     @NotNull
     private String webhookUrl;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String meno;
 
     @ManyToOne(cascade = CascadeType.ALL)

@@ -63,7 +63,7 @@ public class SubscriptionFormEntity {
     @NotNull
     private LocalDateTime createdAt;
 
-    @Column(name="enabled", nullable = false)
+    @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     @ColumnDefault("false")
     private boolean enabled;
 

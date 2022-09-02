@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,11 @@ public class ScheduledService {
         List<SubscriptionGroupViewEntity> requiredToEnrollEventList = new ArrayList<>();
         for(SubscriptionGroupViewEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
-                if(judgeSameForm(form, subscriptionListFromTwitch.get(i))) break;
+                if(judgeSameForm(form, subscriptionListFromTwitch.get(i))) {
+                    // 활성화가 안 된 부분 처리
+                    updateEnabledTrue(form);
+                    break;
+                }
 
                 if(i == (subscriptionListFromTwitch.size() - 1)) {
                     requiredToEnrollEventList.add(form);
@@ -126,9 +131,15 @@ public class ScheduledService {
     }
 
     private void updateEnabledTrue(SubscriptionGroupViewEntity subscriptionGroupViewEntity) {
-        // 등록 완료되었으면 같은 타입 전체를 true로 변경
-        final int result = subscriptionFormRepository.updateEnabled(subscriptionGroupViewEntity.getBroadcasterId(),
-                subscriptionGroupViewEntity.getSubscriptionType().getTwitchName());
-        log.info("Updated " + result + " Rows. To enabled=true");
+        log.debug("To Modifying BroadcasterId: " + subscriptionGroupViewEntity.getBroadcasterId());
+        log.debug("To string: " + subscriptionGroupViewEntity.getSubscriptionType().toString());
+        try {
+            final int result = subscriptionFormRepository.updateEnabled(
+                    subscriptionGroupViewEntity.getBroadcasterId(),
+                    subscriptionGroupViewEntity.getSubscriptionType().toString());
+            log.info("Updated " + result + " Rows. To enabled=true");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
