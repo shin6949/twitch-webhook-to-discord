@@ -4,16 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.UserLogEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,7 @@ public class StreamNotifyService {
     private final DiscordWebhookService discordWebhookService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
+    private final UserLogService userLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -99,7 +103,8 @@ public class StreamNotifyService {
 
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
+                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
     }
 
     private DiscordEmbed.Webhook makeStreamOfflineDiscordWebhook(StreamNotifyRequest.Event event, SubscriptionFormEntity form, User user) {
@@ -154,11 +159,12 @@ public class StreamNotifyService {
                 .build();
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
+                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
     }
 
     @Async
-    public void sendMessage(StreamNotifyRequest.Body body, Channel channel) {
+    public void sendMessage(StreamNotifyRequest.Body body, Channel channel, Long logId) {
         log.info("Stream Notify Service Called");
         log.debug("Received Body: " + body.toString());
 
@@ -187,7 +193,11 @@ public class StreamNotifyService {
             }
 
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+
+            if(logId != null) {
+                userLogService.insertUserLog(notifyForm, logId, httpStatus);
+            }
         }
     }
 }

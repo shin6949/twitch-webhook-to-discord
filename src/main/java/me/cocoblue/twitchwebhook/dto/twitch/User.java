@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

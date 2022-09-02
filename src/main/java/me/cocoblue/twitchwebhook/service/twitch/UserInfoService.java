@@ -5,8 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.UserResponse;
-import me.cocoblue.twitchwebhook.entity.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.repository.BroadcasterIdRepository;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -67,6 +67,7 @@ public class UserInfoService {
     @Async
     protected void updateUserToDb(User user) {
         final BroadcasterIdEntity userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
+        log.info("Got User Info From DB: " + userFromDb);
 
         if(!user.toBroadcasterIdEntity().equals(userFromDb)) {
             broadcasterIdRepository.save(user.toBroadcasterIdEntity());

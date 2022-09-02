@@ -66,7 +66,7 @@ public class StreamNotifyController {
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel);
+        streamNotifyService.sendMessage(streamNotification, channel, null);
 
         // Log Insert (Async)
         notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
@@ -112,11 +112,11 @@ public class StreamNotifyController {
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
-        // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel);
+        // Log Insert
+        final Long logId = notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
-        // Log Insert (Async)
-        notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        // Message Send (Async)
+        streamNotifyService.sendMessage(streamNotification, channel, logId);
 
         return "success";
     }

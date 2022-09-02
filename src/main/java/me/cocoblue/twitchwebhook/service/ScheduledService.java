@@ -2,13 +2,14 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.*;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,8 @@ import java.util.List;
 public class ScheduledService {
     private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
-    private final NotificationFormService notificationFormService;
+    private final SubscriptionGroupViewRepository subscriptionGroupViewRepository;
+    private final SubscriptionFormRepository subscriptionFormRepository;
 
     @Value("${webapp.base-url}")
     private String webappBaseUrl;
@@ -30,14 +32,13 @@ public class ScheduledService {
 
     @Scheduled(cron = "0 30 */1 * * *")
     public void eventSubscriptionCheck() {
-        log.info("Event Subscription Check Start");
-
         if(!eventEnabled) {
             log.info("Event Renew Function Disabled. Do Not Processing.");
             return;
         }
 
-        // Getting Access Token From Twitch
+        log.info("Event Subscription Check Start");
+
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
 
         List<Subscription> subscriptionListFromTwitch;
@@ -52,16 +53,16 @@ public class ScheduledService {
             return;
         }
 
-        final List<SubscriptionFormEntity> formList = notificationFormService.getFormAll();
+        final List<SubscriptionGroupViewEntity> formList = subscriptionGroupViewRepository.findAll();
         log.info("formList Number: " + formList.size());
         log.debug("formList Data: " + formList);
 
-        List<SubscriptionFormEntity> requiredToEnrollEventList = new ArrayList<>();
-        for(SubscriptionFormEntity form : formList) {
+        List<SubscriptionGroupViewEntity> requiredToEnrollEventList = new ArrayList<>();
+        for(SubscriptionGroupViewEntity form : formList) {
             for(int i = 0; i < subscriptionListFromTwitch.size(); i++) {
-                if(form.getBroadcasterIdEntity().getId() == Long.parseLong(subscriptionListFromTwitch.get(i).getCondition().getBroadcasterUserId())
-                && form.getSubscriptionType().getTwitchName().equals(subscriptionListFromTwitch.get(i).getType())
-                && subscriptionListFromTwitch.get(i).getTransport().getCallback().startsWith(webappBaseUrl)) {
+                if(judgeSameForm(form, subscriptionListFromTwitch.get(i))) {
+                    // 활성화가 안 된 부분 처리
+                    updateEnabledTrue(form);
                     break;
                 }
 
@@ -73,12 +74,72 @@ public class ScheduledService {
 
         log.info("Need To Enroll Form Number: " + requiredToEnrollEventList.size());
 
-        for(SubscriptionFormEntity form : requiredToEnrollEventList) {
+        for(SubscriptionGroupViewEntity form : requiredToEnrollEventList) {
             log.debug("To Enroll Form: " + form);
             eventSubService.addEventSubToTwitch(form, accessToken);
         }
 
         oauthTokenService.revokeAppTokenToTwitch(accessToken);
         log.info("Scheduled Event Subscription Check Finished");
+    }
+
+    @Scheduled(cron = "0 */5 * * * *")
+    public void eventSubscriptionAdd() {
+        if(!eventEnabled) {
+            log.info("Event Renew Function Disabled. Do Not Processing.");
+            return;
+        }
+
+        log.info("Event Subscription Add Start");
+        log.info("Getting Not Enabled Form");
+
+        final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+
+        final List<SubscriptionGroupViewEntity> toAddSubscriptionForms = subscriptionGroupViewRepository.findAllByEnabled(false);
+
+        for(SubscriptionGroupViewEntity subscriptionGroupViewEntity : toAddSubscriptionForms) {
+            // 이미 활성화된 다른 항목이 있다면 바로 true로 변경
+            int count = subscriptionGroupViewRepository.countSubscriptionGroupViewEntitiesBySubscriptionGroupViewIdAndEnabled(
+                    subscriptionGroupViewEntity.getSubscriptionGroupViewId(), true);
+            if(count > 0) {
+                updateEnabledTrue(subscriptionGroupViewEntity);
+                continue;
+            }
+
+            if(eventSubService.addEventSubToTwitch(subscriptionGroupViewEntity, accessToken)) {
+                updateEnabledTrue(subscriptionGroupViewEntity);
+            }
+        }
+
+        oauthTokenService.revokeAppTokenToTwitch(accessToken);
+        log.info("Event Subscription Add Finished");
+    }
+
+    private boolean judgeSameForm(SubscriptionGroupViewEntity form, Subscription subscription) {
+        // 같은 유저를 바라보고 있는지.
+        if(form.getBroadcasterId() != Long.parseLong(subscription.getCondition().getBroadcasterUserId())) {
+            return false;
+        }
+
+        // 같은 타입의 구독인지.
+        if(!form.getSubscriptionType().getTwitchName().equals(subscription.getType())) {
+            return false;
+        }
+
+        // Callback URL이 맞는지.
+        return subscription.getTransport().getCallback().startsWith(webappBaseUrl);
+    }
+
+    private void updateEnabledTrue(SubscriptionGroupViewEntity subscriptionGroupViewEntity) {
+        log.debug("To Modifying BroadcasterId: " + subscriptionGroupViewEntity.getBroadcasterId());
+        log.debug("To string: " + subscriptionGroupViewEntity.getSubscriptionType().toString());
+        try {
+            final int result = subscriptionFormRepository.updateEnabled(
+                    subscriptionGroupViewEntity.getBroadcasterId(),
+                    subscriptionGroupViewEntity.getSubscriptionType().toString());
+            log.info("Updated " + result + " Rows. To enabled=true");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

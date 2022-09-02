@@ -7,14 +7,14 @@ import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
-import me.cocoblue.twitchwebhook.entity.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -32,10 +32,11 @@ public class ChannelNotifyService {
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
+    private final UserLogService userLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body) {
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body,Long logId) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
@@ -58,7 +59,11 @@ public class ChannelNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookUrl());
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+
+            if(logId != null) {
+                userLogService.insertUserLog(notifyForm, logId, httpStatus);
+            }
         }
     }
 
@@ -127,6 +132,7 @@ public class ChannelNotifyService {
 
         discordEmbeds.add(discordEmbed);
 
-        return new DiscordEmbed.Webhook(form.getUsername(), form.getAvatarUrl(), form.getContent(), discordEmbeds);
+        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(), form.getBotProfileId().getAvatarUrl(),
+                form.getContent(), discordEmbeds);
     }
 }
