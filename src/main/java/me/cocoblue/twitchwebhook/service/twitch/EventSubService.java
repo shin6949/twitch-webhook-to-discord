@@ -8,6 +8,7 @@ import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class EventSubService {
     private final RequestService requestService;
+    private final OauthTokenService oauthTokenService;
 
     @Value("${webapp.base-url}")
     private String webappBaseUrl;
@@ -60,7 +62,7 @@ public class EventSubService {
         log.debug("Request URL: " + requestUrl);
 
         final String[] splitStr = subscriptionGroupViewEntity.getSubscriptionType().getTwitchName().split("\\.");
-        StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook");
+        StringBuilder callbackURL = new StringBuilder(webappBaseUrl + "/webhook/twitch");
 
         for(int i = 0; i < splitStr.length; i++) {
             if(i == 0) {
@@ -88,11 +90,14 @@ public class EventSubService {
     }
 
     @Async
-    public void deleteEventSub(String eventSubId, String accessToken) {
-        log.info("Deleting EventSub");
+    public void deleteEventSub(String eventSubId) {
+        log.info("Deleting EventSub Without Access Token");
         log.debug("To Delete Event ID: " + eventSubId);
 
+        final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
+
         final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
         log.debug("Request Header: " + headers.toString());
 
         final String deleteEventSubURL = twitchApiUrl + "/eventsub/subscriptions";
@@ -101,7 +106,28 @@ public class EventSubService {
         log.debug("Built URL: " + builder.toUriString());
 
         RestTemplate rt = new RestTemplate();
-        rt.delete(builder.toUriString(), headers);
+        rt.exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+
+        oauthTokenService.revokeAppTokenToTwitch(accessToken);
+        log.info("Delete Finished");
+    }
+
+    public void deleteEventSub(String eventSubId, String accessToken) {
+        log.info("Deleting EventSub With Access Token");
+        log.debug("To Delete Event ID: " + eventSubId);
+
+        final HttpHeaders headers = requestService.makeRequestHeader(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        log.debug("Request Header: " + headers.toString());
+
+        final String deleteEventSubURL = twitchApiUrl + "/eventsub/subscriptions";
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(deleteEventSubURL)
+                .queryParam("id", eventSubId);
+        log.debug("Built URL: " + builder.toUriString());
+
+        RestTemplate rt = new RestTemplate();
+        rt.exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+
         log.info("Delete Finished");
     }
 }

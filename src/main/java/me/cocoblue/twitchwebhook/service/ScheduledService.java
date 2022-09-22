@@ -127,7 +127,7 @@ public class ScheduledService {
         }
 
         // Callback URL이 맞는지.
-        return subscription.getTransport().getCallback().startsWith(webappBaseUrl);
+        return subscription.getTransport().getCallback().startsWith(webappBaseUrl + "/webhook/twitch");
     }
 
     private void updateEnabledTrue(SubscriptionGroupViewEntity subscriptionGroupViewEntity) {

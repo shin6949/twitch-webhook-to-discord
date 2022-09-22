@@ -176,7 +176,7 @@ public class StreamNotifyService {
         if(notifyForms.isEmpty()) {
             log.info("Form is empty. Delete the Subscription");
             final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-            eventSubService.deleteEventSub(body.getSubscription().getId(), accessToken);
+            eventSubService.deleteEventSub(body.getSubscription().getId());
             oauthTokenService.revokeAppTokenToTwitch(accessToken);
             return;
         } else {
