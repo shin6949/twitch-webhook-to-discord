@@ -3,6 +3,7 @@ package me.cocoblue.twitchwebhook.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
+import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
@@ -36,7 +37,7 @@ public class ChannelNotifyService {
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body,Long logId) {
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
@@ -61,8 +62,8 @@ public class ChannelNotifyService {
 
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
-            if(logId != null) {
-                userLogService.insertUserLog(notifyForm, logId, httpStatus);
+            if(notificationLogEntity != null) {
+                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus);
             }
         }
     }

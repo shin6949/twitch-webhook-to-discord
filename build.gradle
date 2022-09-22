@@ -41,7 +41,7 @@ dependencies {
 }
 
 group = 'me.cocoblue'
-version = '2.7.0'
+version = '2.7.1'
 description = 'TwitchWebhookToDiscord'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
