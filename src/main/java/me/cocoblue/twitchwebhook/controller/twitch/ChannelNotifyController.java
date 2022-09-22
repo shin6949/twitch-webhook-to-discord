@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.controller;
+package me.cocoblue.twitchwebhook.controller.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
-import me.cocoblue.twitchwebhook.service.ChannelNotifyService;
+import me.cocoblue.twitchwebhook.service.twitch.ChannelNotifyService;
 import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping(path = "/webhook")
+@RequestMapping(path = "/webhook/twitch")
 @Log4j2
 @AllArgsConstructor
 public class ChannelNotifyController {

@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -9,6 +9,10 @@ import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
+import me.cocoblue.twitchwebhook.service.NotificationFormService;
+import me.cocoblue.twitchwebhook.service.OauthTokenService;
+import me.cocoblue.twitchwebhook.service.UserLogService;
 import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
@@ -48,9 +52,8 @@ public class ChannelNotifyService {
         User twitchUser;
         if(notifyForms.isEmpty()) {
             log.info("Form is empty. Delete the Subscription");
-            final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
-            eventSubService.deleteEventSub(body.getSubscription().getId(), accessToken);
-            oauthTokenService.revokeAppTokenToTwitch(accessToken);
+
+            eventSubService.deleteEventSub(body.getSubscription().getId());
             return;
         } else {
             twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());

@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.controller;
+package me.cocoblue.twitchwebhook.controller.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping(path = "/webhook")
+@RequestMapping(path = "/webhook/twitch")
 @Log4j2
 @AllArgsConstructor
 public class StreamNotifyController {
