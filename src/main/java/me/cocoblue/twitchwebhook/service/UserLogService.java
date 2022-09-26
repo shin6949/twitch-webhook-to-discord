@@ -6,8 +6,6 @@ import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.UserLogEntity;
 import me.cocoblue.twitchwebhook.domain.UserLogRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,13 +14,11 @@ import org.springframework.stereotype.Service;
 public class UserLogService {
     private final UserLogRepository userLogRepository;
 
-    @Async
-    public void insertUserLog(SubscriptionFormEntity notifyForm, NotificationLogEntity notificationLogEntity, HttpStatus httpStatus) {
+    public void insertUserLog(SubscriptionFormEntity notifyForm, NotificationLogEntity notificationLogEntity, boolean status) {
         final UserLogEntity userLogEntity = UserLogEntity.builder()
                 .logId(notificationLogEntity)
                 .logOwner(notifyForm.getFormOwner())
-                .status(httpStatus.is2xxSuccessful())
-                .result(httpStatus.toString())
+                .status(status)
                 .build();
 
         userLogRepository.save(userLogEntity);

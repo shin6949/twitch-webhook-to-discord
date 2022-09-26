@@ -20,13 +20,12 @@ public class UserLogEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 누구 대상의 로그인지
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="log_owner_id", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_OWNER"))
+    @ManyToOne()
+    @JoinColumn(name="form_id", foreignKey = @ForeignKey(name="FK_USER_LOG_FORM_ID"))
     @NotNull
-    private BroadcasterIdEntity logOwner;
+    private SubscriptionFormEntity subscriptionFormEntity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="log_id", foreignKey = @ForeignKey(name="FK_USER_LOG_LOG_ID"))
     @NotNull
     private NotificationLogEntity logId;
@@ -34,8 +33,4 @@ public class UserLogEntity {
     // 잘 전송되었는지
     @Column(name = "status", nullable = false, columnDefinition = "BIT", length = 1)
     private boolean status;
-
-    // return code
-    @Column(name = "result", columnDefinition = "TEXT")
-    private String result;
 }

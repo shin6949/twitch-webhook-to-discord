@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFormEntity, Long> {
@@ -21,4 +22,5 @@ public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFo
             "WHERE broadcaster_id = :broadcaster_id " +
             "AND type = :type", nativeQuery = true)
     int updateEnabled(@Param(value = "broadcaster_id") long broadcasterId, @Param(value = "type") String type);
+    List<SubscriptionFormEntity> getSubscriptionFormEntityByBroadcasterIdEntity(BroadcasterIdEntity broadcasterIdEntity);
 }
