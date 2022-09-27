@@ -196,7 +196,7 @@ public class StreamNotifyService {
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(notificationLogEntity != null) {
-                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus);
+                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
             }
         }
     }

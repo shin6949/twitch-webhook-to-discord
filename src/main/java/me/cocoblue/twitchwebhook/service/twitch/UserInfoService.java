@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Optional;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -66,10 +68,10 @@ public class UserInfoService {
 
     @Async
     protected void updateUserToDb(User user) {
-        final BroadcasterIdEntity userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
+        final Optional<BroadcasterIdEntity> userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
         log.info("Got User Info From DB: " + userFromDb);
 
-        if(!user.toBroadcasterIdEntity().equals(userFromDb)) {
+        if(userFromDb.isPresent() && !user.toBroadcasterIdEntity().equals(userFromDb.get())) {
             broadcasterIdRepository.save(user.toBroadcasterIdEntity());
             log.info("User Info Updated!");
         } else {
