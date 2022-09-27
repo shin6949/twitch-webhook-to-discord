@@ -17,7 +17,7 @@ public class UserLogService {
     public void insertUserLog(SubscriptionFormEntity notifyForm, NotificationLogEntity notificationLogEntity, boolean status) {
         final UserLogEntity userLogEntity = UserLogEntity.builder()
                 .logId(notificationLogEntity)
-                .logOwner(notifyForm.getFormOwner())
+                .subscriptionFormEntity(notifyForm)
                 .status(status)
                 .build();
 
