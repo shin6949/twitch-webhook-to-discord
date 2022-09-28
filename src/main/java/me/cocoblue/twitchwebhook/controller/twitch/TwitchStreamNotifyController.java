@@ -21,7 +21,7 @@ import java.util.Map;
 @RequestMapping(path = "/webhook/twitch")
 @Log4j2
 @AllArgsConstructor
-public class StreamNotifyController {
+public class TwitchStreamNotifyController {
     private final StreamNotifyService streamNotifyService;
     private final NotifyLogService notifyLogService;
     private final ChannelInfoService channelInfoService;
