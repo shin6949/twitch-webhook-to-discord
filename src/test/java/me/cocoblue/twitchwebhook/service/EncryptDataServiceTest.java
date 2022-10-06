@@ -39,6 +39,6 @@ class EncryptDataServiceTest {
                 "    }\n" +
                 "}";
 
-        log.info("Encrypt Data: " + encryptDataService.encryptString(message));
+        log.info("Encrypt Data: " + encryptDataService.encryptString(message, true));
     }
 }

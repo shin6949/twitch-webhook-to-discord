@@ -3,7 +3,7 @@ package me.cocoblue.twitchwebhook.domain;
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
-import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -42,7 +42,7 @@ public class SubscriptionFormEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name="type", nullable = false)
-    private SubscriptionType subscriptionType;
+    private TwitchSubscriptionType twitchSubscriptionType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false)

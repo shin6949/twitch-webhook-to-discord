@@ -1,8 +1,9 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
+import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
 @Service
 @Log4j2
 @AllArgsConstructor
-public class ControllerProcessingService {
+public class TwitchControllerProcessingService {
     private final EncryptDataService encryptDataService;
 
     public boolean dataNotValid(HttpHeaders headers, String notification) {
@@ -20,7 +21,7 @@ public class ControllerProcessingService {
         final String data = headers.get("Twitch-Eventsub-Message-Id").get(0) +
                 headers.get("Twitch-Eventsub-Message-Timestamp").get(0) + notification;
 
-        final String encryptValue = "sha256=" + encryptDataService.encryptString(data);
+        final String encryptValue = "sha256=" + encryptDataService.encryptString(data, true);
         log.debug("Received Signature: " + signature);
         log.debug("Encrypt Value: " + encryptValue);
 

@@ -2,12 +2,10 @@ package me.cocoblue.twitchwebhook.domain;
 
 import com.sun.istack.NotNull;
 import lombok.*;
-import me.cocoblue.twitchwebhook.data.SubscriptionType;
-import org.hibernate.Hibernate;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Data
 @Builder
@@ -27,7 +25,7 @@ public class NotificationLogEntity {
     @Enumerated(EnumType.STRING)
     @Column(name="type")
     @NotNull
-    private SubscriptionType subscriptionType;
+    private TwitchSubscriptionType twitchSubscriptionType;
 
     @ManyToOne()
     @JoinColumn(name="broadcaster_id", foreignKey = @ForeignKey(name="FK_NOTIFICATION_LOG_BROADCASTER_ID"))

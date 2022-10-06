@@ -1,8 +1,10 @@
-package me.cocoblue.twitchwebhook.domain;
+package me.cocoblue.twitchwebhook.domain.youtube;
 
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.WebhookDataEntity;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
@@ -26,7 +28,7 @@ public class YouTubeSubscriptionFormEntity {
     @Column(name = "channel_id", nullable = false)
     private String channelId;
 
-    @Column(length = 2000, name="content", nullable = true)
+    @Column(length = 2000, name="content")
     private String content;
 
     @Column(name = "color_hex", nullable = false)

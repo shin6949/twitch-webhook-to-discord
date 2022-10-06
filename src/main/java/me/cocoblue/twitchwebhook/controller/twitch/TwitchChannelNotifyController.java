@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelNotifyService;
-import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
+import me.cocoblue.twitchwebhook.service.twitch.TwitchControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class TwitchChannelNotifyController {
     private final ChannelNotifyService channelNotifyService;
     private final NotifyLogService notifyLogService;
-    private final ControllerProcessingService controllerProcessingService;
+    private final TwitchControllerProcessingService twitchControllerProcessingService;
 
     @PostMapping(path = "/channel/{broadcasterId}/update")
     public String receiveChannelUpdateNotification(@PathVariable String broadcasterId, @RequestBody String notification,
@@ -33,7 +33,7 @@ public class TwitchChannelNotifyController {
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
+        if(twitchControllerProcessingService.dataNotValid(headers, notification)) {
             return "success";
         }
 

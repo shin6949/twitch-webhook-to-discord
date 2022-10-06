@@ -14,10 +14,10 @@ public class EncryptDataService {
     @Value("${twitch.event-secret}")
     private String key;
 
-    public String encryptString(String message) {
+    public String encryptString(String message, boolean isTwitch) {
         try {
             // hash 알고리즘과 암호화 key 적용
-            final String algorithm = "HmacSHA256";
+            final String algorithm = isTwitch ? "HmacSHA256" : "HmacSHA1";
             Mac mac = Mac.getInstance(algorithm);
             mac.init(new SecretKeySpec(key.getBytes(), algorithm));
 

@@ -3,7 +3,7 @@ package me.cocoblue.twitchwebhook.domain;
 
 import lombok.Data;
 import lombok.Getter;
-import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
@@ -24,8 +24,8 @@ public class SubscriptionGroupViewEntity implements Serializable {
         return getSubscriptionGroupViewId().getBroadcasterId();
     }
 
-    public SubscriptionType getSubscriptionType() {
-        return getSubscriptionGroupViewId().getSubscriptionType();
+    public TwitchSubscriptionType getSubscriptionType() {
+        return getSubscriptionGroupViewId().getTwitchSubscriptionType();
     }
     public boolean getEnabled() {
         return enabled;
@@ -40,5 +40,5 @@ class SubscriptionGroupViewId implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name="type")
-    private SubscriptionType subscriptionType;
+    private TwitchSubscriptionType twitchSubscriptionType;
 }

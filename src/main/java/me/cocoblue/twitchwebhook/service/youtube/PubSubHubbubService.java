@@ -33,6 +33,7 @@ public class PubSubHubbubService {
         parameters.add("hub.mode", isAddSubscription ? "subscribe" : "unsubscribe");
         parameters.add("hub.topic", "https://www.youtube.com/xml/feeds/videos.xml?channel_id=" + channelId);
         parameters.add("hub.secret", eventSecret);
+        parameters.add("hub.lease_seconds", "88,200");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

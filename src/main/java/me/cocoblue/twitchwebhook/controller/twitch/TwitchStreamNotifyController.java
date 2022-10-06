@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
+import me.cocoblue.twitchwebhook.service.twitch.TwitchControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.NotifyLogService;
 import me.cocoblue.twitchwebhook.service.StreamNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
@@ -25,7 +25,7 @@ public class TwitchStreamNotifyController {
     private final StreamNotifyService streamNotifyService;
     private final NotifyLogService notifyLogService;
     private final ChannelInfoService channelInfoService;
-    private final ControllerProcessingService controllerProcessingService;
+    private final TwitchControllerProcessingService twitchControllerProcessingService;
 
     @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
@@ -36,7 +36,7 @@ public class TwitchStreamNotifyController {
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
+        if(twitchControllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
@@ -46,7 +46,7 @@ public class TwitchStreamNotifyController {
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
-        if(controllerProcessingService.isChallenge(streamNotification)) {
+        if(twitchControllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
@@ -84,7 +84,7 @@ public class TwitchStreamNotifyController {
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
+        if(twitchControllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
@@ -94,7 +94,7 @@ public class TwitchStreamNotifyController {
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
-        if(controllerProcessingService.isChallenge(streamNotification)) {
+        if(twitchControllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }

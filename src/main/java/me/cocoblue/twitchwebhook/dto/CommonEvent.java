@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 
@@ -20,12 +20,12 @@ public class CommonEvent {
     private long broadcasterId;
 
     public NotificationLogEntity toNotificationLogEntity() {
-        final SubscriptionType subscriptionType = SubscriptionType.find(getSubscriptionType());
+        final TwitchSubscriptionType twitchSubscriptionType = TwitchSubscriptionType.find(getSubscriptionType());
         final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder().id(broadcasterId).build();
 
         return NotificationLogEntity.builder()
                 .idFromTwitch(notificationIdFromTwitch)
-                .subscriptionType(subscriptionType)
+                .twitchSubscriptionType(twitchSubscriptionType)
                 .broadcasterIdEntity(broadcasterIdEntity)
                 .build();
     }
