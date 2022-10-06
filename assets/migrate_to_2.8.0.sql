@@ -4,6 +4,7 @@ CREATE TABLE youtube_subscription_form (
     id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     channel_id varchar(100) NOT NULL,
     content varchar(2000) NULL DEFAULT NULL,
+    type varchar(255) NOT NULL,
     color_hex varchar(20) NOT NULL,
     language varchar(255) NOT NULL,
     webhook_id bigint(20) NOT NULL,

@@ -1,7 +1,10 @@
 package me.cocoblue.twitchwebhook.controller.youtube;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.dto.youtube.YouTubeXmlBody;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +29,6 @@ public class YouTubeStreamNotifyController {
     @PostMapping("/{channelId}")
     public String receiveNotification(@PathVariable String channelId, @RequestBody String notification,
                                       @RequestHeader HttpHeaders headers) {
-        // TODO: Need To Process
         log.info("YouTube Event Received");
         log.info("Received Channel ID: " + channelId);
         log.debug("@RequestBody: " + notification);
@@ -36,6 +38,19 @@ public class YouTubeStreamNotifyController {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
+
+        final YouTubeXmlBody youTubeXmlBody = toDto(notification);
+        if(youTubeXmlBody == null) {
+            log.error("toDto Process Failed.");
+            return "success";
+        }
+
+        // 어떤 유형의 알림인지 파악. null이 맞을시 update or new
+        if(youTubeXmlBody.getDeleteEntry() == null) {
+            // TODO: Handling when the video has been deleted.
+        }
+
+        // TODO: Handling when a new video is uploaded.
 
         return "true";
     }
@@ -48,5 +63,15 @@ public class YouTubeStreamNotifyController {
         log.debug("Encrypt Value: " + encryptValue);
 
         return !encryptValue.equals(signature);
+    }
+
+    private YouTubeXmlBody toDto(String requestBody) {
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            return xmlMapper.readValue(requestBody, YouTubeXmlBody.class);
+        } catch (JsonProcessingException jsonProcessingException) {
+            jsonProcessingException.printStackTrace();
+            return null;
+        }
     }
 }

@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.domain.youtube;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -19,6 +20,11 @@ public class YouTubeNotificationLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="type")
+    @NotNull
+    private YouTubeSubscriptionType youTubeSubscriptionType;
 
     @Column(length = 150)
     @NotNull

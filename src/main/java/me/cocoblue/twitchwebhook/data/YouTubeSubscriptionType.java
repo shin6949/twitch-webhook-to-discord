@@ -15,9 +15,10 @@ import java.util.stream.Stream;
 public enum YouTubeSubscriptionType {
     VIDEO_UPLOAD("VIDEO_UPLOAD"),
     VIDEO_UPDATE("VIDEO_UPDATE"),
-    VIDEO_DELETED("VIDEO_DELETED");
+    VIDEO_DELETED("VIDEO_DELETED"),
+    LIVE_START("LIVE_START");
 
-    private String name;
+    private final String name;
 
     private static final Map<String, YouTubeSubscriptionType> descriptions = Collections.unmodifiableMap(Stream.of(values()) .collect(Collectors.toMap(YouTubeSubscriptionType::getName, Function.identity())));
 

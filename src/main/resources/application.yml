@@ -48,6 +48,9 @@ twitch:
   api-endpoint: https://api.twitch.tv/helix
   token-endpoint: https://id.twitch.tv/oauth2
 
+youtube:
+  api-key: ${YOUTUBE_API_KEY}
+
 webapp:
   base-url: ${WEBAPP_BASE_URL}
 
