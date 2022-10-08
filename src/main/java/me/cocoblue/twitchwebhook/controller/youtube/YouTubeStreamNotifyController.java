@@ -45,9 +45,10 @@ public class YouTubeStreamNotifyController {
             return "success";
         }
 
-        // 어떤 유형의 알림인지 파악. null이 맞을시 update or new
-        if(youTubeXmlBody.getDeleteEntry() == null) {
-            // TODO: Handling when the video has been deleted.
+        // Delete 알림은 아직 지원하지 않음.
+        if(youTubeXmlBody.getDeleteEntry() != null) {
+            log.info("This Notification is for deleted video. This function is not yet.");
+            return "true";
         }
 
         // TODO: Handling when a new video is uploaded.

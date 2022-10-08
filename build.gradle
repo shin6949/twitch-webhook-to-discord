@@ -39,6 +39,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
+    implementation 'com.google.apis:google-api-services-youtube:v3-rev20220926-2.0.0'
 }
 
 group = 'me.cocoblue'

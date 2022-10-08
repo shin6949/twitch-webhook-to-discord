@@ -37,12 +37,12 @@ class DeleteEntry {
     private String link;
 
     @JacksonXmlProperty(localName = "by")
-    private ByInternal by;
+    private By by;
 }
 
 @Data
 @JsonRootName("by")
-class ByInternal {
+class By {
     @JsonProperty("name")
     private String name;
 

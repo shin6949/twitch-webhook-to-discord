@@ -16,9 +16,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class YouTubeScheduledService {
-    @Value("${webapp.base-url}")
-    private String webappBaseUrl;
-
     @Value("${twitch.event-renew}")
     private boolean eventEnabled;
 
