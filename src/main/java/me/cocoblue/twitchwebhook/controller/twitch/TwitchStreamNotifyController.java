@@ -8,9 +8,9 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.service.twitch.TwitchControllerProcessingService;
-import me.cocoblue.twitchwebhook.service.NotifyLogService;
-import me.cocoblue.twitchwebhook.service.StreamNotifyService;
+import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
+import me.cocoblue.twitchwebhook.service.twitch.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.twitch.StreamNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +23,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class TwitchStreamNotifyController {
     private final StreamNotifyService streamNotifyService;
-    private final NotifyLogService notifyLogService;
+    private final NotifyLogService twitchNotifyLogService;
     private final ChannelInfoService channelInfoService;
-    private final TwitchControllerProcessingService twitchControllerProcessingService;
+    private final ControllerProcessingService controllerProcessingService;
 
     @PostMapping(path = "/stream/{broadcasterId}/online")
     public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
@@ -36,7 +36,7 @@ public class TwitchStreamNotifyController {
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(twitchControllerProcessingService.dataNotValid(headers, notification)) {
+        if(controllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
@@ -46,7 +46,7 @@ public class TwitchStreamNotifyController {
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
-        if(twitchControllerProcessingService.isChallenge(streamNotification)) {
+        if(controllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
@@ -58,7 +58,7 @@ public class TwitchStreamNotifyController {
         }
 
         // 이미 전송한 알림인지 파악
-        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -70,7 +70,7 @@ public class TwitchStreamNotifyController {
         streamNotifyService.sendMessage(streamNotification, channel, null);
 
         // Log Insert (Async)
-        notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         return "success";
     }
@@ -84,7 +84,7 @@ public class TwitchStreamNotifyController {
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(twitchControllerProcessingService.dataNotValid(headers, notification)) {
+        if(controllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
@@ -94,7 +94,7 @@ public class TwitchStreamNotifyController {
 
         // Challenge 요구 시, 반응
         assert streamNotification != null;
-        if(twitchControllerProcessingService.isChallenge(streamNotification)) {
+        if(controllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
@@ -105,7 +105,7 @@ public class TwitchStreamNotifyController {
             return "success";
         }
 
-        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -114,7 +114,7 @@ public class TwitchStreamNotifyController {
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Log Insert
-        final NotificationLogEntity notificationLogEntity = notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        final NotificationLogEntity notificationLogEntity = twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
         streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);

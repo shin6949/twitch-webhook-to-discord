@@ -7,7 +7,6 @@ import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.UserResponse;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdRepository;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

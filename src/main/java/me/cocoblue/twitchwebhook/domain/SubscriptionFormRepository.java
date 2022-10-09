@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFormEntity, Long> {
-    List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType type);
+    List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndTwitchSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
     @Transactional
     @Modifying
     @Query(value = "UPDATE subscription_form " +

@@ -47,16 +47,20 @@ twitch:
   event-renew: true
   api-endpoint: https://api.twitch.tv/helix
   token-endpoint: https://id.twitch.tv/oauth2
+  logo-url: ${TWITCH_LOGO_URL}
 
 youtube:
   api-key: ${YOUTUBE_API_KEY}
+  logo-url: ${YOUTUBE_LOGO_URL}
 
-webapp:
-  base-url: ${WEBAPP_BASE_URL}
+youtubekey:
 
 logging:
   level:
     root: info
+
+webapp:
+  base-url: ${WEBAPP_BASE_URL}
 ---
 spring:
   profiles: dev-local

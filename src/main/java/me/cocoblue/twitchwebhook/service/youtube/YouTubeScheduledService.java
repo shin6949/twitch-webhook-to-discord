@@ -36,9 +36,11 @@ public class YouTubeScheduledService {
         log.info("YouTube Event All Subscription Check Start");
         final List<YouTubeSubscriptionFormEntity> youTubeSubscriptionFormEntityList
                 = youTubeSubscriptionFormRepository.findAll();
+        log.info("formList Number: " + youTubeSubscriptionFormEntityList.size());
 
         for(YouTubeSubscriptionFormEntity form: youTubeSubscriptionFormEntityList) {
             pubSubHubbubService.manageSubscription(form.getChannelId(), true);
+            log.info("Channel ID: " + form.getChannelId() + " is registered.");
         }
 
         log.info("YouTube Event All Subscription Check Finished");

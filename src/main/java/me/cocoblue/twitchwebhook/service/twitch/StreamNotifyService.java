@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,9 +11,9 @@ import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
-import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
-import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
+import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
+import me.cocoblue.twitchwebhook.service.UserLogService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -29,6 +29,9 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 public class StreamNotifyService {
+    @Value("${twitch.logo-url}")
+    private String twitchLogoUrl;
+    
     private final NotificationFormService notificationFormService;
     private final EventSubService eventSubService;
     private final OauthTokenService oauthTokenService;
@@ -75,7 +78,7 @@ public class StreamNotifyService {
         List<DiscordEmbed.Field> fields = new ArrayList<>();
 
         // Embed Footer Area
-        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("stream.online.footer", null, locale), null);
+        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("stream.online.footer", null, locale), twitchLogoUrl);
 
         // UTC, Embed Timestamp
         final LocalDateTime startTime = event.getStartedAt();
@@ -137,7 +140,7 @@ public class StreamNotifyService {
         List<DiscordEmbed.Field> fields = new ArrayList<>();
 
         // Embed Footer Area
-        DiscordEmbed.Footer footer = new DiscordEmbed.Footer("Twitch", null);
+        DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("stream.offline.footer", null, locale), twitchLogoUrl);
 
         final LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
 

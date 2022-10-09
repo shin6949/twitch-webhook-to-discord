@@ -2,10 +2,16 @@ package me.cocoblue.twitchwebhook.controller.youtube;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.Video;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.dto.youtube.YouTubeXmlBody;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
+import me.cocoblue.twitchwebhook.service.youtube.NewVideoNotifyService;
+import me.cocoblue.twitchwebhook.service.youtube.NotificationLogService;
+import me.cocoblue.twitchwebhook.service.youtube.APIActionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +23,9 @@ import java.util.Objects;
 @AllArgsConstructor
 public class YouTubeStreamNotifyController {
     private final EncryptDataService encryptDataService;
+    private final APIActionService APIActionService;
+    private final NotificationLogService notificationLogService;
+    private final NewVideoNotifyService newVideoNotifyService;
 
     @GetMapping("/{channelId}")
     public String challengeControl(@PathVariable String channelId,
@@ -51,8 +60,23 @@ public class YouTubeStreamNotifyController {
             return "true";
         }
 
-        // TODO: Handling when a new video is uploaded.
+        // 중복 알림인지 판단.
+        if(!notificationLogService.judgeDuplicateNotification(youTubeXmlBody.getVideoId(), youTubeXmlBody.getChannelId())) {
+            return "true";
+        }
 
+        final Video video = APIActionService.getVideoInfo(youTubeXmlBody.getVideoId());
+        final Channel channel = APIActionService.getChannelInfo(youTubeXmlBody.getChannelId());
+
+        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
+            newVideoNotifyService.sendLiveStreamMessage(video, channel);
+            notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
+            return "true";
+        }
+
+        // TODO: Handling when a new video is uploaded.
+        newVideoNotifyService.sendVideoUploadMessage(video, channel);
+        notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
         return "true";
     }
 

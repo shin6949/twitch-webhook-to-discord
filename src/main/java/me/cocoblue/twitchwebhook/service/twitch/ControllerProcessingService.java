@@ -12,7 +12,7 @@ import java.util.Objects;
 @Service
 @Log4j2
 @AllArgsConstructor
-public class TwitchControllerProcessingService {
+public class ControllerProcessingService {
     private final EncryptDataService encryptDataService;
 
     public boolean dataNotValid(HttpHeaders headers, String notification) {

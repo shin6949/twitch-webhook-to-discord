@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.*;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ import java.util.List;
 @Service
 @Component
 @RequiredArgsConstructor
-public class TwitchScheduledService {
+public class ScheduledService {
     private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
     private final SubscriptionGroupViewRepository subscriptionGroupViewRepository;

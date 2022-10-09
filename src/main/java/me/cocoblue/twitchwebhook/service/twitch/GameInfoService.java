@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.GameResponse;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

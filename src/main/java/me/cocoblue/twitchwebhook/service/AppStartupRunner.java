@@ -2,7 +2,6 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.service.twitch.TwitchScheduledService;
 import me.cocoblue.twitchwebhook.service.youtube.YouTubeScheduledService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AppStartupRunner implements CommandLineRunner {
-    private final TwitchScheduledService twitchScheduledService;
+    private final me.cocoblue.twitchwebhook.service.twitch.ScheduledService scheduledService;
     private final YouTubeScheduledService youTubeScheduledService;
 
     @Override
@@ -19,7 +18,7 @@ public class AppStartupRunner implements CommandLineRunner {
         log.info("Start Event Subscription Checking");
 
         log.info("Twitch Subscription Checking Start");
-        twitchScheduledService.eventSubscriptionCheck();
+        scheduledService.eventSubscriptionCheck();
         log.info("Twitch Subscription Checking Finished");
 
         log.info("Youtube Subscription Checking Start");

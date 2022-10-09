@@ -20,6 +20,15 @@ game:
   prefix: ":video_game: "
   none: ":joystick: 지정된 게임 없음."
 
+youtube:
+  stream:
+    event-message: 님의 방송이 시작되었습니다!
+    footer: YouTube
+  video:
+    upload:
+      event-message: 님의 새로운 영상 업로드!
+      footer: YouTube
+
 language:
   en: 영어
   ko: 한국어

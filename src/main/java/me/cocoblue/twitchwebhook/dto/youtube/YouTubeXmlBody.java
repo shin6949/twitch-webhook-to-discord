@@ -23,6 +23,18 @@ public class YouTubeXmlBody {
 
     @JacksonXmlProperty(localName = "link")
     private String link;
+
+    public String getVideoId() {
+        return entry.getVideoId();
+    }
+
+    public String getVideoTitle() {
+        return entry.getTitle();
+    }
+
+    public String getChannelId() {
+        return entry.getChannelId();
+    }
 }
 
 @Data

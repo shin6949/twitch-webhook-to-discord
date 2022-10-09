@@ -1,17 +1,17 @@
 package me.cocoblue.twitchwebhook.service;
 
-import me.cocoblue.twitchwebhook.service.twitch.TwitchScheduledService;
+import me.cocoblue.twitchwebhook.service.twitch.ScheduledService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TwitchScheduledServiceTests {
+class YouTubeScheduledServiceTests {
     @Autowired
-    private TwitchScheduledService twitchScheduledService;
+    private ScheduledService scheduledService;
 
     @Test
     void eventSubscriptionCheckTest() {
-        twitchScheduledService.eventSubscriptionCheck();
+        scheduledService.eventSubscriptionCheck();
     }
 }
