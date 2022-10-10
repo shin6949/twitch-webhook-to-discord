@@ -7,11 +7,13 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogEntity;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationRepository;
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -24,7 +26,10 @@ public class NotificationLogService {
             true: Unique Notification
             false: Duplicated Notification
          */
-        return youTubeNotificationRepository.findAllByChannelIdAndVideoId(videoId, channelId).size() == 0;
+        final List<YouTubeNotificationLogEntity> youTubeNotificationLogEntities = youTubeNotificationRepository.findAllByChannelIdAndVideoId(videoId, channelId);
+        log.info("youTubeNotificationLogEntities Size: " + youTubeNotificationLogEntities.size());
+        log.debug("youTubeNotificationLogEntities: " + youTubeNotificationLogEntities);
+        return youTubeNotificationLogEntities.size() == 0;
     }
 
     @Async

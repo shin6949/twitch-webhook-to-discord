@@ -66,9 +66,18 @@ public class YouTubeStreamNotifyController {
         }
 
         final Video video = APIActionService.getVideoInfo(youTubeXmlBody.getVideoId());
+        if(video == null) {
+            log.info("Video is null. Stop the processing.");
+            return "true";
+        }
         log.info("Video: " + video);
+
         final Channel channel = APIActionService.getChannelInfo(youTubeXmlBody.getChannelId());
         log.info("Channel: " + channel);
+        if(channel == null) {
+            log.info("Channel is null. Stop the processing.");
+            return "true";
+        }
 
         if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
             newVideoNotifyService.sendLiveStreamMessage(video, channel);
@@ -76,7 +85,6 @@ public class YouTubeStreamNotifyController {
             return "true";
         }
 
-        // TODO: Handling when a new video is uploaded.
         newVideoNotifyService.sendVideoUploadMessage(video, channel);
         notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
         return "true";
