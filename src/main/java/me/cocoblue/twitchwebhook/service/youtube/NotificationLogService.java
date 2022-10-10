@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationRepository;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +18,14 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 public class NotificationLogService {
-    private final YouTubeNotificationRepository youTubeNotificationRepository;
+    private final YouTubeNotificationLogRepository youTubeNotificationLogRepository;
 
     public boolean judgeDuplicateNotification(String videoId, String channelId) {
         /*
             true: Unique Notification
             false: Duplicated Notification
          */
-        final List<YouTubeNotificationLogEntity> youTubeNotificationLogEntities = youTubeNotificationRepository.findAllByChannelIdAndVideoId(videoId, channelId);
+        final List<YouTubeNotificationLogEntity> youTubeNotificationLogEntities = youTubeNotificationLogRepository.findAllByChannelIdAndVideoId(channelId, videoId);
         log.info("youTubeNotificationLogEntities Size: " + youTubeNotificationLogEntities.size());
         log.debug("youTubeNotificationLogEntities: " + youTubeNotificationLogEntities);
         return youTubeNotificationLogEntities.size() == 0;
@@ -43,6 +42,6 @@ public class NotificationLogService {
                 .receivedTime(LocalDateTime.now())
                 .build();
 
-        youTubeNotificationRepository.save(youTubeNotificationLogEntity);
+        youTubeNotificationLogRepository.save(youTubeNotificationLogEntity);
     }
 }

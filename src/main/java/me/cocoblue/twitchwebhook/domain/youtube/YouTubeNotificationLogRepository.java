@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface YouTubeNotificationRepository extends JpaRepository<YouTubeNotificationLogEntity, Long> {
+public interface YouTubeNotificationLogRepository extends JpaRepository<YouTubeNotificationLogEntity, Long> {
     List<YouTubeNotificationLogEntity> findAllByChannelIdAndVideoId(String channelId, String videoId);
 }
