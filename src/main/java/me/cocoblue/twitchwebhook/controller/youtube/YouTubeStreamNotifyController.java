@@ -66,7 +66,9 @@ public class YouTubeStreamNotifyController {
         }
 
         final Video video = APIActionService.getVideoInfo(youTubeXmlBody.getVideoId());
+        log.info("Video: " + video);
         final Channel channel = APIActionService.getChannelInfo(youTubeXmlBody.getChannelId());
+        log.info("Channel: " + channel);
 
         if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
             newVideoNotifyService.sendLiveStreamMessage(video, channel);

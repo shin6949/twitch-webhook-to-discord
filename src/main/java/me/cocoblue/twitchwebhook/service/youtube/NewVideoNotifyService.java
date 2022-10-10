@@ -1,9 +1,8 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.Video;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
@@ -69,7 +68,11 @@ public class NewVideoNotifyService {
 
         // Author Area
         final String authorURL = youtubeUrl + "/channel/" + channel.getId();
-        final String authorProfileURL = channel.getSnippet().getThumbnails().getStandard().getUrl();
+        String authorProfileURL = channel.getSnippet().getThumbnails().getHigh().getUrl();
+        if(authorProfileURL == null) {
+            authorProfileURL = channel.getSnippet().getThumbnails().getDefault().getUrl();
+        }
+
         final String authorName = channel.getSnippet().getTitle();
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 
@@ -80,7 +83,11 @@ public class NewVideoNotifyService {
         final String embedDescription = video.getSnippet().getTitle();
 
         final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("youtube.stream.footer", null, locale), youTubeLogoUrl);
-        final DiscordEmbed.Image image = new DiscordEmbed.Image(video.getSnippet().getThumbnails().getStandard().getUrl(), 640, 480);
+        String imageUrl = video.getSnippet().getThumbnails().getHigh().getUrl();
+        if(imageUrl == null) {
+            imageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
+        }
+        final DiscordEmbed.Image image = new DiscordEmbed.Image(imageUrl, 640, 480);
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = DiscordEmbed.builder()
@@ -107,7 +114,10 @@ public class NewVideoNotifyService {
 
         // Author Area
         final String authorURL = youtubeUrl + "/channel/" + channel.getId();
-        final String authorProfileURL = channel.getSnippet().getThumbnails().getStandard().getUrl();
+        String authorProfileURL = channel.getSnippet().getThumbnails().getHigh().getUrl();
+        if(authorProfileURL == null) {
+            authorProfileURL = channel.getSnippet().getThumbnails().getDefault().getUrl();
+        }
         final String authorName = channel.getSnippet().getTitle();
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 
@@ -118,7 +128,12 @@ public class NewVideoNotifyService {
         final String embedDescription = video.getSnippet().getTitle();
 
         final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("youtube.video.upload.footer", null, locale), youTubeLogoUrl);
-        final DiscordEmbed.Image image = new DiscordEmbed.Image(video.getSnippet().getThumbnails().getStandard().getUrl(), 640, 480);
+        String imageUrl = video.getSnippet().getThumbnails().getHigh().getUrl();
+        if(imageUrl == null) {
+            imageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
+        }
+        final DiscordEmbed.Image image = new DiscordEmbed.Image(imageUrl, 640, 480);
+
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = DiscordEmbed.builder()
@@ -128,7 +143,7 @@ public class NewVideoNotifyService {
                 .description(embedDescription)
                 .color(embedColor)
                 .footer(footer)
-                .timestamp(String.valueOf(video.getLiveStreamingDetails().getActualStartTime()))
+                .timestamp(String.valueOf(video.getSnippet().getPublishedAt()))
                 .image(image)
                 .build();
 

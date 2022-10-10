@@ -94,6 +94,10 @@ public class ScheduledService {
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
 
         final List<SubscriptionGroupViewEntity> toAddSubscriptionForms = subscriptionGroupViewRepository.findAllByEnabled(false);
+        if(toAddSubscriptionForms.size() == 0) {
+            log.info("toAddSubscriptionForms's Size is 0. Job Finished");
+            return;
+        }
 
         for(SubscriptionGroupViewEntity subscriptionGroupViewEntity : toAddSubscriptionForms) {
             // 이미 활성화된 다른 항목이 있다면 바로 true로 변경

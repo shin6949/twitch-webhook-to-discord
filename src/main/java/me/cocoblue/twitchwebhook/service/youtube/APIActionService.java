@@ -4,7 +4,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
@@ -12,7 +12,6 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,17 +19,16 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Service
-@Component
 @Log4j2
 @RequiredArgsConstructor
 public class APIActionService {
 
     // TODO: 안 불러와짐.
     @Value("${youtube.api-key}")
-    private String youtubeAPIKey;
+    private String apiKey;
 
     public String getAPIKey() {
-        return youtubeAPIKey;
+        return this.apiKey;
     }
 
     public Video getVideoInfo(String videoId) {
@@ -41,16 +39,16 @@ public class APIActionService {
             YouTube.Videos.List request = youTubeService.videos()
                     .list(Collections.singletonList("snippet,contentDetails,statistics"));
 
-            log.debug("YouTube API Key: " + youtubeAPIKey);
+            log.debug("YouTube API Key: " + apiKey);
             VideoListResponse response = request
                     .setId(Collections.singletonList(videoId))
-                    .setKey(youtubeAPIKey)
+                    .setKey(apiKey)
                     .execute();
 
             return response.getItems().get(0);
 
-        } catch (IOException generalSecurityException)  {
-            generalSecurityException.printStackTrace();
+        } catch (Exception ioException)  {
+            ioException.printStackTrace();
             return null;
         }
     }
@@ -63,10 +61,10 @@ public class APIActionService {
             YouTube.Channels.List request = youtubeService.channels()
                     .list(Collections.singletonList("id, snippet"));
 
-            log.debug("YouTube API Key: " + youtubeAPIKey);
+            log.debug("YouTube API Key: " + apiKey);
             ChannelListResponse response = request
                     .setId(Collections.singletonList(channelId))
-                    .setKey(youtubeAPIKey)
+                    .setKey(apiKey)
                     .execute();
 
             return response.getItems().get(0);
