@@ -1,15 +1,13 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.*;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
-import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +94,10 @@ public class ScheduledService {
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
 
         final List<SubscriptionGroupViewEntity> toAddSubscriptionForms = subscriptionGroupViewRepository.findAllByEnabled(false);
+        if(toAddSubscriptionForms.size() == 0) {
+            log.info("toAddSubscriptionForms's Size is 0. Job Finished");
+            return;
+        }
 
         for(SubscriptionGroupViewEntity subscriptionGroupViewEntity : toAddSubscriptionForms) {
             // 이미 활성화된 다른 항목이 있다면 바로 true로 변경

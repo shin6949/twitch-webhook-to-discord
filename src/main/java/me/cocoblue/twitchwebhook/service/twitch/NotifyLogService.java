@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;

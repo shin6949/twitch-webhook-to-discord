@@ -20,6 +20,11 @@ game:
   prefix: ":video_game: "
   none: ":video_game: None"
 
+youtube:
+  stream:
+    event-message: " has started the stream."
+    footer: YouTube
+
 language:
   en: English
   ko: Korean

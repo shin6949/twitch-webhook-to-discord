@@ -47,13 +47,18 @@ twitch:
   event-renew: true
   api-endpoint: https://api.twitch.tv/helix
   token-endpoint: https://id.twitch.tv/oauth2
+  logo-url: ${TWITCH_LOGO_URL}
 
-webapp:
-  base-url: ${WEBAPP_BASE_URL}
+youtube:
+  api-key: ${YOUTUBE_API_KEY}
+  logo-url: ${YOUTUBE_LOGO_URL}
 
 logging:
   level:
     root: info
+
+webapp:
+  base-url: ${WEBAPP_BASE_URL}
 ---
 spring:
   profiles: dev-local
@@ -85,10 +90,10 @@ spring:
   profiles: dev
   datasource:
     # DB Config
-    url: jdbc:h2:./test;MODE=MySQL;DATABASE_TO_LOWER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
@@ -101,7 +106,7 @@ spring:
 
 logging:
   level:
-    root: debug
+    root: info
 
 twitch:
   api-endpoint: https://api.twitch.tv/helix

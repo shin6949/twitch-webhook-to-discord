@@ -8,9 +8,9 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
-import me.cocoblue.twitchwebhook.service.NotifyLogService;
-import me.cocoblue.twitchwebhook.service.StreamNotifyService;
+import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
+import me.cocoblue.twitchwebhook.service.twitch.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.twitch.StreamNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +21,9 @@ import java.util.Map;
 @RequestMapping(path = "/webhook/twitch")
 @Log4j2
 @AllArgsConstructor
-public class StreamNotifyController {
+public class TwitchStreamNotifyController {
     private final StreamNotifyService streamNotifyService;
-    private final NotifyLogService notifyLogService;
+    private final NotifyLogService twitchNotifyLogService;
     private final ChannelInfoService channelInfoService;
     private final ControllerProcessingService controllerProcessingService;
 
@@ -58,7 +58,7 @@ public class StreamNotifyController {
         }
 
         // 이미 전송한 알림인지 파악
-        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -70,7 +70,7 @@ public class StreamNotifyController {
         streamNotifyService.sendMessage(streamNotification, channel, null);
 
         // Log Insert (Async)
-        notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         return "success";
     }
@@ -105,7 +105,7 @@ public class StreamNotifyController {
             return "success";
         }
 
-        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -114,7 +114,7 @@ public class StreamNotifyController {
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Log Insert
-        final NotificationLogEntity notificationLogEntity = notifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        final NotificationLogEntity notificationLogEntity = twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
         streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);

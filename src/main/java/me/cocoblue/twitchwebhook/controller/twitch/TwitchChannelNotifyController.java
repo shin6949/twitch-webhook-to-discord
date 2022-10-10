@@ -8,8 +8,8 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelNotifyService;
-import me.cocoblue.twitchwebhook.service.ControllerProcessingService;
-import me.cocoblue.twitchwebhook.service.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
+import me.cocoblue.twitchwebhook.service.twitch.NotifyLogService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +19,9 @@ import java.util.Map;
 @RequestMapping(path = "/webhook/twitch")
 @Log4j2
 @AllArgsConstructor
-public class ChannelNotifyController {
+public class TwitchChannelNotifyController {
     private final ChannelNotifyService channelNotifyService;
-    private final NotifyLogService notifyLogService;
+    private final NotifyLogService twitchNotifyLogService;
     private final ControllerProcessingService controllerProcessingService;
 
     @PostMapping(path = "/channel/{broadcasterId}/update")
@@ -47,11 +47,11 @@ public class ChannelNotifyController {
             return channelUpdateNotification.getChallenge();
         }
 
-        if (notifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             return "success";
         }
 
-        final NotificationLogEntity notificationLogEntity = notifyLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
+        final NotificationLogEntity notificationLogEntity = twitchNotifyLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
         channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);

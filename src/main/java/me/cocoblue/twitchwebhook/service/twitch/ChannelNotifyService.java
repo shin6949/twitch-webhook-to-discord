@@ -1,6 +1,6 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
@@ -10,12 +10,8 @@ import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
-import me.cocoblue.twitchwebhook.service.NotificationFormService;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import me.cocoblue.twitchwebhook.service.UserLogService;
-import me.cocoblue.twitchwebhook.service.twitch.EventSubService;
-import me.cocoblue.twitchwebhook.service.twitch.GameInfoService;
-import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,10 +24,12 @@ import java.util.Locale;
 
 @Service
 @Log4j2
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChannelNotifyService {
+    @Value("${twitch.logo-url}")
+    private String twitchLogoUrl;
+
     private final DiscordWebhookService discordWebhookService;
-    private final OauthTokenService oauthTokenService;
     private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
@@ -109,7 +107,7 @@ public class ChannelNotifyService {
         List<DiscordEmbed.Field> fields = new ArrayList<>();
 
         // Embed Footer Area
-        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("channel.update.footer", null, locale), null);
+        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("channel.update.footer", null, locale), twitchLogoUrl);
 
         // Embed Timestamp Area
         final LocalDateTime generatedTime = LocalDateTime.now(ZoneOffset.UTC);

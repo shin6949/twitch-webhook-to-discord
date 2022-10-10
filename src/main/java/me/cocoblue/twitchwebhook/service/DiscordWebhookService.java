@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class DiscordWebhookService {
-    @Async
     public HttpStatus send(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");

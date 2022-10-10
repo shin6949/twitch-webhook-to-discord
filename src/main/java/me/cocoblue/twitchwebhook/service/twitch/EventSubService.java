@@ -7,8 +7,6 @@ import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscribeRequest;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.SubscriptionResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Condition;
 import me.cocoblue.twitchwebhook.dto.twitch.webhook.Transport;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.service.OauthTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

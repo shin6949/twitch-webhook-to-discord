@@ -1,7 +1,7 @@
-package me.cocoblue.twitchwebhook.service;
+package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
-import me.cocoblue.twitchwebhook.data.SubscriptionType;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormRepository;
@@ -16,9 +16,9 @@ public class NotificationFormService {
 
     public List<SubscriptionFormEntity> getFormByBroadcasterIdAndType(Long broadcasterId, String type) {
         final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder().id(broadcasterId).build();
-        final SubscriptionType subscriptionType = SubscriptionType.find(type);
+        final TwitchSubscriptionType twitchSubscriptionType = TwitchSubscriptionType.find(type);
 
-        return subscriptionFormRepository.getStreamNotifyFormsByBroadcasterIdEntityAndSubscriptionType(
-                broadcasterIdEntity, subscriptionType);
+        return subscriptionFormRepository.getStreamNotifyFormsByBroadcasterIdEntityAndTwitchSubscriptionType(
+                broadcasterIdEntity, twitchSubscriptionType);
     }
 }
