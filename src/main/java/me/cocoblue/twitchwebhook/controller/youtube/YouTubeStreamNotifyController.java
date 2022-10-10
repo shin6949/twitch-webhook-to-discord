@@ -61,7 +61,9 @@ public class YouTubeStreamNotifyController {
         }
 
         // 중복 알림인지 판단.
-        if(!notificationLogService.judgeDuplicateNotification(youTubeXmlBody.getVideoId(), youTubeXmlBody.getChannelId())) {
+        if(!notificationLogService
+                .judgeDuplicateNotification(youTubeXmlBody.getVideoId(), youTubeXmlBody.getChannelId())) {
+            log.info("This Notification is duplicated. Stop the processing.");
             return "true";
         }
 

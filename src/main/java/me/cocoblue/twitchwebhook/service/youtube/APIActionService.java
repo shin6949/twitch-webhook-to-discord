@@ -22,8 +22,6 @@ import java.util.Collections;
 @Log4j2
 @RequiredArgsConstructor
 public class APIActionService {
-
-    // TODO: 안 불러와짐.
     @Value("${youtube.api-key}")
     private String apiKey;
 
