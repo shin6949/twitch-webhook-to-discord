@@ -81,12 +81,6 @@ public class YouTubeStreamNotifyController {
             return "true";
         }
 
-        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
-            newVideoNotifyService.sendLiveStreamMessage(video, channel);
-            notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
-            return "true";
-        }
-
         newVideoNotifyService.sendVideoUploadMessage(video, channel);
         notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
         return "true";

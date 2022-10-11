@@ -27,8 +27,10 @@ public class YouTubeSubscriptionFormEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "channel_id", nullable = false)
-    private String channelId;
+    @ManyToOne()
+    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_CHANNEL_ID"))
+    @NotNull
+    private YouTubeChannelInfoEntity youTubeChannelInfoEntity;
 
     @Column(length = 2000, name="content")
     private String content;
