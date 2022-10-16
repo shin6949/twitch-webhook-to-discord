@@ -57,7 +57,7 @@ public class APIActionService {
             assert youtubeService != null;
 
             YouTube.Channels.List request = youtubeService.channels()
-                    .list(Collections.singletonList("id, snippet"));
+                    .list(Collections.singletonList("id, snippet, contentDetails"));
 
             log.debug("YouTube API Key: " + apiKey);
             ChannelListResponse response = request
@@ -70,6 +70,11 @@ public class APIActionService {
             generalSecurityException.printStackTrace();
             return null;
         }
+    }
+
+    public String getChannelUploadPlayListId(String channelId) {
+        final Channel channel = getChannelInfo(channelId);
+        return channel.getContentDetails().getRelatedPlaylists().getUploads();
     }
 
     private YouTube getYouTubeInstance() {

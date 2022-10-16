@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,14 +18,18 @@ import javax.persistence.*;
 @Entity(name = "youtube_channel_info")
 public class YouTubeChannelInfoEntity {
     @Id
+    @Column(name = "internal_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long internalId;
 
-    @Column(name = "channel_id", length = 150)
+    @Column(name = "youtube_id", length = 150)
     @NotNull
-    private String channelId;
+    private String youtubeId;
 
     @Column(name = "upload_playlist_id", length = 150)
     @NotNull
     private String uploadPlaylistId;
+
+    @Column(name = "last_checked_time")
+    private LocalDateTime lastCheckedTime;
 }

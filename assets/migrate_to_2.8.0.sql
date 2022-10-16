@@ -3,12 +3,12 @@ DROP TABLE IF EXISTS youtube_notification_log;
 
 CREATE TABLE youtube_subscription_form (
     id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    channel_id varchar(100) NOT NULL,
-    content varchar(2000) NULL DEFAULT NULL,
+    channel_id varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    content varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
     bot_profile_id bigint(20) NOT NULL,
-    type varchar(255) NOT NULL,
+    type varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     color_hex varchar(20) NOT NULL,
-    language varchar(255) NOT NULL,
+    language varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     webhook_id bigint(20) NOT NULL,
     form_owner bigint(20) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT now(),
@@ -20,8 +20,8 @@ CREATE TABLE youtube_subscription_form (
 
 CREATE TABLE youtube_notification_log (
   id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  type varchar(255) NOT NULL,
-  channel_id varchar(255) NOT NULL,
-  video_id varchar(255) NOT NULL,
+  type varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  channel_id varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  video_id varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   received_time DATETIME NOT NULL DEFAULT now()
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
