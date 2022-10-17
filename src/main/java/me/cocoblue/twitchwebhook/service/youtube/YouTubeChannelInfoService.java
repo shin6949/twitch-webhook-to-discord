@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
-import com.google.api.services.youtube.model.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoEntity;
@@ -15,11 +14,10 @@ public class YouTubeChannelInfoService {
     private final APIActionService apiActionService;
 
     public String updateUploadPlayListIdAndReturnUploadPlayListId(String channelId) {
-        final Channel channel = apiActionService.getChannelInfo(channelId);
+        final String uploadPlayListId = apiActionService.getChannelUploadPlayListId(channelId);
         final YouTubeChannelInfoEntity youTubeChannelInfoEntity
                 = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeId(channelId);
 
-        final String uploadPlayListId = channel.getContentDetails().getRelatedPlaylists().getUploads();
         youTubeChannelInfoEntity.setUploadPlaylistId(uploadPlayListId);
         youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
 
