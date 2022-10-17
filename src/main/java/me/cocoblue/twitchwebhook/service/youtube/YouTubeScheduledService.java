@@ -2,8 +2,11 @@ package me.cocoblue.twitchwebhook.service.youtube;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionGroupViewEntity;
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionGroupViewRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,10 +21,10 @@ import java.util.List;
 public class YouTubeScheduledService {
     @Value("${twitch.event-renew}")
     private boolean eventEnabled;
-
     private final PubSubHubbubService pubSubHubbubService;
-
     private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
+    private final YouTubeSubscriptionGroupViewRepository youTubeSubscriptionGroupViewRepository;
+    private final YouTubeChannelInfoService youTubeChannelInfoService;
 
     @Scheduled(cron = "0 20 6 */1 * *")
     public void youtubeAllSubscriptionCheck() {
@@ -39,11 +42,31 @@ public class YouTubeScheduledService {
         log.info("formList Number: " + youTubeSubscriptionFormEntityList.size());
 
         for(YouTubeSubscriptionFormEntity form: youTubeSubscriptionFormEntityList) {
-            pubSubHubbubService.manageSubscription(form.getChannelId(), true);
-            log.info("Channel ID: " + form.getChannelId() + " is registered.");
+            pubSubHubbubService.manageSubscription(form.getYouTubeChannelInfoEntity().getYoutubeChannelId(), true);
+            log.info("Channel ID: " + form.getYouTubeChannelInfoEntity().getYoutubeChannelId() + " is registered.");
         }
 
         log.info("YouTube Event All Subscription Check Finished");
+    }
+
+    @Scheduled(cron = "0 */5 * * * *")
+    public void liveCheck() {
+        log.info("YouTube Live Check Process Start");
+
+        log.info("Getting Subscription Form");
+        final List<YouTubeSubscriptionGroupViewEntity> youTubeSubscriptionGroupViewEntities
+                = youTubeSubscriptionGroupViewRepository.findAllYouTubeSubscriptionType(YouTubeSubscriptionType.LIVE_START);
+
+        for(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity : youTubeSubscriptionGroupViewEntities) {
+            channelLiveCheck(youTubeSubscriptionGroupViewEntity);
+        }
+    }
+
+    private void channelLiveCheck(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity) {
+        String youtubePlayListId = youTubeSubscriptionGroupViewEntity.getUploadPlayListId();
+        if(youtubePlayListId == null) {
+            youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
+        }
     }
 
     @Scheduled(cron = "0 */5 * * * *")
@@ -61,7 +84,7 @@ public class YouTubeScheduledService {
                 = youTubeSubscriptionFormRepository.findAllByEnabled(false);
 
         for(YouTubeSubscriptionFormEntity form: youTubeSubscriptionFormEntityList) {
-            pubSubHubbubService.manageSubscription(form.getChannelId(), true);
+            pubSubHubbubService.manageSubscription(form.getYouTubeChannelInfoEntity().getYoutubeChannelId(), true);
             form.setEnabled(true);
             youTubeSubscriptionFormRepository.save(form);
         }

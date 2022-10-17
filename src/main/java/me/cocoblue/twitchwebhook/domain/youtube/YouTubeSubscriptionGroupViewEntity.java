@@ -7,6 +7,7 @@ import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -16,11 +17,17 @@ public class YouTubeSubscriptionGroupViewEntity {
     @EmbeddedId
     private YouTubeSubscriptionGroupViewId youTubeSubscriptionGroupViewId;
 
+    @Column(name = "upload_playlist_id")
+    private String uploadPlayListId;
+
+    @Column(name = "last_checked_time")
+    private LocalDateTime lastCheckedTime;
+
     @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     private boolean enabled;
 
-    public String getChannelID() {
-        return getYouTubeSubscriptionGroupViewId().getChannelId();
+    public String getYouTubeChannelId() {
+        return getYouTubeSubscriptionGroupViewId().getYoutubeChannelId();
     }
 
     public YouTubeSubscriptionType getYouTubeSubscriptionType() {
@@ -31,8 +38,8 @@ public class YouTubeSubscriptionGroupViewEntity {
 @Data
 @Embeddable
 class YouTubeSubscriptionGroupViewId implements Serializable {
-    @Column(name = "channel_id")
-    private String channelId;
+    @Column(name = "youtube_channel_id")
+    private String youtubeChannelId;
 
     @Enumerated(EnumType.STRING)
     @Column(name="type")

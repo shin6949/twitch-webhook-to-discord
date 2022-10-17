@@ -22,9 +22,9 @@ public class YouTubeChannelInfoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long internalId;
 
-    @Column(name = "youtube_id", length = 150)
+    @Column(name = "youtube_channel_id", length = 150)
     @NotNull
-    private String youtubeId;
+    private String youtubeChannelId;
 
     @Column(name = "upload_playlist_id", length = 150)
     @NotNull
