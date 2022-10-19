@@ -1,5 +1,7 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
@@ -12,6 +14,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -25,6 +32,7 @@ public class YouTubeScheduledService {
     private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
     private final YouTubeSubscriptionGroupViewRepository youTubeSubscriptionGroupViewRepository;
     private final YouTubeChannelInfoService youTubeChannelInfoService;
+    private final APIActionService apiActionService;
 
     @Scheduled(cron = "0 20 6 */1 * *")
     public void youtubeAllSubscriptionCheck() {
@@ -67,6 +75,19 @@ public class YouTubeScheduledService {
         if(youtubePlayListId == null) {
             youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
         }
+
+        PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
+        do {
+            final List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>(playlistItemListResponse.getItems());
+
+            playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
+        } while (playlistItemListResponse.getNextPageToken() != null);
+        List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
+    }
+
+    private boolean isNewVideo(PlaylistItem playlistItem, LocalDateTime standardTime) {
+        LocalDateTime videoPublishTime = LocalDateTime.ofInstant(Instant.parse(playlistItem.getSnippet().getPublishedAt().toStringRfc3339()), ZoneOffset.UTC);
+        return videoPublishTime.isAfter(standardTime);
     }
 
     @Scheduled(cron = "0 */5 * * * *")

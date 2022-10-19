@@ -4,19 +4,18 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -24,10 +23,6 @@ import java.util.Collections;
 public class APIActionService {
     @Value("${youtube.api-key}")
     private String apiKey;
-
-    public String getAPIKey() {
-        return this.apiKey;
-    }
 
     public Video getVideoInfo(String videoId) {
         try {
@@ -66,6 +61,27 @@ public class APIActionService {
                     .execute();
 
             return response.getItems().get(0);
+        } catch (IOException generalSecurityException)  {
+            generalSecurityException.printStackTrace();
+            return null;
+        }
+    }
+
+    public PlaylistItemListResponse getPlayListItem(String playlistId, String nextToken) {
+        try {
+            YouTube youtubeService = getYouTubeInstance();
+            assert youtubeService != null;
+
+            YouTube.PlaylistItems.List playlistItemRequest =
+                    youtubeService.playlistItems()
+                            .list(Collections.singletonList("id,contentDetails,snippet"))
+                            .setKey(apiKey)
+                            .setFields("items(snippet,contentDetails),nextPageToken,pageInfo")
+                            .setMaxResults(50L)
+                            .setPlaylistId(playlistId)
+                            .setPageToken(nextToken);
+
+            return playlistItemRequest.execute();
         } catch (IOException generalSecurityException)  {
             generalSecurityException.printStackTrace();
             return null;
