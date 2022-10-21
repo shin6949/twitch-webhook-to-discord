@@ -1,7 +1,9 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
+import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
@@ -33,6 +35,7 @@ public class YouTubeScheduledService {
     private final YouTubeSubscriptionGroupViewRepository youTubeSubscriptionGroupViewRepository;
     private final YouTubeChannelInfoService youTubeChannelInfoService;
     private final APIActionService apiActionService;
+    private final NewVideoNotifyService newVideoNotifyService;
 
     @Scheduled(cron = "0 20 6 */1 * *")
     public void youtubeAllSubscriptionCheck() {
@@ -77,15 +80,27 @@ public class YouTubeScheduledService {
         }
 
         PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
+        Video video = null;
+        final LocalDateTime standardTime = youTubeSubscriptionGroupViewEntity.getLastCheckedTime() != null
+                ? youTubeSubscriptionGroupViewEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5);
         do {
             final List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>(playlistItemListResponse.getItems());
+            video = getNewLiveItem(playlistItemList, standardTime);
+            if(video != null) break;
 
             playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
         } while (playlistItemListResponse.getNextPageToken() != null);
-        List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
+
+        youTubeSubscriptionGroupViewEntity.setLastCheckedTime(standardTime);
+        youTubeSubscriptionGroupViewRepository.save(youTubeSubscriptionGroupViewEntity);
+
+        if(video == null) return;
+
+        final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
+        newVideoNotifyService.sendLiveStreamMessage(video, channel);
     }
 
-    private PlaylistItem isNewLive(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
+    private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
         // standardTime: 이 시간 이후로 올라온 것만 스캔
         for(PlaylistItem playlistItem : playlistItemList) {
             final LocalDateTime videoPublishTime = LocalDateTime.ofInstant(Instant.parse(playlistItem.getSnippet().getPublishedAt().toStringRfc3339()), ZoneOffset.UTC);
@@ -94,7 +109,8 @@ public class YouTubeScheduledService {
                 continue;
             }
 
-
+            final Video videoInfo = apiActionService.getVideoInfo(playlistItem.getId());
+            if(videoInfo.getSnippet().getLiveBroadcastContent().equals("live")) return videoInfo;
         }
         return null;
     }

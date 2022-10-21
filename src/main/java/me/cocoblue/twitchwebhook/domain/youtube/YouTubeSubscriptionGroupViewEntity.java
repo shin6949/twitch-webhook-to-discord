@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.domain.youtube;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import org.hibernate.annotations.Immutable;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Immutable
 @Table(name = "youtube_scription_group_view")
 public class YouTubeSubscriptionGroupViewEntity {
