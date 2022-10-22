@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface YouTubeChannelInfoRepository extends JpaRepository<YouTubeChannelInfoEntity, Long> {
-    YouTubeChannelInfoEntity getYouTubeChannelInfoEntityByYoutubeId(String youtubeId);
+    YouTubeChannelInfoEntity getYouTubeChannelInfoEntityByYoutubeChannelId(String youtubeChannelId);
 }

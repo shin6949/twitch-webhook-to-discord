@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface YouTubeSubscriptionGroupViewRepository extends JpaRepository<YouTubeSubscriptionGroupViewEntity, YouTubeSubscriptionGroupViewId> {
-    List<YouTubeSubscriptionGroupViewEntity> findAllYouTubeSubscriptionType(YouTubeSubscriptionType youTubeSubscriptionType);
+    List<YouTubeSubscriptionGroupViewEntity> findAllByYouTubeSubscriptionType(YouTubeSubscriptionType youTubeSubscriptionType);
 }

@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 @Service
 @Log4j2
@@ -30,9 +28,8 @@ public class APIActionService {
             assert youTubeService != null;
 
             YouTube.Videos.List request = youTubeService.videos()
-                    .list(Collections.singletonList("snippet,contentDetails,statistics"));
+                    .list(Collections.singletonList("snippet,contentDetails,statistics,liveStreamingDetails"));
 
-            log.debug("YouTube API Key: " + apiKey);
             VideoListResponse response = request
                     .setId(Collections.singletonList(videoId))
                     .setKey(apiKey)
@@ -74,7 +71,7 @@ public class APIActionService {
 
             YouTube.PlaylistItems.List playlistItemRequest =
                     youtubeService.playlistItems()
-                            .list(Collections.singletonList("id,contentDetails,snippet"))
+                            .list(Collections.singletonList("id,snippet,contentDetails,status"))
                             .setKey(apiKey)
                             .setFields("items(snippet,contentDetails),nextPageToken,pageInfo")
                             .setMaxResults(50L)

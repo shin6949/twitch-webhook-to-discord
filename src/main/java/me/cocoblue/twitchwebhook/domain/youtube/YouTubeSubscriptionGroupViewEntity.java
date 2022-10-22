@@ -14,10 +14,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Immutable
-@Table(name = "youtube_scription_group_view")
+@Table(name = "youtube_subscription_group_view")
 public class YouTubeSubscriptionGroupViewEntity {
     @EmbeddedId
     private YouTubeSubscriptionGroupViewId youTubeSubscriptionGroupViewId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="type")
+    private YouTubeSubscriptionType youTubeSubscriptionType;
 
     @Column(name = "upload_playlist_id")
     private String uploadPlayListId;
@@ -31,10 +35,6 @@ public class YouTubeSubscriptionGroupViewEntity {
     public String getYouTubeChannelId() {
         return getYouTubeSubscriptionGroupViewId().getYoutubeChannelId();
     }
-
-    public YouTubeSubscriptionType getYouTubeSubscriptionType() {
-        return getYouTubeSubscriptionGroupViewId().getYouTubeSubscriptionType();
-    }
 }
 
 @Data
@@ -42,8 +42,4 @@ public class YouTubeSubscriptionGroupViewEntity {
 class YouTubeSubscriptionGroupViewId implements Serializable {
     @Column(name = "youtube_channel_id")
     private String youtubeChannelId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name="type")
-    private YouTubeSubscriptionType youTubeSubscriptionType;
 }

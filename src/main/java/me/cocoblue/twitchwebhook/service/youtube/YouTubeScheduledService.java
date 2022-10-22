@@ -7,10 +7,7 @@ import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormRepository;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionGroupViewEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionGroupViewRepository;
+import me.cocoblue.twitchwebhook.domain.youtube.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,6 +30,7 @@ public class YouTubeScheduledService {
     private final PubSubHubbubService pubSubHubbubService;
     private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
     private final YouTubeSubscriptionGroupViewRepository youTubeSubscriptionGroupViewRepository;
+    private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final YouTubeChannelInfoService youTubeChannelInfoService;
     private final APIActionService apiActionService;
     private final NewVideoNotifyService newVideoNotifyService;
@@ -66,36 +64,42 @@ public class YouTubeScheduledService {
 
         log.info("Getting Subscription Form");
         final List<YouTubeSubscriptionGroupViewEntity> youTubeSubscriptionGroupViewEntities
-                = youTubeSubscriptionGroupViewRepository.findAllYouTubeSubscriptionType(YouTubeSubscriptionType.LIVE_START);
+                = youTubeSubscriptionGroupViewRepository.findAllByYouTubeSubscriptionType(YouTubeSubscriptionType.LIVE_START);
 
         for(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity : youTubeSubscriptionGroupViewEntities) {
             channelLiveCheck(youTubeSubscriptionGroupViewEntity);
         }
+        log.info("YouTube Live Check Process Finished");
     }
 
     private void channelLiveCheck(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity) {
         String youtubePlayListId = youTubeSubscriptionGroupViewEntity.getUploadPlayListId();
         if(youtubePlayListId == null) {
+            log.info("Channel ID " + youTubeSubscriptionGroupViewEntity.getYouTubeChannelId() + "'s upload playlist ID is NULL");
             youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
         }
 
         PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
         Video video = null;
         final LocalDateTime standardTime = youTubeSubscriptionGroupViewEntity.getLastCheckedTime() != null
-                ? youTubeSubscriptionGroupViewEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5);
+                ? youTubeSubscriptionGroupViewEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5).minusHours(9);
         do {
-            final List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>(playlistItemListResponse.getItems());
+            final List<PlaylistItem> playlistItemList = new ArrayList<>(playlistItemListResponse.getItems());
             video = getNewLiveItem(playlistItemList, standardTime);
             if(video != null) break;
 
             playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
         } while (playlistItemListResponse.getNextPageToken() != null);
 
-        youTubeSubscriptionGroupViewEntity.setLastCheckedTime(standardTime);
-        youTubeSubscriptionGroupViewRepository.save(youTubeSubscriptionGroupViewEntity);
+        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
+        youTubeChannelInfoEntity.setLastCheckedTime(LocalDateTime.now().minusHours(9));
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
 
-        if(video == null) return;
+        if(video == null) {
+            return;
+        }
 
+        log.info("Channel ID " + youTubeSubscriptionGroupViewEntity.getYouTubeChannelId() + "'s New Live Found");
         final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
         newVideoNotifyService.sendLiveStreamMessage(video, channel);
     }
@@ -103,13 +107,15 @@ public class YouTubeScheduledService {
     private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
         // standardTime: 이 시간 이후로 올라온 것만 스캔
         for(PlaylistItem playlistItem : playlistItemList) {
+            log.info("playlistItem: " + playlistItem);
             final LocalDateTime videoPublishTime = LocalDateTime.ofInstant(Instant.parse(playlistItem.getSnippet().getPublishedAt().toStringRfc3339()), ZoneOffset.UTC);
             // 비디오가 기준 시간보다 과거에 올라온 경우 다음 것을 처리
             if(videoPublishTime.isBefore(standardTime)) {
-                continue;
+                break;
             }
 
-            final Video videoInfo = apiActionService.getVideoInfo(playlistItem.getId());
+            final Video videoInfo = apiActionService.getVideoInfo(playlistItem.getContentDetails().getVideoId());
+            log.debug("Video: " + videoInfo);
             if(videoInfo.getSnippet().getLiveBroadcastContent().equals("live")) return videoInfo;
         }
         return null;

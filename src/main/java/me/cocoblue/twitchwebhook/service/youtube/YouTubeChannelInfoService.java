@@ -16,7 +16,7 @@ public class YouTubeChannelInfoService {
     public String updateUploadPlayListIdAndReturnUploadPlayListId(String channelId) {
         final String uploadPlayListId = apiActionService.getChannelUploadPlayListId(channelId);
         final YouTubeChannelInfoEntity youTubeChannelInfoEntity
-                = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeId(channelId);
+                = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channelId);
 
         youTubeChannelInfoEntity.setUploadPlaylistId(uploadPlayListId);
         youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);

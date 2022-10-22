@@ -1,5 +1,7 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoEntity;
+import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.Video;
@@ -26,6 +28,7 @@ public class NewVideoNotifyService {
     private String youTubeLogoUrl;
 
     private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
+    private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final MessageSource messageSource;
     private final DiscordWebhookService discordWebhookService;
 
@@ -34,8 +37,9 @@ public class NewVideoNotifyService {
     public void sendLiveStreamMessage(Video video, Channel channel) {
         log.info("Send Live Stream Message");
 
+        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
         final List<YouTubeSubscriptionFormEntity> notifyForms = youTubeSubscriptionFormRepository
-                .findAllByChannelIdAndYouTubeSubscriptionType(channel.getId(), YouTubeSubscriptionType.LIVE_START);
+                .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.LIVE_START);
         log.debug("Received Notify Forms: " + notifyForms);
 
         for (YouTubeSubscriptionFormEntity notifyForm : notifyForms) {
@@ -49,8 +53,9 @@ public class NewVideoNotifyService {
     public void sendVideoUploadMessage(Video video, Channel channel) {
         log.info("Send Video Upload Message");
 
+        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
         final List<YouTubeSubscriptionFormEntity> notifyForms = youTubeSubscriptionFormRepository
-                .findAllByChannelIdAndYouTubeSubscriptionType(channel.getId(), YouTubeSubscriptionType.VIDEO_UPLOAD);
+                .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.VIDEO_UPLOAD);
         log.debug("Received Notify Forms: " + notifyForms);
 
         for (YouTubeSubscriptionFormEntity notifyForm : notifyForms) {

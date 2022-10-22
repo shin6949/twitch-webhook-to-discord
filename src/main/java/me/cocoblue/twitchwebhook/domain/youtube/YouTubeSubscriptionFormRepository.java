@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface YouTubeSubscriptionFormRepository extends JpaRepository<YouTubeSubscriptionFormEntity, Long> {
     List<YouTubeSubscriptionFormEntity> findAllByEnabled(boolean enabled);
-    List<YouTubeSubscriptionFormEntity> findAllByChannelIdAndYouTubeSubscriptionType(String channelId, YouTubeSubscriptionType youTubeSubscriptionType);
+    List<YouTubeSubscriptionFormEntity> findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(YouTubeChannelInfoEntity youTubeChannelInfoEntity, YouTubeSubscriptionType youTubeSubscriptionType);
 
 }
