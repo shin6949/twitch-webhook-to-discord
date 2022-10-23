@@ -107,7 +107,7 @@ public class YouTubeScheduledService {
     private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
         // standardTime: 이 시간 이후로 올라온 것만 스캔
         for(PlaylistItem playlistItem : playlistItemList) {
-            log.info("playlistItem: " + playlistItem);
+            log.debug("playlistItem: " + playlistItem);
             final LocalDateTime videoPublishTime = LocalDateTime.ofInstant(Instant.parse(playlistItem.getSnippet().getPublishedAt().toStringRfc3339()), ZoneOffset.UTC);
             // 비디오가 기준 시간보다 과거에 올라온 경우 다음 것을 처리
             if(videoPublishTime.isBefore(standardTime)) {
