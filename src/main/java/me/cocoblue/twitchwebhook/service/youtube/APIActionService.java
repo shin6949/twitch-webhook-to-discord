@@ -51,7 +51,6 @@ public class APIActionService {
             YouTube.Channels.List request = youtubeService.channels()
                     .list(Collections.singletonList("id, snippet, contentDetails"));
 
-            log.debug("YouTube API Key: " + apiKey);
             ChannelListResponse response = request
                     .setId(Collections.singletonList(channelId))
                     .setKey(apiKey)
