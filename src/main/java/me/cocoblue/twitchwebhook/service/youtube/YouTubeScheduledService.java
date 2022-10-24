@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,12 +27,12 @@ public class YouTubeScheduledService {
     @Value("${twitch.event-renew}")
     private boolean eventEnabled;
     private final PubSubHubbubService pubSubHubbubService;
-    private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
     private final YouTubeSubscriptionGroupViewRepository youTubeSubscriptionGroupViewRepository;
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final YouTubeChannelInfoService youTubeChannelInfoService;
     private final APIActionService apiActionService;
     private final NewVideoNotifyService newVideoNotifyService;
+    private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
 
     @Scheduled(cron = "0 20 6 */1 * *")
     public void youtubeAllSubscriptionCheck() {
@@ -46,13 +45,12 @@ public class YouTubeScheduledService {
         }
 
         log.info("YouTube Event All Subscription Check Start");
-        final List<YouTubeSubscriptionFormEntity> youTubeSubscriptionFormEntityList
-                = youTubeSubscriptionFormRepository.findAll();
-        log.info("formList Number: " + youTubeSubscriptionFormEntityList.size());
+        final List<YouTubeSubscriptionGroupViewEntity> youTubeSubscriptionGroupViewEntities = youTubeSubscriptionGroupViewRepository.findAllChannelId();
+        log.info("formList Number: " + youTubeSubscriptionGroupViewEntities.size());
 
-        for(YouTubeSubscriptionFormEntity form: youTubeSubscriptionFormEntityList) {
-            pubSubHubbubService.manageSubscription(form.getYouTubeChannelInfoEntity().getYoutubeChannelId(), true);
-            log.info("Channel ID: " + form.getYouTubeChannelInfoEntity().getYoutubeChannelId() + " is registered.");
+        for(YouTubeSubscriptionGroupViewEntity form: youTubeSubscriptionGroupViewEntities) {
+            pubSubHubbubService.manageSubscription(form.getYouTubeChannelId(), true);
+            log.info("Channel ID: " + form.getYouTubeChannelId() + " is registered.");
         }
 
         log.info("YouTube Event All Subscription Check Finished");
@@ -67,22 +65,34 @@ public class YouTubeScheduledService {
                 = youTubeSubscriptionGroupViewRepository.findAllByYouTubeSubscriptionType(YouTubeSubscriptionType.LIVE_START);
 
         for(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity : youTubeSubscriptionGroupViewEntities) {
-            channelLiveCheck(youTubeSubscriptionGroupViewEntity);
+            channelLiveCheck(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
         }
         log.info("YouTube Live Check Process Finished");
     }
 
-    private void channelLiveCheck(YouTubeSubscriptionGroupViewEntity youTubeSubscriptionGroupViewEntity) {
-        String youtubePlayListId = youTubeSubscriptionGroupViewEntity.getUploadPlayListId();
+    private void channelLiveCheck(String youtubeChannelId) {
+        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youtubeChannelId);
+
+        String youtubePlayListId = youTubeChannelInfoEntity.getUploadPlaylistId();
         if(youtubePlayListId == null) {
-            log.info("Channel ID " + youTubeSubscriptionGroupViewEntity.getYouTubeChannelId() + "'s upload playlist ID is NULL");
-            youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
+            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s upload playlist ID is NULL");
+            youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeChannelInfoEntity);
+        }
+
+        if(youTubeChannelInfoEntity.getUpcomingLiveId() != null) {
+            final Video video = judgeLiveAndReturnVideo(youTubeChannelInfoEntity.getUpcomingLiveId());
+            if(video != null) {
+                final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
+                newVideoNotifyService.sendLiveStreamMessage(video, channel);
+                clearUpcomingLiveId(youTubeChannelInfoEntity);
+                return;
+            }
         }
 
         PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
         Video video = null;
-        final LocalDateTime standardTime = youTubeSubscriptionGroupViewEntity.getLastCheckedTime() != null
-                ? youTubeSubscriptionGroupViewEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5).minusHours(9);
+        final LocalDateTime standardTime = youTubeChannelInfoEntity.getLastCheckedTime() != null
+                ? youTubeChannelInfoEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5).minusHours(9);
         do {
             final List<PlaylistItem> playlistItemList = new ArrayList<>(playlistItemListResponse.getItems());
             video = getNewLiveItem(playlistItemList, standardTime);
@@ -91,17 +101,17 @@ public class YouTubeScheduledService {
             playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
         } while (playlistItemListResponse.getNextPageToken() != null);
 
-        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youTubeSubscriptionGroupViewEntity.getYouTubeChannelId());
         youTubeChannelInfoEntity.setLastCheckedTime(LocalDateTime.now().minusHours(9));
-        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
 
-        if(video == null) {
-            return;
+        if(video != null) {
+            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s New Live Found");
+            final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
+            newVideoNotifyService.sendLiveStreamMessage(video, channel);
+
+            clearUpcomingLiveId(youTubeChannelInfoEntity);
+        } else {
+            youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
         }
-
-        log.info("Channel ID " + youTubeSubscriptionGroupViewEntity.getYouTubeChannelId() + "'s New Live Found");
-        final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
-        newVideoNotifyService.sendLiveStreamMessage(video, channel);
     }
 
     private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
@@ -121,6 +131,20 @@ public class YouTubeScheduledService {
         return null;
     }
 
+    private void clearUpcomingLiveId(YouTubeChannelInfoEntity youTubeChannelInfoEntity) {
+        youTubeChannelInfoEntity.setUpcomingLiveId(null);
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+    }
+
+    private Video judgeLiveAndReturnVideo(String upcomingLiveId) {
+        final Video video = apiActionService.getVideoInfo(upcomingLiveId);
+        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
+            return video;
+        } else {
+            return null;
+        }
+    }
+
     @Scheduled(cron = "0 */5 * * * *")
     public void youtubeNotEnabledSubscriptionCheck() {
         /*
@@ -132,13 +156,13 @@ public class YouTubeScheduledService {
         }
 
         log.info("YouTube Event Not Enabled Subscription Check Start");
-        final List<YouTubeSubscriptionFormEntity> youTubeSubscriptionFormEntityList
-                = youTubeSubscriptionFormRepository.findAllByEnabled(false);
+        final List<YouTubeSubscriptionGroupViewEntity> youTubeSubscriptionGroupViewEntities
+                = youTubeSubscriptionGroupViewRepository.findAllByEnabledGroupByChannelId(false);
 
-        for(YouTubeSubscriptionFormEntity form: youTubeSubscriptionFormEntityList) {
-            pubSubHubbubService.manageSubscription(form.getYouTubeChannelInfoEntity().getYoutubeChannelId(), true);
+        for(YouTubeSubscriptionGroupViewEntity form: youTubeSubscriptionGroupViewEntities) {
+            pubSubHubbubService.manageSubscription(form.getYouTubeChannelId(), true);
             form.setEnabled(true);
-            youTubeSubscriptionFormRepository.save(form);
+            youTubeSubscriptionFormRepository.updateEnabled(form.getYouTubeChannelId(), "true");
         }
 
         log.info("YouTube Event All Subscription Check Finished");

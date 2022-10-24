@@ -23,12 +23,6 @@ public class YouTubeSubscriptionGroupViewEntity {
     @Column(name="type")
     private YouTubeSubscriptionType youTubeSubscriptionType;
 
-    @Column(name = "upload_playlist_id")
-    private String uploadPlayListId;
-
-    @Column(name = "last_checked_time")
-    private LocalDateTime lastCheckedTime;
-
     @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     private boolean enabled;
 

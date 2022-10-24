@@ -23,4 +23,19 @@ public class YouTubeChannelInfoService {
 
         return uploadPlayListId;
     }
+
+    public String updateUploadPlayListIdAndReturnUploadPlayListId(YouTubeChannelInfoEntity youTubeChannelInfoEntity) {
+        final String uploadPlayListId = apiActionService.getChannelUploadPlayListId(youTubeChannelInfoEntity.getYoutubeChannelId());
+
+        youTubeChannelInfoEntity.setUploadPlaylistId(uploadPlayListId);
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+
+        return uploadPlayListId;
+    }
+
+    public void updateUpcomingLiveIdByYoutubeChannelId(String upcomingLiveId, String youtubeChannelId) {
+        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youtubeChannelId);
+        youTubeChannelInfoEntity.setUpcomingLiveId(upcomingLiveId);
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+    }
 }
