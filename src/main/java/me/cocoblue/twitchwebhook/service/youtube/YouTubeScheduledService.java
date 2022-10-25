@@ -85,7 +85,7 @@ public class YouTubeScheduledService {
                 log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s New Live Found");
                 final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
                 newVideoNotifyService.sendLiveStreamMessage(video, channel);
-                clearUpcomingLiveId(youTubeChannelInfoEntity);
+                youTubeChannelInfoService.clearUpcomingLiveId(youTubeChannelInfoEntity);
                 return;
             }
         }
@@ -130,11 +130,6 @@ public class YouTubeScheduledService {
             if(videoInfo.getSnippet().getLiveBroadcastContent().equals("live")) return videoInfo;
         }
         return null;
-    }
-
-    private void clearUpcomingLiveId(YouTubeChannelInfoEntity youTubeChannelInfoEntity) {
-        youTubeChannelInfoEntity.setUpcomingLiveId(null);
-        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
     }
 
     private Video judgeLiveAndReturnVideo(String upcomingLiveId) {

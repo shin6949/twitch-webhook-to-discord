@@ -13,7 +13,6 @@ import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormRepositor
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ public class NewVideoNotifyService {
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final MessageSource messageSource;
     private final DiscordWebhookService discordWebhookService;
+    private final NotificationLogService notificationLogService;
 
     private final String youtubeUrl = "https://www.youtube.com";
 
@@ -46,8 +46,10 @@ public class NewVideoNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeLiveStreamDiscordWebhook(video, channel, notifyForm);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
         }
+
+        notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
     }
 
     public void sendVideoUploadMessage(Video video, Channel channel) {
@@ -62,7 +64,7 @@ public class NewVideoNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeVideoUploadDiscordWebhook(video, channel, notifyForm);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
         }
     }
 

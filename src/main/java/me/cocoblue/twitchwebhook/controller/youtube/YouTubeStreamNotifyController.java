@@ -88,6 +88,7 @@ public class YouTubeStreamNotifyController {
         if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
             log.info("Live Streaming Detected. Send the notification");
             newVideoNotifyService.sendLiveStreamMessage(video, channel);
+            youTubeChannelInfoService.clearUpcomingLiveId(youTubeXmlBody.getChannelId());
             return "true";
         }
 

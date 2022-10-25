@@ -38,4 +38,15 @@ public class YouTubeChannelInfoService {
         youTubeChannelInfoEntity.setUpcomingLiveId(upcomingLiveId);
         youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
     }
+
+    public void clearUpcomingLiveId(YouTubeChannelInfoEntity youTubeChannelInfoEntity) {
+        youTubeChannelInfoEntity.setUpcomingLiveId(null);
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+    }
+
+    public void clearUpcomingLiveId(String channelId) {
+        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channelId);
+        youTubeChannelInfoEntity.setUpcomingLiveId(null);
+        youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+    }
 }
