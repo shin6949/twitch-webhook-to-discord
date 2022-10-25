@@ -16,12 +16,12 @@ public interface YouTubeSubscriptionFormRepository extends JpaRepository<YouTube
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE youtube_scription_form " +
+    @Query(value = "UPDATE youtube_subscription_form " +
             "SET enabled = true " +
             "WHERE channel_id = " +
-            "   SELECT internal_id " +
+            "   (SELECT internal_id " +
             "   FROM youtube_channel_info " +
             "   WHERE youtube_channel_id = :youtubeChannelId " +
-            "AND type = :type", nativeQuery = true)
+            "   AND type = :type)", nativeQuery = true)
     int updateEnabled(@Param(value = "youtubeChannelId") String youtubeChannelId, @Param(value = "type") String type);
 }

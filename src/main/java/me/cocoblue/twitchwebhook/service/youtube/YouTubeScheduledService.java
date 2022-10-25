@@ -73,15 +73,16 @@ public class YouTubeScheduledService {
     private void channelLiveCheck(String youtubeChannelId) {
         YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youtubeChannelId);
 
-        String youtubePlayListId = youTubeChannelInfoEntity.getUploadPlaylistId();
-        if(youtubePlayListId == null) {
-            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s upload playlist ID is NULL");
-            youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeChannelInfoEntity);
-        }
+//        String youtubePlayListId = youTubeChannelInfoEntity.getUploadPlaylistId();
+//        if(youtubePlayListId == null) {
+//            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s upload playlist ID is NULL");
+//            youtubePlayListId = youTubeChannelInfoService.updateUploadPlayListIdAndReturnUploadPlayListId(youTubeChannelInfoEntity);
+//        }
 
         if(youTubeChannelInfoEntity.getUpcomingLiveId() != null) {
             final Video video = judgeLiveAndReturnVideo(youTubeChannelInfoEntity.getUpcomingLiveId());
             if(video != null) {
+                log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s New Live Found");
                 final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
                 newVideoNotifyService.sendLiveStreamMessage(video, channel);
                 clearUpcomingLiveId(youTubeChannelInfoEntity);
@@ -89,29 +90,29 @@ public class YouTubeScheduledService {
             }
         }
 
-        PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
-        Video video = null;
-        final LocalDateTime standardTime = youTubeChannelInfoEntity.getLastCheckedTime() != null
-                ? youTubeChannelInfoEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5).minusHours(9);
-        do {
-            final List<PlaylistItem> playlistItemList = new ArrayList<>(playlistItemListResponse.getItems());
-            video = getNewLiveItem(playlistItemList, standardTime);
-            if(video != null) break;
-
-            playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
-        } while (playlistItemListResponse.getNextPageToken() != null);
-
-        youTubeChannelInfoEntity.setLastCheckedTime(LocalDateTime.now().minusHours(9));
-
-        if(video != null) {
-            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s New Live Found");
-            final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
-            newVideoNotifyService.sendLiveStreamMessage(video, channel);
-
-            clearUpcomingLiveId(youTubeChannelInfoEntity);
-        } else {
-            youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
-        }
+//        PlaylistItemListResponse playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, null);
+//        Video video = null;
+//        final LocalDateTime standardTime = youTubeChannelInfoEntity.getLastCheckedTime() != null
+//                ? youTubeChannelInfoEntity.getLastCheckedTime() : LocalDateTime.now().minusMinutes(5).minusHours(9);
+//        do {
+//            final List<PlaylistItem> playlistItemList = new ArrayList<>(playlistItemListResponse.getItems());
+//            video = getNewLiveItem(playlistItemList, standardTime);
+//            if(video != null) break;
+//
+//            playlistItemListResponse = apiActionService.getPlayListItem(youtubePlayListId, playlistItemListResponse.getNextPageToken());
+//        } while (playlistItemListResponse.getNextPageToken() != null);
+//
+//        youTubeChannelInfoEntity.setLastCheckedTime(LocalDateTime.now().minusHours(9));
+//
+//        if(video != null) {
+//            log.info("Channel ID " + youTubeChannelInfoEntity.getYoutubeChannelId() + "'s New Live Found");
+//            final Channel channel = apiActionService.getChannelInfo(video.getSnippet().getChannelId());
+//            newVideoNotifyService.sendLiveStreamMessage(video, channel);
+//
+//            clearUpcomingLiveId(youTubeChannelInfoEntity);
+//        } else {
+//            youTubeChannelInfoRepository.save(youTubeChannelInfoEntity);
+//        }
     }
 
     private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
