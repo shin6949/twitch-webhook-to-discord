@@ -96,11 +96,13 @@ public class NewVideoNotifyService {
         }
         final DiscordEmbed.Image image = new DiscordEmbed.Image(imageUrl, 640, 480);
 
+        final String videoUrl = youtubeUrl + "/watch?v=" + video.getId();
+
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = DiscordEmbed.builder()
                 .author(author)
                 .title(embedTitle)
-                .url(authorURL)
+                .url(videoUrl)
                 .description(embedDescription)
                 .color(embedColor)
                 .footer(footer)
@@ -141,12 +143,13 @@ public class NewVideoNotifyService {
         }
         final DiscordEmbed.Image image = new DiscordEmbed.Image(imageUrl, 640, 480);
 
+        final String videoUrl = youtubeUrl + "/watch?v=" + video.getId();
 
         List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = DiscordEmbed.builder()
                 .author(author)
                 .title(embedTitle)
-                .url(authorURL)
+                .url(videoUrl)
                 .description(embedDescription)
                 .color(embedColor)
                 .footer(footer)
