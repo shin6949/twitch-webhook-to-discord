@@ -26,12 +26,15 @@ public class YouTubeChannelInfoEntity {
     @NotNull
     private String youtubeChannelId;
 
-    @Column(name = "upload_playlist_id", length = 150)
-    private String uploadPlaylistId;
+//    @Column(name = "upload_playlist_id", length = 150)
+//    private String uploadPlaylistId;
 
     @Column(name = "upcoming_live_id", length = 150)
     private String upcomingLiveId;
 
-    @Column(name = "last_checked_time")
-    private LocalDateTime lastCheckedTime;
+//    @Column(name = "last_checked_time")
+//    private LocalDateTime lastCheckedTime;
+
+    @Column(name = "meno")
+    private String meno;
 }
