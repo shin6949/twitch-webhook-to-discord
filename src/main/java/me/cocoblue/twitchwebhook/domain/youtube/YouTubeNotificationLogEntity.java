@@ -27,14 +27,15 @@ public class YouTubeNotificationLogEntity {
     @NotNull
     private YouTubeSubscriptionType youTubeSubscriptionType;
 
-    @Column(length = 150)
+    @ManyToOne()
+    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_NOTIFICATION_LOG_CHANNEL_ID"))
     @NotNull
-    private String channelId;
+    private YouTubeChannelInfoEntity youTubeChannelInfoEntity;
 
-    @Column(length = 150)
+    @Column(name = "video_id", length = 150)
     @NotNull
     private String videoId;
 
-    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "received_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime receivedTime;
 }

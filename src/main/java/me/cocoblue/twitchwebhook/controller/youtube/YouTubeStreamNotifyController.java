@@ -12,6 +12,7 @@ import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.youtube.NewVideoNotifyService;
 import me.cocoblue.twitchwebhook.service.youtube.NotificationLogService;
 import me.cocoblue.twitchwebhook.service.youtube.APIActionService;
+import me.cocoblue.twitchwebhook.service.youtube.YouTubeChannelInfoService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class YouTubeStreamNotifyController {
     private final APIActionService APIActionService;
     private final NotificationLogService notificationLogService;
     private final NewVideoNotifyService newVideoNotifyService;
+    private final YouTubeChannelInfoService youTubeChannelInfoService;
 
     @GetMapping("/{channelId}")
     public String challengeControl(@PathVariable String channelId,
@@ -72,21 +74,30 @@ public class YouTubeStreamNotifyController {
             log.info("Video is null. Stop the processing.");
             return "true";
         }
-        log.info("Video: " + video);
+        log.debug("Video: " + video);
+
+        if(video.getSnippet().getLiveBroadcastContent().equals("upcoming")) {
+            log.info("Upcoming Live Streaming Detected. Update the Information");
+            youTubeChannelInfoService.updateUpcomingLiveIdByYoutubeChannelId(video.getId(), channelId);
+            return "true";
+        }
 
         final Channel channel = APIActionService.getChannelInfo(youTubeXmlBody.getChannelId());
-        log.info("Channel: " + channel);
+        log.debug("Channel: " + channel);
+
+        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
+            log.info("Live Streaming Detected. Send the notification");
+            newVideoNotifyService.sendLiveStreamMessage(video, channel);
+            youTubeChannelInfoService.clearUpcomingLiveId(youTubeXmlBody.getChannelId());
+            return "true";
+        }
+
         if(channel == null) {
             log.info("Channel is null. Stop the processing.");
             return "true";
         }
 
-        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
-            newVideoNotifyService.sendLiveStreamMessage(video, channel);
-            notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
-            return "true";
-        }
-
+        log.info("New video upload Detected. Send the notification");
         newVideoNotifyService.sendVideoUploadMessage(video, channel);
         notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
         return "true";

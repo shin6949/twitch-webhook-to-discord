@@ -4,12 +4,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -25,19 +22,14 @@ public class APIActionService {
     @Value("${youtube.api-key}")
     private String apiKey;
 
-    public String getAPIKey() {
-        return this.apiKey;
-    }
-
     public Video getVideoInfo(String videoId) {
         try {
             final YouTube youTubeService = getYouTubeInstance();
             assert youTubeService != null;
 
             YouTube.Videos.List request = youTubeService.videos()
-                    .list(Collections.singletonList("snippet,contentDetails,statistics"));
+                    .list(Collections.singletonList("snippet,contentDetails,statistics,liveStreamingDetails"));
 
-            log.debug("YouTube API Key: " + apiKey);
             VideoListResponse response = request
                     .setId(Collections.singletonList(videoId))
                     .setKey(apiKey)
@@ -57,9 +49,8 @@ public class APIActionService {
             assert youtubeService != null;
 
             YouTube.Channels.List request = youtubeService.channels()
-                    .list(Collections.singletonList("id, snippet"));
+                    .list(Collections.singletonList("id, snippet, contentDetails"));
 
-            log.debug("YouTube API Key: " + apiKey);
             ChannelListResponse response = request
                     .setId(Collections.singletonList(channelId))
                     .setKey(apiKey)
@@ -70,6 +61,32 @@ public class APIActionService {
             generalSecurityException.printStackTrace();
             return null;
         }
+    }
+
+    public PlaylistItemListResponse getPlayListItem(String playlistId, String nextToken) {
+        try {
+            YouTube youtubeService = getYouTubeInstance();
+            assert youtubeService != null;
+
+            YouTube.PlaylistItems.List playlistItemRequest =
+                    youtubeService.playlistItems()
+                            .list(Collections.singletonList("id,snippet,contentDetails,status"))
+                            .setKey(apiKey)
+                            .setFields("items(snippet,contentDetails),nextPageToken,pageInfo")
+                            .setMaxResults(50L)
+                            .setPlaylistId(playlistId)
+                            .setPageToken(nextToken);
+
+            return playlistItemRequest.execute();
+        } catch (IOException generalSecurityException)  {
+            generalSecurityException.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getChannelUploadPlayListId(String channelId) {
+        final Channel channel = getChannelInfo(channelId);
+        return channel.getContentDetails().getRelatedPlaylists().getUploads();
     }
 
     private YouTube getYouTubeInstance() {

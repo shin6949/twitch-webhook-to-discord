@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface YouTubeNotificationLogRepository extends JpaRepository<YouTubeNotificationLogEntity, Long> {
-    List<YouTubeNotificationLogEntity> findAllByChannelIdAndVideoId(String channelId, String videoId);
+    List<YouTubeNotificationLogEntity> findAllByYouTubeChannelInfoEntityAndVideoId(YouTubeChannelInfoEntity youTubeChannelInfoEntity, String videoId);
 }

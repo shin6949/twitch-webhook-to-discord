@@ -1,3 +1,8 @@
 assets
 .github
-build
+.idea
+gradle
+.gradle
+src
+test
+target

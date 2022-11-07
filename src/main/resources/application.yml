@@ -34,7 +34,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-        show_sql: true
+        show_sql: false
         format_sql: true
         use_sql_comments: true
     hibernate:
@@ -70,6 +70,12 @@ spring:
     password: ""
 
   jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
     hibernate:
       ddl-auto: update
 
@@ -96,6 +102,12 @@ spring:
     password: ${DB_PASSWORD}
 
   jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
     hibernate:
       ddl-auto: validate
 
