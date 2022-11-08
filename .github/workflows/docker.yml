@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download app from Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3.0.1
         with:
           name: twitchwebhook
 
