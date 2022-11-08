@@ -67,6 +67,10 @@ public class YouTubeSubscriptionFormEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(name="avoid_duplicate_noti", nullable = false, columnDefinition = "BIT", length = 1)
+    @ColumnDefault("true")
+    private boolean avoidDuplicateNoti;
+
     @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     @ColumnDefault("false")
     private boolean enabled;
