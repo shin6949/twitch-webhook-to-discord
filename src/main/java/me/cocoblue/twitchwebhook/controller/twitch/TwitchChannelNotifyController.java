@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
-import me.cocoblue.twitchwebhook.service.twitch.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.twitch.TwitchNotificationLogService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class TwitchChannelNotifyController {
     private final ChannelNotifyService channelNotifyService;
-    private final NotifyLogService twitchNotifyLogService;
+    private final TwitchNotificationLogService twitchNotificationLogService;
     private final ControllerProcessingService controllerProcessingService;
 
     @PostMapping(path = "/channel/{broadcasterId}/update")
@@ -47,14 +48,15 @@ public class TwitchChannelNotifyController {
             return channelUpdateNotification.getChallenge();
         }
 
-        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             return "success";
         }
 
-        final NotificationLogEntity notificationLogEntity = twitchNotifyLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
+        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(broadcasterId, TwitchSubscriptionType.CHANNEL_UPDATE);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers, isDuplicateSuspicion);
 
         // Message Send (Async)
-        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);
+        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity, isDuplicateSuspicion);
 
         return "success";
     }

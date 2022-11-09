@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
-import me.cocoblue.twitchwebhook.service.twitch.NotifyLogService;
+import me.cocoblue.twitchwebhook.service.twitch.TwitchNotificationLogService;
 import me.cocoblue.twitchwebhook.service.twitch.StreamNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class TwitchStreamNotifyController {
     private final StreamNotifyService streamNotifyService;
-    private final NotifyLogService twitchNotifyLogService;
+    private final TwitchNotificationLogService twitchNotificationLogService;
     private final ChannelInfoService channelInfoService;
     private final ControllerProcessingService controllerProcessingService;
 
@@ -58,20 +59,20 @@ public class TwitchStreamNotifyController {
         }
 
         // 이미 전송한 알림인지 파악
-        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if(twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
+
+        // 10분 중복 의심 알림인지 파악
+        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(streamNotification.getEvent().getBroadcasterUserId(), TwitchSubscriptionType.STREAM_ONLINE);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers, isDuplicateSuspicion);
 
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel, null);
-
-        // Log Insert (Async)
-        twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
-
+        streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);
         return "success";
     }
 
@@ -105,16 +106,18 @@ public class TwitchStreamNotifyController {
             return "success";
         }
 
-        if (twitchNotifyLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
 
+        // 10분 중복 의심 알림인지 파악
+        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(streamNotification.getEvent().getBroadcasterUserId(), TwitchSubscriptionType.STREAM_OFFLINE);
+        // Log Insert
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers, isDuplicateSuspicion);
+
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
-
-        // Log Insert
-        final NotificationLogEntity notificationLogEntity = twitchNotifyLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
         streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);

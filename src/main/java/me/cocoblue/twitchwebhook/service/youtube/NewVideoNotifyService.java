@@ -30,7 +30,7 @@ public class NewVideoNotifyService {
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final MessageSource messageSource;
     private final DiscordWebhookService discordWebhookService;
-    private final NotificationLogService notificationLogService;
+    private final YoutubeNotificationLogService youtubeNotificationLogService;
 
     private final String youtubeUrl = "https://www.youtube.com";
 
@@ -49,7 +49,7 @@ public class NewVideoNotifyService {
             discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
         }
 
-        notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
+        youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
     }
 
     public void sendVideoUploadMessage(Video video, Channel channel) {

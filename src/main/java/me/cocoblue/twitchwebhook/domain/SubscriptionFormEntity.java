@@ -63,9 +63,9 @@ public class SubscriptionFormEntity {
     @NotNull
     private LocalDateTime createdAt;
 
-    @Column(name="avoid_duplicate_noti", nullable = false, columnDefinition = "BIT", length = 1)
+    @Column(name="avoid_duplicate_suspicion_noti", nullable = false, columnDefinition = "BIT", length = 1)
     @ColumnDefault("true")
-    private boolean avoidDuplicateNoti;
+    private boolean avoidDuplicateSuspicionNoti;
 
     @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     @ColumnDefault("false")

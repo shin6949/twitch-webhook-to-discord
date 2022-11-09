@@ -3,6 +3,7 @@ package me.cocoblue.twitchwebhook.domain;
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -32,6 +33,10 @@ public class NotificationLogEntity {
     @NotNull
     private BroadcasterIdEntity broadcasterIdEntity;
 
-    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "received_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime receivedTime;
+
+    @Column(name="is_duplicate_suspicion", nullable = false, columnDefinition = "BIT", length = 1)
+    @ColumnDefault("false")
+    private boolean isDuplicateSuspicion;
 }

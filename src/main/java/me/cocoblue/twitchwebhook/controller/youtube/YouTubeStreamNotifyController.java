@@ -10,7 +10,7 @@ import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.dto.youtube.YouTubeXmlBody;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import me.cocoblue.twitchwebhook.service.youtube.NewVideoNotifyService;
-import me.cocoblue.twitchwebhook.service.youtube.NotificationLogService;
+import me.cocoblue.twitchwebhook.service.youtube.YoutubeNotificationLogService;
 import me.cocoblue.twitchwebhook.service.youtube.APIActionService;
 import me.cocoblue.twitchwebhook.service.youtube.YouTubeChannelInfoService;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +25,7 @@ import java.util.Objects;
 public class YouTubeStreamNotifyController {
     private final EncryptDataService encryptDataService;
     private final APIActionService APIActionService;
-    private final NotificationLogService notificationLogService;
+    private final YoutubeNotificationLogService youtubeNotificationLogService;
     private final NewVideoNotifyService newVideoNotifyService;
     private final YouTubeChannelInfoService youTubeChannelInfoService;
 
@@ -63,7 +63,7 @@ public class YouTubeStreamNotifyController {
         }
 
         // 중복 알림인지 판단.
-        if(!notificationLogService
+        if(!youtubeNotificationLogService
                 .judgeDuplicateNotification(youTubeXmlBody.getVideoId(), youTubeXmlBody.getChannelId())) {
             log.info("This Notification is duplicated. Stop the processing.");
             return "true";
@@ -99,7 +99,7 @@ public class YouTubeStreamNotifyController {
 
         log.info("New video upload Detected. Send the notification");
         newVideoNotifyService.sendVideoUploadMessage(video, channel);
-        notificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
+        youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
         return "true";
     }
 

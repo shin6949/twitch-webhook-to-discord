@@ -39,7 +39,7 @@ public class ChannelNotifyService {
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity, boolean isDuplicateSuspicion) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
@@ -61,10 +61,17 @@ public class ChannelNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
+            if(isDuplicateSuspicion && notifyForm.isAvoidDuplicateSuspicionNoti()) {
+                // 10분 이내 중복 옵션을 킨 경우 무시하고 진행
+                log.info("This notification is duplicate suspicion. Don't send to Subscription Form ID " + notifyForm.getId());
+                continue;
+            }
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(notificationLogEntity != null) {
                 userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
+            } else {
+                log.info("notificationLogEntity is NULL");
             }
         }
     }
