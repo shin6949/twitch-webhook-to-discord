@@ -2,6 +2,7 @@ package me.cocoblue.twitchwebhook.service;
 
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.*;
+import me.cocoblue.twitchwebhook.service.twitch.TwitchUserLogService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,9 +14,9 @@ import java.util.Optional;
 
 @SpringBootTest
 @Log4j2
-class UserLogServiceTests {
+class TwitchUserLogServiceTests {
     @Autowired
-    private UserLogService userLogService;
+    private TwitchUserLogService twitchUserLogService;
 
     @Autowired
     private BroadcasterIdRepository broadcasterIdRepository;
@@ -38,7 +39,7 @@ class UserLogServiceTests {
         List<SubscriptionFormEntity> subscriptionFormEntities = subscriptionFormRepository.getSubscriptionFormEntityByBroadcasterIdEntity(broadcasterIdEntity.get());
 
         for(SubscriptionFormEntity subscriptionFormEntity : subscriptionFormEntities) {
-            userLogService.insertUserLog(subscriptionFormEntity, notificationLogEntities.getContent().get(0), true);
+            twitchUserLogService.insertUserLog(subscriptionFormEntity, notificationLogEntities.getContent().get(0), true);
         }
     }
 }

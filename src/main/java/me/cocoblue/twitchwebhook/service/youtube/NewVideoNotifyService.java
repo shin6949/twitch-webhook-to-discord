@@ -1,18 +1,16 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoRepository;
+import me.cocoblue.twitchwebhook.domain.youtube.*;
 import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeSubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ public class NewVideoNotifyService {
     private final MessageSource messageSource;
     private final DiscordWebhookService discordWebhookService;
     private final YoutubeNotificationLogService youtubeNotificationLogService;
+    private final YouTubeUserLogService youTubeUserLogService;
 
     private final String youtubeUrl = "https://www.youtube.com";
 
@@ -42,14 +41,15 @@ public class NewVideoNotifyService {
                 .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.LIVE_START);
         log.debug("Received Notify Forms: " + notifyForms);
 
-        for (YouTubeSubscriptionFormEntity notifyForm : notifyForms) {
+        final YouTubeNotificationLogEntity youTubeNotificationLogEntity = youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
+
+        notifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeLiveStreamDiscordWebhook(video, channel, notifyForm);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
-        }
-
-        youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            youTubeUserLogService.insertUserLog(notifyForm, youTubeNotificationLogEntity, httpStatus.is2xxSuccessful());
+        });
     }
 
     public void sendVideoUploadMessage(Video video, Channel channel) {
@@ -60,12 +60,15 @@ public class NewVideoNotifyService {
                 .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.VIDEO_UPLOAD);
         log.debug("Received Notify Forms: " + notifyForms);
 
-        for (YouTubeSubscriptionFormEntity notifyForm : notifyForms) {
+        final YouTubeNotificationLogEntity youTubeNotificationLogEntity = youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
+
+        notifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeVideoUploadDiscordWebhook(video, channel, notifyForm);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
-        }
+            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            youTubeUserLogService.insertUserLog(notifyForm, youTubeNotificationLogEntity, httpStatus.is2xxSuccessful());
+        });
     }
 
     private DiscordEmbed.Webhook makeLiveStreamDiscordWebhook(Video video, Channel channel,

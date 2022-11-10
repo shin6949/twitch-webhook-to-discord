@@ -19,7 +19,7 @@ public class CommonEvent {
     private String subscriptionType;
     private long broadcasterId;
 
-    public NotificationLogEntity toNotificationLogEntity(boolean isDuplicateSuspicionNoti) {
+    public NotificationLogEntity toNotificationLogEntity() {
         final TwitchSubscriptionType twitchSubscriptionType = TwitchSubscriptionType.find(getSubscriptionType());
         final BroadcasterIdEntity broadcasterIdEntity = BroadcasterIdEntity.builder().id(broadcasterId).build();
 
@@ -27,7 +27,6 @@ public class CommonEvent {
                 .idFromTwitch(notificationIdFromTwitch)
                 .twitchSubscriptionType(twitchSubscriptionType)
                 .broadcasterIdEntity(broadcasterIdEntity)
-                .isDuplicateSuspicion(isDuplicateSuspicionNoti)
                 .build();
     }
 }

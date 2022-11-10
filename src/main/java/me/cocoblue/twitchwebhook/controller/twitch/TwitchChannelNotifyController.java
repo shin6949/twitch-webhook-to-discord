@@ -52,11 +52,10 @@ public class TwitchChannelNotifyController {
             return "success";
         }
 
-        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(broadcasterId, TwitchSubscriptionType.CHANNEL_UPDATE);
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers, isDuplicateSuspicion);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
 
         // Message Send (Async)
-        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity, isDuplicateSuspicion);
+        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);
 
         return "success";
     }

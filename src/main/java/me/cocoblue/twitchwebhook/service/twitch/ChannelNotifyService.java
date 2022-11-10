@@ -10,12 +10,13 @@ import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
 import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
-import me.cocoblue.twitchwebhook.service.UserLogService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -29,17 +30,20 @@ public class ChannelNotifyService {
     @Value("${twitch.logo-url}")
     private String twitchLogoUrl;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     private final DiscordWebhookService discordWebhookService;
     private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
-    private final UserLogService userLogService;
+    private final TwitchUserLogService twitchUserLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity, boolean isDuplicateSuspicion) {
+    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
@@ -47,33 +51,32 @@ public class ChannelNotifyService {
         final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
         log.debug("Received Notify Forms: " + notifyForms);
 
-        User twitchUser;
         if(notifyForms.isEmpty()) {
             log.info("Form is empty. Delete the Subscription");
 
             eventSubService.deleteEventSub(body.getSubscription().getId());
             return;
-        } else {
-            twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
         }
 
-        for (SubscriptionFormEntity notifyForm : notifyForms) {
+        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
+        notifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            if(isDuplicateSuspicion && notifyForm.isAvoidDuplicateSuspicionNoti()) {
-                // 10분 이내 중복 옵션을 킨 경우 무시하고 진행
-                log.info("This notification is duplicate suspicion. Don't send to Subscription Form ID " + notifyForm.getId());
-                continue;
-            }
+//            if(isDuplicateSuspicion && notifyForm.isAvoidDuplicateSuspicionNoti()) {
+//                // 10분 이내 중복 옵션을 킨 경우 무시하고 진행
+//                log.info("This notification is duplicate suspicion. Don't send to Subscription Form ID " + notifyForm.getId());
+//                continue;
+//            }
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
-            if(notificationLogEntity != null) {
-                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
-            } else {
+            if(notificationLogEntity == null) {
                 log.info("notificationLogEntity is NULL");
+                return;
             }
-        }
+
+            twitchUserLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
+        });
     }
 
     private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {

@@ -64,9 +64,7 @@ public class TwitchStreamNotifyController {
             return "success";
         }
 
-        // 10분 중복 의심 알림인지 파악
-        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(streamNotification.getEvent().getBroadcasterUserId(), TwitchSubscriptionType.STREAM_ONLINE);
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers, isDuplicateSuspicion);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
@@ -111,10 +109,8 @@ public class TwitchStreamNotifyController {
             return "success";
         }
 
-        // 10분 중복 의심 알림인지 파악
-        final boolean isDuplicateSuspicion = twitchNotificationLogService.isDuplicateSuspicionNotification(streamNotification.getEvent().getBroadcasterUserId(), TwitchSubscriptionType.STREAM_OFFLINE);
         // Log Insert
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers, isDuplicateSuspicion);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers);
 
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());

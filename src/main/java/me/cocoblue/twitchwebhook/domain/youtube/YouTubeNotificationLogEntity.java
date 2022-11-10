@@ -39,8 +39,4 @@ public class YouTubeNotificationLogEntity {
 
     @Column(name = "received_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime receivedTime;
-
-    @Column(name="is_duplicate_suspicion", nullable = false, columnDefinition = "BIT", length = 1)
-    @ColumnDefault("false")
-    private boolean isDuplicateSuspicion;
 }

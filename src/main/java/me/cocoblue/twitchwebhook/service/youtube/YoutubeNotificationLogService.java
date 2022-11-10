@@ -36,7 +36,7 @@ public class YoutubeNotificationLogService {
     }
 
     @Transactional
-    public void insertLog(Video video, Channel channel, YouTubeSubscriptionType youTubeSubscriptionType) {
+    public YouTubeNotificationLogEntity insertLog(Video video, Channel channel, YouTubeSubscriptionType youTubeSubscriptionType) {
         YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
 
         YouTubeNotificationLogEntity youTubeNotificationLogEntity = YouTubeNotificationLogEntity
@@ -48,7 +48,9 @@ public class YoutubeNotificationLogService {
                 .build();
 
         log.debug("To Insert Log: " + youTubeNotificationLogEntity);
-        youTubeNotificationLogRepository.save(youTubeNotificationLogEntity);
+        final YouTubeNotificationLogEntity result = youTubeNotificationLogRepository.save(youTubeNotificationLogEntity);
         log.info("YouTube Notification Log Insert Processing Finished");
+
+        return result;
     }
 }

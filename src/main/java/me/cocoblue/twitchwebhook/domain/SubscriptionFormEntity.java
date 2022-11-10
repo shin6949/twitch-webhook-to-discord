@@ -29,7 +29,7 @@ public class SubscriptionFormEntity {
     @NotNull
     private BroadcasterIdEntity broadcasterIdEntity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="bot_profile_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_BOT_PROFILE_ID"))
     @NotNull
     private BotProfileDataEntity botProfileId;
@@ -48,13 +48,13 @@ public class SubscriptionFormEntity {
     @Column(name = "language", nullable = false)
     private LanguageIsoData languageIsoData;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="webhook_id", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_WEBHOOK_ID"))
     @NotNull
     private WebhookDataEntity webhookId;
 
     // 누가 이 폼을 만들었는지
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_SUBSCRIPTION_FORM_OWNER_BROADCASTER_ID"))
     @NotNull
     private BroadcasterIdEntity formOwner;
@@ -63,9 +63,9 @@ public class SubscriptionFormEntity {
     @NotNull
     private LocalDateTime createdAt;
 
-    @Column(name="avoid_duplicate_suspicion_noti", nullable = false, columnDefinition = "BIT", length = 1)
-    @ColumnDefault("true")
-    private boolean avoidDuplicateSuspicionNoti;
+    @Column(name="interval_minute", nullable = false, length = 11)
+    @ColumnDefault("10")
+    private int intervalMinute;
 
     @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
     @ColumnDefault("false")
