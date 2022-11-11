@@ -1,5 +1,6 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.youtube.*;
 import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.model.Channel;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -41,9 +43,24 @@ public class NewVideoNotifyService {
                 .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.LIVE_START);
         log.debug("Received Notify Forms: " + notifyForms);
 
+        if(notifyForms.isEmpty()) {
+            log.info("NotifyForms Is Empty. Finish The Processing");
+            return;
+        }
+
+        final List<YouTubeSubscriptionFormEntity> filteredNotifyForms = notifyForms
+                .stream()
+                .filter(notifyForm -> youTubeUserLogService.isNotInInterval(youTubeChannelInfoEntity.getYoutubeChannelId(), YouTubeSubscriptionType.LIVE_START, notifyForm.getIntervalMinute()))
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty()) {
+            log.info("filteredNotifyForms Is Empty. Finish The Processing");
+            return;
+        }
+
         final YouTubeNotificationLogEntity youTubeNotificationLogEntity = youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
 
-        notifyForms.parallelStream().forEach(notifyForm -> {
+        filteredNotifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeLiveStreamDiscordWebhook(video, channel, notifyForm);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 

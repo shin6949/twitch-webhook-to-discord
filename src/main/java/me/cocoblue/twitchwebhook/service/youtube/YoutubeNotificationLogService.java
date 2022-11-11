@@ -4,16 +4,16 @@ import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoRepository;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogRepository;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.youtube.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Log4j2

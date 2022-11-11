@@ -20,8 +20,8 @@ CREATE VIEW user_log_view AS (
 );
 
 CREATE VIEW youtube_user_log_view AS (
-    SELECT yul.id as user_log_id, ynl.received_time as received_time, ynl.type as type, yul.form_id as form_id, ynl.broadcaster_id
+    SELECT yul.id as user_log_id, ynl.received_time as received_time, ynl.type as type, yul.form_id as form_id, ynl.channel_id as channel_id
     FROM youtube_user_log yul
-    JOIN notification_log ynl
+    JOIN youtube_notification_log ynl
     ON ynl.id = yul.log_id
 );

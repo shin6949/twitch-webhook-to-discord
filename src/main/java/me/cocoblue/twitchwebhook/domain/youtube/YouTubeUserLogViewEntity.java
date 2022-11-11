@@ -1,8 +1,11 @@
-package me.cocoblue.twitchwebhook.domain;
+package me.cocoblue.twitchwebhook.domain.youtube;
 
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
@@ -16,8 +19,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-@Entity(name = "user_log_view")
-public class UserLogViewEntity {
+@Entity(name = "youtube_user_log_view")
+public class YouTubeUserLogViewEntity {
     @Id
     @Column(name = "user_log_id")
     private Long userLogId;
@@ -28,15 +31,15 @@ public class UserLogViewEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private TwitchSubscriptionType twitchSubscriptionType;
+    private YouTubeSubscriptionType youTubeSubscriptionType;
 
     @ManyToOne()
     @JoinColumn(name="form_id")
     @NotNull
-    private SubscriptionFormEntity subscriptionFormEntity;
+    private YouTubeSubscriptionFormEntity youTubeSubscriptionFormEntity;
 
     @ManyToOne()
-    @JoinColumn(name="broadcaster_id")
+    @JoinColumn(name="channel_id")
     @NotNull
-    private BroadcasterIdEntity broadcasterIdEntity;
+    private YouTubeChannelInfoEntity youTubeChannelInfoEntity;
 }

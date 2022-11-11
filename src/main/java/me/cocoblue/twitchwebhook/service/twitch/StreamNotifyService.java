@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -186,12 +187,22 @@ public class StreamNotifyService {
             return;
         }
 
+        final List<SubscriptionFormEntity> filteredNotifyForms = notifyForms
+                .stream()
+                .filter(notifyForm -> twitchUserLogService.isNotInInterval(body.getEvent().getBroadcasterUserId(), notifyForm.getTwitchSubscriptionType(), notifyForm.getIntervalMinute()))
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty()) {
+            log.info("Filtered NotifyForms Is Empty. Finish The Processing");
+            return;
+        }
+
         final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
         log.debug("Got User Info From Twitch: " + twitchUser.toString());
 
-        notifyForms.parallelStream().forEach(notifyForm -> {
+        filteredNotifyForms.parallelStream().forEach(notifyForm -> {
             DiscordEmbed.Webhook discordWebhookMessage;
-            if(body.getSubscription().getType().equals(TwitchSubscriptionType.STREAM_ONLINE.getTwitchName())) {
+            if(notifyForm.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE) {
                 discordWebhookMessage = makeStreamOnlineDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser);
             } else {
                 discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);

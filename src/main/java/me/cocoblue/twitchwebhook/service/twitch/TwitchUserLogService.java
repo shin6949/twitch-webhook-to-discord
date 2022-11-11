@@ -32,23 +32,23 @@ public class TwitchUserLogService {
         }
     }
 
-    public boolean isTakeInterval(String broadcasterId, TwitchSubscriptionType twitchSubscriptionType, int intervalMinute) {
+    public boolean isNotInInterval(String broadcasterId, TwitchSubscriptionType twitchSubscriptionType, int intervalMinute) {
         // interval이 0일 경우 알림을 계속 받겠다는 의미
         if(intervalMinute == 0) {
-            return false;
+            return true;
         }
 
         final LocalDateTime nowTime = LocalDateTime.now();
         final Optional<BroadcasterIdEntity> broadcasterIdEntity = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(Long.parseLong(broadcasterId));
         if(broadcasterIdEntity.isEmpty()) {
             // 미등록된 유저이므로 중복 알림은 아님.
-            return false;
+            return true;
         }
 
         final int notificationCount = userLogViewRepository.countByBroadcasterIdEntityAndTwitchSubscriptionTypeAndReceivedTimeBetween
                 (broadcasterIdEntity.get(), twitchSubscriptionType, nowTime.minusMinutes(intervalMinute), nowTime);
 
         log.info("Notification Count: " + notificationCount);
-        return notificationCount > 0;
+        return notificationCount <= 0;
     }
 }

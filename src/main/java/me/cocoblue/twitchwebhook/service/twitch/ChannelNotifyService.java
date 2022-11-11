@@ -22,6 +22,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -50,24 +51,30 @@ public class ChannelNotifyService {
         long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
         final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
         log.debug("Received Notify Forms: " + notifyForms);
-
         if(notifyForms.isEmpty()) {
-            log.info("Form is empty. Delete the Subscription");
+            log.info("filteredNotifyForms is empty. Delete the Subscription");
 
             eventSubService.deleteEventSub(body.getSubscription().getId());
             return;
         }
 
+        final List<SubscriptionFormEntity> filteredNotifyForms = notifyForms
+                .stream()
+                .filter(notifyForm -> twitchUserLogService.isNotInInterval(body.getEvent().getBroadcasterUserId(), notifyForm.getTwitchSubscriptionType(), notifyForm.getIntervalMinute()))
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty()) {
+            log.info("Filtered NotifyForms Is Empty. Finish The Processing");
+            return;
+        }
+
         final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
-        notifyForms.parallelStream().forEach(notifyForm -> {
+        log.debug("Got User Info From Twitch: " + twitchUser.toString());
+
+        filteredNotifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-//            if(isDuplicateSuspicion && notifyForm.isAvoidDuplicateSuspicionNoti()) {
-//                // 10분 이내 중복 옵션을 킨 경우 무시하고 진행
-//                log.info("This notification is duplicate suspicion. Don't send to Subscription Form ID " + notifyForm.getId());
-//                continue;
-//            }
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(notificationLogEntity == null) {
