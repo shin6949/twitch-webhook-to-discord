@@ -8,8 +8,6 @@ import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @SpringBootTest
