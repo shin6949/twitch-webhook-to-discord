@@ -76,6 +76,7 @@ jobs:
 
       - name: Move jar file
         run: |
+          ls -l
           mkdir build && mkdir build/libs
           mv ./twitchwebhook/twitchwebhook-${{ env.RELEASE_VERSION }}.jar ./build/libs/twitchwebhook-${{ env.RELEASE_VERSION }}.jar
 
