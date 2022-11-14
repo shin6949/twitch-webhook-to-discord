@@ -32,6 +32,6 @@ public class NotificationLogEntity {
     @NotNull
     private BroadcasterIdEntity broadcasterIdEntity;
 
-    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "received_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime receivedTime;
 }

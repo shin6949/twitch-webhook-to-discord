@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface YouTubeNotificationLogRepository extends JpaRepository<YouTubeNotificationLogEntity, Long> {
     List<YouTubeNotificationLogEntity> findAllByYouTubeChannelInfoEntityAndVideoId(YouTubeChannelInfoEntity youTubeChannelInfoEntity, String videoId);
+//    int countByYouTubeChannelInfoEntityAndYouTubeSubscriptionTypeAndDuplicateSuspicionAndReceivedTimeBetween(YouTubeChannelInfoEntity youTubeChannelInfoEntity, YouTubeSubscriptionType youTubeSubscriptionType, boolean duplicateSuspicion, LocalDateTime start, LocalDateTime end);
 }

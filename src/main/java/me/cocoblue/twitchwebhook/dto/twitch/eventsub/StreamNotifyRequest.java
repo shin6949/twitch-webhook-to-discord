@@ -1,14 +1,11 @@
 package me.cocoblue.twitchwebhook.dto.twitch.eventsub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.dto.CommonEvent;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
@@ -71,10 +68,6 @@ public class StreamNotifyRequest {
                     .withResolverStyle(ResolverStyle.LENIENT);
 
             this.startedAt = LocalDateTime.parse(cutString, formatter);
-        }
-
-        public void setStartedAt(LocalDateTime startedAt) {
-            this.startedAt = startedAt;
         }
     }
 }

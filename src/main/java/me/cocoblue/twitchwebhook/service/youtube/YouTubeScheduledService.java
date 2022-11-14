@@ -1,8 +1,6 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
 import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.PlaylistItem;
-import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,10 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -82,23 +76,6 @@ public class YouTubeScheduledService {
                 youTubeChannelInfoService.clearUpcomingLiveId(youTubeChannelInfoEntity);
             }
         }
-    }
-
-    private Video getNewLiveItem(List<PlaylistItem> playlistItemList, LocalDateTime standardTime) {
-        // standardTime: 이 시간 이후로 올라온 것만 스캔
-        for(PlaylistItem playlistItem : playlistItemList) {
-            log.debug("playlistItem: " + playlistItem);
-            final LocalDateTime videoPublishTime = LocalDateTime.ofInstant(Instant.parse(playlistItem.getSnippet().getPublishedAt().toStringRfc3339()), ZoneOffset.UTC);
-            // 비디오가 기준 시간보다 과거에 올라온 경우 다음 것을 처리
-            if(videoPublishTime.isBefore(standardTime)) {
-                break;
-            }
-
-            final Video videoInfo = apiActionService.getVideoInfo(playlistItem.getContentDetails().getVideoId());
-            log.debug("Video: " + videoInfo);
-            if(videoInfo.getSnippet().getLiveBroadcastContent().equals("live")) return videoInfo;
-        }
-        return null;
     }
 
     private Video judgeLiveAndReturnVideo(String upcomingLiveId) {

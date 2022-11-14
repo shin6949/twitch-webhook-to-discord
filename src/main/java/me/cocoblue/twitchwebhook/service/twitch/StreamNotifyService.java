@@ -5,14 +5,13 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
-import me.cocoblue.twitchwebhook.service.UserLogService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -31,7 +31,7 @@ import java.util.Locale;
 public class StreamNotifyService {
     @Value("${twitch.logo-url}")
     private String twitchLogoUrl;
-    
+
     private final NotificationFormService notificationFormService;
     private final EventSubService eventSubService;
     private final OauthTokenService oauthTokenService;
@@ -39,7 +39,7 @@ public class StreamNotifyService {
     private final DiscordWebhookService discordWebhookService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
-    private final UserLogService userLogService;
+    private final TwitchUserLogService twitchUserLogService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -174,21 +174,30 @@ public class StreamNotifyService {
         final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
         log.debug("Got Forms From DB: " + notifyForms.toString());
 
-        User twitchUser;
         if(notifyForms.isEmpty()) {
             log.info("Form is empty. Delete the Subscription");
             final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
             eventSubService.deleteEventSub(body.getSubscription().getId());
             oauthTokenService.revokeAppTokenToTwitch(accessToken);
             return;
-        } else {
-            twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
-            log.debug("Got User Info From Twitch: " + twitchUser.toString());
         }
 
-        for (SubscriptionFormEntity notifyForm : notifyForms) {
+        final List<SubscriptionFormEntity> filteredNotifyForms = notifyForms
+                .stream()
+                .filter(notifyForm -> twitchUserLogService.isNotInInterval(body.getEvent().getBroadcasterUserId(), notifyForm.getTwitchSubscriptionType(), notifyForm.getIntervalMinute()))
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty()) {
+            log.info("Filtered NotifyForms Is Empty. Finish The Processing");
+            return;
+        }
+
+        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
+        log.debug("Got User Info From Twitch: " + twitchUser.toString());
+
+        filteredNotifyForms.parallelStream().forEach(notifyForm -> {
             DiscordEmbed.Webhook discordWebhookMessage;
-            if(body.getSubscription().getType().equals(TwitchSubscriptionType.STREAM_ONLINE.getTwitchName())) {
+            if(notifyForm.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE) {
                 discordWebhookMessage = makeStreamOnlineDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser);
             } else {
                 discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
@@ -198,8 +207,8 @@ public class StreamNotifyService {
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(notificationLogEntity != null) {
-                userLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
+                twitchUserLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
             }
-        }
+        });
     }
 }

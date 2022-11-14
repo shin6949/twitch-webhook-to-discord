@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -79,6 +80,9 @@ public class EventSubService {
         RestTemplate rt = new RestTemplate();
         try {
             rt.exchange(requestUrl, HttpMethod.POST, requestData, String.class);
+        } catch (HttpClientErrorException.Conflict conflict) {
+            log.warn("Already Registered Subscription!");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

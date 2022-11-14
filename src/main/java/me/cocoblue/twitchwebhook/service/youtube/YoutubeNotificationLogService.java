@@ -9,7 +9,6 @@ import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoEntity;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeChannelInfoRepository;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogEntity;
 import me.cocoblue.twitchwebhook.domain.youtube.YouTubeNotificationLogRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,7 @@ import java.util.List;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class NotificationLogService {
+public class YoutubeNotificationLogService {
     private final YouTubeNotificationLogRepository youTubeNotificationLogRepository;
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
 
@@ -36,9 +35,8 @@ public class NotificationLogService {
         return youTubeNotificationLogEntities.size() == 0;
     }
 
-    @Async
     @Transactional
-    public void insertLog(Video video, Channel channel, YouTubeSubscriptionType youTubeSubscriptionType) {
+    public YouTubeNotificationLogEntity insertLog(Video video, Channel channel, YouTubeSubscriptionType youTubeSubscriptionType) {
         YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
 
         YouTubeNotificationLogEntity youTubeNotificationLogEntity = YouTubeNotificationLogEntity
@@ -50,7 +48,9 @@ public class NotificationLogService {
                 .build();
 
         log.debug("To Insert Log: " + youTubeNotificationLogEntity);
-        youTubeNotificationLogRepository.save(youTubeNotificationLogEntity);
+        final YouTubeNotificationLogEntity result = youTubeNotificationLogRepository.save(youTubeNotificationLogEntity);
         log.info("YouTube Notification Log Insert Processing Finished");
+
+        return result;
     }
 }
