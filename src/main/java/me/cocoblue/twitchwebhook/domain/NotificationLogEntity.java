@@ -3,7 +3,6 @@ package me.cocoblue.twitchwebhook.domain;
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

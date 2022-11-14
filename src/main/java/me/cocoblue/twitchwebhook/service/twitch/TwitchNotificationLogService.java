@@ -2,16 +2,14 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdRepository;
-import me.cocoblue.twitchwebhook.dto.CommonEvent;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.domain.NotificationLogRepository;
+import me.cocoblue.twitchwebhook.dto.CommonEvent;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -26,7 +24,7 @@ public class TwitchNotificationLogService {
     @Transactional
     public NotificationLogEntity insertLog(CommonEvent event, HttpHeaders headers) {
         log.debug("event: " + event);
-        final String messageId = headers.get("twitch-eventsub-message-id").get(0);
+        final String messageId = Objects.requireNonNull(headers.get("twitch-eventsub-message-id")).get(0);
         event.setNotificationIdFromTwitch(messageId);
 
         return notificationLogRepository.save(event.toNotificationLogEntity());

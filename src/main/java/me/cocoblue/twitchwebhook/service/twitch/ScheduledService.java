@@ -2,7 +2,9 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.domain.*;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.SubscriptionGroupViewEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionGroupViewRepository;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;

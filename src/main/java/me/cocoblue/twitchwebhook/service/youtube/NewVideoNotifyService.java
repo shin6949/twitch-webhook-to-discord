@@ -1,15 +1,14 @@
 package me.cocoblue.twitchwebhook.service.youtube;
 
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.youtube.*;
-import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.Video;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.youtube.*;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,35 +32,23 @@ public class NewVideoNotifyService {
     private final YoutubeNotificationLogService youtubeNotificationLogService;
     private final YouTubeUserLogService youTubeUserLogService;
 
-    private final String youtubeUrl = "https://www.youtube.com";
-
     public void sendLiveStreamMessage(Video video, Channel channel) {
         log.info("Send Live Stream Message");
 
-        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
-        final List<YouTubeSubscriptionFormEntity> notifyForms = youTubeSubscriptionFormRepository
-                .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.LIVE_START);
-        log.debug("Received Notify Forms: " + notifyForms);
-
-        if(notifyForms.isEmpty()) {
-            log.info("NotifyForms Is Empty. Finish The Processing");
-            return;
-        }
-
-        final List<YouTubeSubscriptionFormEntity> filteredNotifyForms = notifyForms
-                .stream()
-                .filter(notifyForm -> youTubeUserLogService.isNotInInterval(youTubeChannelInfoEntity.getYoutubeChannelId(), YouTubeSubscriptionType.LIVE_START, notifyForm.getIntervalMinute()))
-                .collect(Collectors.toList());
-
-        if(filteredNotifyForms.isEmpty()) {
-            log.info("filteredNotifyForms Is Empty. Finish The Processing");
+        final List<YouTubeSubscriptionFormEntity> notifyForms = getValidNotificationForms(channel.getId(), YouTubeSubscriptionType.LIVE_START);
+        if(notifyForms == null) {
+            log.info("Received Null. Finish The Processing");
             return;
         }
 
         final YouTubeNotificationLogEntity youTubeNotificationLogEntity = youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.LIVE_START);
 
-        filteredNotifyForms.parallelStream().forEach(notifyForm -> {
-            final DiscordEmbed.Webhook discordWebhookMessage = makeLiveStreamDiscordWebhook(video, channel, notifyForm);
+        notifyForms.parallelStream().forEach(notifyForm -> {
+            final Locale locale = Locale.forLanguageTag(notifyForm.getLanguageIsoData().getCode());
+            final String embedSuffix = messageSource.getMessage("youtube.stream.event-message", null, locale);
+            final String footerMessage = messageSource.getMessage("youtube.stream.footer", null, locale);
+
+            final DiscordEmbed.Webhook discordWebhookMessage = makeDiscordWebhook(video, channel, notifyForm, embedSuffix, footerMessage);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
@@ -72,15 +59,20 @@ public class NewVideoNotifyService {
     public void sendVideoUploadMessage(Video video, Channel channel) {
         log.info("Send Video Upload Message");
 
-        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
-        final List<YouTubeSubscriptionFormEntity> notifyForms = youTubeSubscriptionFormRepository
-                .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, YouTubeSubscriptionType.VIDEO_UPLOAD);
-        log.debug("Received Notify Forms: " + notifyForms);
+        final List<YouTubeSubscriptionFormEntity> notifyForms = getValidNotificationForms(channel.getId(), YouTubeSubscriptionType.VIDEO_UPLOAD);
+        if(notifyForms == null) {
+            log.info("Received Null. Finish The Processing");
+            return;
+        }
 
         final YouTubeNotificationLogEntity youTubeNotificationLogEntity = youtubeNotificationLogService.insertLog(video, channel, YouTubeSubscriptionType.VIDEO_UPLOAD);
 
         notifyForms.parallelStream().forEach(notifyForm -> {
-            final DiscordEmbed.Webhook discordWebhookMessage = makeVideoUploadDiscordWebhook(video, channel, notifyForm);
+            final Locale locale = Locale.forLanguageTag(notifyForm.getLanguageIsoData().getCode());
+            final String embedSuffix = messageSource.getMessage("youtube.video.upload.event-message", null, locale);
+            final String footerMessage = messageSource.getMessage("youtube.video.upload.footer", null, locale);
+
+            final DiscordEmbed.Webhook discordWebhookMessage = makeDiscordWebhook(video, channel, notifyForm, embedSuffix, footerMessage);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
@@ -88,12 +80,35 @@ public class NewVideoNotifyService {
         });
     }
 
-    private DiscordEmbed.Webhook makeLiveStreamDiscordWebhook(Video video, Channel channel,
-                                                              YouTubeSubscriptionFormEntity form) {
-        // Form의 Locale 얻기
-        final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
+    private List<YouTubeSubscriptionFormEntity> getValidNotificationForms(String youtubeChannelId, YouTubeSubscriptionType subscriptionType) {
+        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(youtubeChannelId);
+        final List<YouTubeSubscriptionFormEntity> notifyForms = youTubeSubscriptionFormRepository
+                .findAllByYouTubeChannelInfoEntityAndYouTubeSubscriptionType(youTubeChannelInfoEntity, subscriptionType);
+        log.debug("Received Notify Forms: " + notifyForms);
 
+        if(notifyForms.isEmpty()) {
+            log.info("NotifyForms Is Empty. Return Null.");
+            return null;
+        }
+
+        final List<YouTubeSubscriptionFormEntity> filteredNotifyForms = notifyForms
+                .stream()
+                .filter(notifyForm -> youTubeUserLogService.isNotInInterval(youTubeChannelInfoEntity.getYoutubeChannelId(), YouTubeSubscriptionType.LIVE_START, notifyForm.getIntervalMinute()))
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty()) {
+            log.info("filteredNotifyForms Is Empty. Return Null.");
+            return null;
+        }
+
+        return filteredNotifyForms;
+    }
+
+    private DiscordEmbed.Webhook makeDiscordWebhook(Video video, Channel channel,
+                                                    YouTubeSubscriptionFormEntity form,
+                                                    String embedSuffix, String footerMessage) {
         // Author Area
+        String youtubeUrl = "https://www.youtube.com";
         final String authorURL = youtubeUrl + "/channel/" + channel.getId();
         String authorProfileURL = channel.getSnippet().getThumbnails().getHigh().getUrl();
         if(authorProfileURL == null) {
@@ -105,11 +120,10 @@ public class NewVideoNotifyService {
 
         // Embed Area
         final String embedColor = Integer.toString(form.getDecimalColor());
-        final String embedTitle = channel.getSnippet().getTitle()
-                + messageSource.getMessage("youtube.stream.event-message", null, locale);
+        final String embedTitle = channel.getSnippet().getTitle() + embedSuffix;
         final String embedDescription = video.getSnippet().getTitle();
 
-        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("youtube.stream.footer", null, locale), youTubeLogoUrl);
+        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(footerMessage, youTubeLogoUrl);
         String imageUrl = video.getSnippet().getThumbnails().getHigh().getUrl();
         if(imageUrl == null) {
             imageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
@@ -127,53 +141,6 @@ public class NewVideoNotifyService {
                 .color(embedColor)
                 .footer(footer)
                 .timestamp(String.valueOf(video.getLiveStreamingDetails().getActualStartTime()))
-                .image(image)
-                .build();
-
-        discordEmbeds.add(discordEmbed);
-
-        return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
-                form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
-    }
-
-    private DiscordEmbed.Webhook makeVideoUploadDiscordWebhook(Video video, Channel channel,
-                                                              YouTubeSubscriptionFormEntity form) {
-        // Form의 Locale 얻기
-        final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
-
-        // Author Area
-        final String authorURL = youtubeUrl + "/channel/" + channel.getId();
-        String authorProfileURL = channel.getSnippet().getThumbnails().getHigh().getUrl();
-        if(authorProfileURL == null) {
-            authorProfileURL = channel.getSnippet().getThumbnails().getDefault().getUrl();
-        }
-        final String authorName = channel.getSnippet().getTitle();
-        final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
-
-        // Embed Area
-        final String embedColor = Integer.toString(form.getDecimalColor());
-        final String embedTitle = channel.getSnippet().getTitle()
-                + messageSource.getMessage("youtube.video.upload.event-message", null, locale);
-        final String embedDescription = video.getSnippet().getTitle();
-
-        final DiscordEmbed.Footer footer = new DiscordEmbed.Footer(messageSource.getMessage("youtube.video.upload.footer", null, locale), youTubeLogoUrl);
-        String imageUrl = video.getSnippet().getThumbnails().getHigh().getUrl();
-        if(imageUrl == null) {
-            imageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
-        }
-        final DiscordEmbed.Image image = new DiscordEmbed.Image(imageUrl, 640, 480);
-
-        final String videoUrl = youtubeUrl + "/watch?v=" + video.getId();
-
-        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        final DiscordEmbed discordEmbed = DiscordEmbed.builder()
-                .author(author)
-                .title(embedTitle)
-                .url(videoUrl)
-                .description(embedDescription)
-                .color(embedColor)
-                .footer(footer)
-                .timestamp(String.valueOf(video.getSnippet().getPublishedAt()))
                 .image(image)
                 .build();
 

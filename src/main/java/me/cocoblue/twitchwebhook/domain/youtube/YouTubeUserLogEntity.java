@@ -2,7 +2,6 @@ package me.cocoblue.twitchwebhook.domain.youtube;
 
 import com.sun.istack.NotNull;
 import lombok.*;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;

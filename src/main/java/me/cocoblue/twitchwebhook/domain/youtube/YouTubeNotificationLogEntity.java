@@ -3,7 +3,6 @@ package me.cocoblue.twitchwebhook.domain.youtube;
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;

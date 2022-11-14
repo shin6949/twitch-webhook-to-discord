@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -30,10 +30,6 @@ import java.util.stream.Collectors;
 public class ChannelNotifyService {
     @Value("${twitch.logo-url}")
     private String twitchLogoUrl;
-
-    @PersistenceContext
-    EntityManager entityManager;
-
     private final DiscordWebhookService discordWebhookService;
     private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
@@ -41,8 +37,6 @@ public class ChannelNotifyService {
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
     private final TwitchUserLogService twitchUserLogService;
-
-    private final String twitchUrl = "https://twitch.tv/";
 
     public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
         log.info("Send Channel Update Message");
@@ -97,6 +91,7 @@ public class ChannelNotifyService {
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
+        String twitchUrl = "https://twitch.tv/";
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
         String authorName;

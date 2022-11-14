@@ -4,11 +4,11 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.model.*;
-import org.springframework.beans.factory.annotation.Value;
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -61,32 +61,6 @@ public class APIActionService {
             generalSecurityException.printStackTrace();
             return null;
         }
-    }
-
-    public PlaylistItemListResponse getPlayListItem(String playlistId, String nextToken) {
-        try {
-            YouTube youtubeService = getYouTubeInstance();
-            assert youtubeService != null;
-
-            YouTube.PlaylistItems.List playlistItemRequest =
-                    youtubeService.playlistItems()
-                            .list(Collections.singletonList("id,snippet,contentDetails,status"))
-                            .setKey(apiKey)
-                            .setFields("items(snippet,contentDetails),nextPageToken,pageInfo")
-                            .setMaxResults(50L)
-                            .setPlaylistId(playlistId)
-                            .setPageToken(nextToken);
-
-            return playlistItemRequest.execute();
-        } catch (IOException generalSecurityException)  {
-            generalSecurityException.printStackTrace();
-            return null;
-        }
-    }
-
-    public String getChannelUploadPlayListId(String channelId) {
-        final Channel channel = getChannelInfo(channelId);
-        return channel.getContentDetails().getRelatedPlaylists().getUploads();
     }
 
     private YouTube getYouTubeInstance() {
