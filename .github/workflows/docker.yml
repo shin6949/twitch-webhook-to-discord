@@ -38,7 +38,7 @@ jobs:
         run: mv ./build/libs/twitchwebhook*.jar ./twitchwebhook-${{ env.RELEASE_VERSION }}.jar
 
       - name: Upload jar file to Artifact
-        uses: actions/upload-artifact@3
+        uses: actions/upload-artifact@v3
         with:
           name: twitchwebhook
           path: ./twitchwebhook-${{ env.RELEASE_VERSION }}.jar
