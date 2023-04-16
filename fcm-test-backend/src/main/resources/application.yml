@@ -1,0 +1,10 @@
+spring:
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - classpath:/react/
+
+logging:
+  level:
+    org.springframework.web: DEBUG
