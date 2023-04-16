@@ -1,16 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import type { AppProps } from "next/app";
 import { FirebaseApp, initializeApp } from "firebase/app";
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
 
 // Firebase configuration
 const firebaseConfig: Record<string, string> = {
-  apiKey: process.env.FIREBASE_API_KEY as string,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN as string,
-  projectId: process.env.FIREBASE_PROJECT_ID as string,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET as string,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID as string,
-  appId: process.env.FIREBASE_APP_ID as string,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID as string,
+  apiKey: publicRuntimeConfig.FIREBASE_API_KEY as string,
+  authDomain: publicRuntimeConfig.FIREBASE_AUTH_DOMAIN as string,
+  projectId: publicRuntimeConfig.FIREBASE_PROJECT_ID as string,
+  storageBucket: publicRuntimeConfig.FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: publicRuntimeConfig.FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: publicRuntimeConfig.FIREBASE_APP_ID as string,
+  measurementId: publicRuntimeConfig.FIREBASE_MEASUREMENT_ID as string,
 };
 
 // Initialize Firebase

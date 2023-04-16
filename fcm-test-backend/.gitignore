@@ -1,4 +1,6 @@
 src/main/resources/react
+*.png
+*.jpg
 
 HELP.md
 .gradle
