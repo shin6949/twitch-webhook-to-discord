@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getMessaging, onMessage, getToken, Messaging, MessagePayload } from "firebase/messaging";
-import { Button, Container, Form, Toast, ToastContainer } from "react-bootstrap";
+import { getMessaging, getToken, Messaging } from "firebase/messaging";
+import { Button, Container, Form, ToastContainer, Toast } from "react-bootstrap";
 import { app } from "./_app";
-import Header from "../components/Header";
 import Head from "next/head";
 
 const FCMForm: React.FC = (): JSX.Element => {
@@ -14,7 +13,6 @@ const FCMForm: React.FC = (): JSX.Element => {
   useEffect(() => {
     if (typeof document !== "undefined") {
       require("bootstrap/dist/css/bootstrap.min.css");
-      // require("bootstrap/dist/js/bootstrap.bundle.min.js");
     }
   }, []);
 
@@ -25,27 +23,11 @@ const FCMForm: React.FC = (): JSX.Element => {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && messaging === null) {
       setMessaging(getMessaging(app));
+      console.log("setMessaging(getMessaging(app)) Processed");
     }
   }, []);
-
-  useEffect(() => {
-    if (messaging) {
-      onMessage(messaging, (payload: MessagePayload) => {
-        if (payload.notification) {
-          console.log(payload.notification.title);
-          console.log(payload.notification.body);
-          setShowToast({
-            show: true,
-            message: `알림을 정상적으로 받았습니다.\n받은 제목: ${payload.notification.title}\n받은 내용: ${payload.notification.body}`,
-            variant: "secondary",
-          });
-          console.log("TOAST CALLED!");
-        }
-      });
-    }
-  }, [messaging]);
 
   const sendMessage = async (): Promise<void> => {
     Notification.requestPermission()
@@ -93,7 +75,6 @@ const FCMForm: React.FC = (): JSX.Element => {
       <Head>
         <title>FCM Sample</title>
       </Head>
-      <Header />
       <Container>
         <h1>FCM 알림 전송</h1>
         <Form>

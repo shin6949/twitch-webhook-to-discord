@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.controller.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -14,61 +15,60 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping(path = "/webhook/twitch")
 @Log4j2
-@AllArgsConstructor
 public class TwitchChannelNotifyController {
     private final ChannelNotifyService channelNotifyService;
     private final TwitchNotificationLogService twitchNotificationLogService;
     private final ControllerProcessingService controllerProcessingService;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @PostMapping(path = "/channel/{broadcasterId}/update")
-    public String receiveChannelUpdateNotification(@PathVariable String broadcasterId, @RequestBody String notification,
-                                                  @RequestHeader HttpHeaders headers) {
+    public String receiveChannelUpdateNotification(
+            @PathVariable String broadcasterId,
+            @RequestBody String notification,
+            @RequestHeader HttpHeaders headers) {
         log.info("Channel Update Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
         log.debug("Body: " + notification);
 
-        // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
+        if (controllerProcessingService.dataNotValid(headers, notification)) {
             return "success";
         }
 
-        // RequestBody를 Vo에 Mapping
-        final ChannelUpdateRequest.Body channelUpdateNotification = toDto(notification);
+        final ChannelUpdateRequest.Body channelUpdateNotification = toChannelUpdateRequest(notification);
+        if (channelUpdateNotification != null) {
+            if (channelUpdateNotification.getChallenge() != null &&
+                    "webhook_callback_verification_pending".equals(
+                            channelUpdateNotification.getSubscription().getStatus())) {
+                return channelUpdateNotification.getChallenge();
+            }
 
-        // Challenge 요구 시, 반응
-        assert channelUpdateNotification != null;
-        if(channelUpdateNotification.getChallenge() != null &&
-                channelUpdateNotification.getSubscription().getStatus().equals("webhook_callback_verification_pending")) {
-            return channelUpdateNotification.getChallenge();
+            final String messageID = Objects.requireNonNull(headers.get("twitch-eventsub-message-id")).get(0);
+            if (twitchNotificationLogService.isAlreadySend(messageID)) {
+                return "success";
+            }
+
+            final NotificationLogEntity notificationLogEntity =
+                    twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
+            channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);
         }
-
-        if (twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
-            return "success";
-        }
-
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
-
-        // Message Send (Async)
-        channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);
 
         return "success";
     }
 
-    private ChannelUpdateRequest.Body toDto(String original) {
+    private ChannelUpdateRequest.Body toChannelUpdateRequest(String original) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            Map<String, Object> map = mapper.readValue(original, Map.class);
-
-            return mapper.convertValue(map, ChannelUpdateRequest.Body.class);
-
-        } catch (JsonProcessingException jsonProcessingException) {
-            jsonProcessingException.printStackTrace();
+            final Map<String, Object> map = objectMapper.readValue(original, new TypeReference<Map<String, Object>>() {});
+            return objectMapper.convertValue(map, ChannelUpdateRequest.Body.class);
+        } catch (JsonProcessingException e) {
+            log.error("An error occurred while deserializing JSON.", e);
             return null;
         }
     }

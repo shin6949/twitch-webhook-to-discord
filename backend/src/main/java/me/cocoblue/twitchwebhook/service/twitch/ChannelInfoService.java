@@ -41,7 +41,7 @@ public class ChannelInfoService {
         final String channelGetUrl = twitchApiUrl + "/channels";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(channelGetUrl)
                 .queryParam("broadcaster_id", broadcasterId);
-        log.debug("Built Uri: " + builder.toUriString());
+        log.debug("Built URL: " + builder.toUriString());
 
         final HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 

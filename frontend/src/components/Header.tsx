@@ -14,13 +14,13 @@ const Header: React.FC = (): JSX.Element => {
     <Navbar bg="light" expand="lg" className="mb-3">
       <Container>
         <Link className="navbar-brand" href="/" passHref>
-          FCM Sample
+          트위치 알리미
         </Link>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Link className="nav-link" href="/fcm-test" passHref>
-              FCM Test
+              기기 알림 테스트
             </Link>
 
             <Link className="nav-link" href="/about" passHref>

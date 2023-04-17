@@ -1,6 +1,7 @@
 package me.cocoblue.twitchwebhook.controller.twitch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/webhook/twitch")
@@ -27,83 +29,45 @@ public class TwitchStreamNotifyController {
     private final ChannelInfoService channelInfoService;
     private final ControllerProcessingService controllerProcessingService;
 
-    @PostMapping(path = "/stream/{broadcasterId}/online")
-    public String receiveStreamOnlineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
+    @PostMapping(path = "/stream/{broadcasterId}/{status}")
+    public String receiveStreamNotification(@PathVariable String broadcasterId, @PathVariable String status,
+                                            @RequestBody String notification,
                                             @RequestHeader HttpHeaders headers) {
-        log.info("Stream Online Event Received");
+        log.info("Stream " + status.toUpperCase() + " Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
         log.debug("Body: " + notification);
 
         // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
+        if (controllerProcessingService.dataNotValid(headers, notification)) {
             log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
             return "success";
         }
 
         // RequestBody를 Vo에 Mapping
-        final StreamNotifyRequest.Body streamNotification = toDto(notification);
+        final Optional<StreamNotifyRequest.Body> streamNotificationOptional = toDto(notification);
+
+        // StreamNotifyRequest.Body가 null인 경우 처리
+        if (streamNotificationOptional.isEmpty()) {
+            log.warn("Failed to parse notification body.");
+            return "success";
+        }
+
+        final StreamNotifyRequest.Body streamNotification = streamNotificationOptional.get();
 
         // Challenge 요구 시, 반응
-        assert streamNotification != null;
-        if(controllerProcessingService.isChallenge(streamNotification)) {
+        if (controllerProcessingService.isChallenge(streamNotification)) {
             log.info("This req is Challenge. Return the code");
             return streamNotification.getChallenge();
         }
 
         // 옳은 broadcasterId를 제시했는지 판단
-        if(!streamNotification.getEvent().getBroadcasterUserId().equals(broadcasterId)) {
+        if (!streamNotification.getEvent().getBroadcasterUserId().equals(broadcasterId)) {
             log.warn("It doesn't match between paths broadcaster id and event broadcaster id. So, This req is invalid.");
             return "success";
         }
 
-        // 이미 전송한 알림인지 파악
-        if(twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
-            log.info("This req is already sent. Stop the Processing.");
-            return "success";
-        }
-
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers);
-
-        log.info("This req is valid!");
-        final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
-
-        // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);
-        return "success";
-    }
-
-    @PostMapping(path = "/stream/{broadcasterId}/offline")
-    public String receiveStreamOfflineNotification(@PathVariable String broadcasterId, @RequestBody String notification,
-                                            @RequestHeader HttpHeaders headers) {
-        log.info("Stream Offline Event Received");
-        log.info("Received BroadcasterId: " + broadcasterId);
-        log.debug("Header: " + headers.toString());
-        log.debug("Body: " + notification);
-
-        // 요청이 유효한지 체크
-        if(controllerProcessingService.dataNotValid(headers, notification)) {
-            log.warn("This req is NOT valid. (Encryption Value is not match between both side.) Stop the Processing.");
-            return "success";
-        }
-
-        // RequestBody를 Vo에 Mapping
-        final StreamNotifyRequest.Body streamNotification = toDto(notification);
-
-        // Challenge 요구 시, 반응
-        assert streamNotification != null;
-        if(controllerProcessingService.isChallenge(streamNotification)) {
-            log.info("This req is Challenge. Return the code");
-            return streamNotification.getChallenge();
-        }
-
-        // 옳은 broadcasterId를 제시했는지 판단
-        if(!streamNotification.getEvent().getBroadcasterUserId().equals(broadcasterId)) {
-            log.warn("It doesn't match between paths broadcaster id and event broadcaster id. So, This req is invalid.");
-            return "success";
-        }
-
-        if (twitchNotificationLogService.isAlreadySend(headers.get("twitch-eventsub-message-id").get(0))) {
+        if (twitchNotificationLogService.isAlreadySend(headers.getFirst("twitch-eventsub-message-id"))) {
             log.info("This req is already sent. Stop the Processing.");
             return "success";
         }
@@ -120,18 +84,17 @@ public class TwitchStreamNotifyController {
         return "success";
     }
 
-    private StreamNotifyRequest.Body toDto(String original) {
+    private Optional<StreamNotifyRequest.Body> toDto(String original) {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            Map<String, Object> map = mapper.readValue(original, Map.class);
-
+            final Map<String, Object> map = objectMapper.readValue(original, new TypeReference<Map<String, Object>>() {});
             log.debug("map: " + map.toString());
-            return mapper.convertValue(map, StreamNotifyRequest.Body.class);
-
-        } catch (JsonProcessingException jsonProcessingException) {
-            jsonProcessingException.printStackTrace();
-            return null;
+            return Optional.ofNullable(objectMapper.convertValue(map, StreamNotifyRequest.Body.class));
+        } catch (JsonProcessingException e) {
+            log.error("Error converting JSON to StreamNotifyRequest.Body", e);
+            return Optional.empty();
         }
     }
+
 }

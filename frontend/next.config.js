@@ -1,6 +1,7 @@
 require("dotenv").config({ path: `${__dirname}/../.env` });
 const withPWA = require("next-pwa");
 const withPlugins = require("next-compose-plugins");
+const { i18n } = require("./next-i18next.config");
 
 module.exports = withPlugins(
   [
@@ -36,5 +37,6 @@ module.exports = withPlugins(
       FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
       FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID,
     },
-  }
+  },
+  [i18n]
 );

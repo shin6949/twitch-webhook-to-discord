@@ -76,24 +76,18 @@ public class YouTubeStreamNotifyController {
         }
         log.debug("Video: " + video);
 
-        if(video.getSnippet().getLiveBroadcastContent().equals("upcoming")) {
-            log.info("Upcoming Live Streaming Detected. Update the Information");
-            youTubeChannelInfoService.updateUpcomingLiveIdByYoutubeChannelId(video.getId(), channelId);
-            return "true";
-        }
-
         final Channel channel = APIActionService.getChannelInfo(youTubeXmlBody.getChannelId());
         log.debug("Channel: " + channel);
 
-        if(video.getSnippet().getLiveBroadcastContent().equals("live")) {
+        if(video.getSnippet().getLiveBroadcastContent().equals("upcoming")) {
+            log.info("Upcoming Live Streaming Detected. Update the Information");
+            youTubeChannelInfoService.updateUpcomingLiveIdByYoutubeChannelId(video.getId(), channelId);
+        } else if (video.getSnippet().getLiveBroadcastContent().equals("live")) {
             log.info("Live Streaming Detected. Send the notification");
             newVideoNotifyService.sendLiveStreamMessage(video, channel);
             youTubeChannelInfoService.clearUpcomingLiveId(youTubeXmlBody.getChannelId());
-            return "true";
-        }
-
-        if(channel == null) {
-            log.info("Channel is null. Stop the processing.");
+        } else {
+            log.info("No live or upcoming content detected. Stop the processing.");
             return "true";
         }
 
@@ -104,7 +98,7 @@ public class YouTubeStreamNotifyController {
     }
 
     private boolean dataNotValid(HttpHeaders headers, String notification) {
-        final String signature = Objects.requireNonNull(headers.get("X-Hub-Signature")).get(0);
+        final String signature = Objects.requireNonNull(headers.getFirst("X-Hub-Signature"));
 
         final String encryptValue = "sha1=" + encryptDataService.encryptString(notification, false);
         log.debug("Received Signature: " + signature);
@@ -118,7 +112,7 @@ public class YouTubeStreamNotifyController {
             XmlMapper xmlMapper = new XmlMapper();
             return xmlMapper.readValue(requestBody, YouTubeXmlBody.class);
         } catch (JsonProcessingException jsonProcessingException) {
-            jsonProcessingException.printStackTrace();
+            log.error("Error converting XML to YouTubeXmlBody", jsonProcessingException);
             return null;
         }
     }
