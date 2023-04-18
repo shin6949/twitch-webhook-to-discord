@@ -1,17 +1,7 @@
 import React, { useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import Link from "next/link";
-
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
-
-// export const getStaticProps = async ({ locale }: { locale: string }) => {
-//   return {
-//     props: {
-//       ...(await serverSideTranslations(locale, ["common"])),
-//     },
-//   };
-// };
 
 const Header: React.FC = (): JSX.Element => {
   const { t } = useTranslation(["common"]);

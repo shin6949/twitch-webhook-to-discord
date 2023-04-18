@@ -1,6 +1,15 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+export const getStaticProps = async ({ locale }: { locale: string }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["common"])),
+    },
+  };
+};
 
 const App = (): JSX.Element => {
   useEffect(() => {

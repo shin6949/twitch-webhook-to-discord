@@ -3,7 +3,6 @@ import { getMessaging, getToken, Messaging } from "firebase/messaging";
 import { Button, Container, Form, ToastContainer, Toast } from "react-bootstrap";
 import { app } from "./_app";
 import Head from "next/head";
-
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 
@@ -47,14 +46,14 @@ const FCMForm: React.FC = (): JSX.Element => {
       .then(async (permission: NotificationPermission) => {
         if (permission === "granted") {
           if (!messaging) {
-            setShowToast({ show: true, message: "알림 기능을 사용할 수 없습니다.", variant: "danger" });
+            setShowToast({ show: true, message: t("toast_unable_to_use_notification_function", { ns: "fcmpage" }), variant: "danger" });
             return;
           }
           const token = await getToken(messaging);
           console.log(`Current Registration Token: ${token}`);
 
           if (!title || !content) {
-            setShowToast({ show: true, message: "제목과 내용 모두 입력해주세요.", variant: "danger" });
+            setShowToast({ show: true, message: t("toast_fill_all_field", { ns: "fcmpage" }), variant: "danger" });
             return;
           }
 
@@ -71,10 +70,10 @@ const FCMForm: React.FC = (): JSX.Element => {
           });
 
           if (!response.ok) {
-            setShowToast({ show: true, message: "요청 실패", variant: "danger" });
+            setShowToast({ show: true, message: t("toast_request_failed", { ns: "fcmpage" }), variant: "danger" });
           }
         } else {
-          setShowToast({ show: true, message: "알 수 없는 오류가 발생했습니다.", variant: "danger" });
+          setShowToast({ show: true, message: t("toast_unknown_error_occured", { ns: "fcmpage" }), variant: "danger" });
           return;
         }
       })
@@ -86,23 +85,23 @@ const FCMForm: React.FC = (): JSX.Element => {
   return (
     <>
       <Head>
-        <title>FCM Sample</title>
+        <title>{t("test-menu", { ns: "common" })}</title>
       </Head>
       <Container>
-        <h1>FCM 알림 전송</h1>
+        <h1>{t("test-menu", { ns: "common" })}</h1>
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>알림 제목:</Form.Label>
+            <Form.Label>{t("form_notification_title", { ns: "fcmpage" })}:</Form.Label>
             <Form.Control type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>알림 내용:</Form.Label>
+            <Form.Label>{t("form_notification_content", { ns: "fcmpage" })}:</Form.Label>
             <Form.Control type="text" value={content} onChange={(e) => setContent(e.target.value)} required />
           </Form.Group>
 
           <Button variant="primary" onClick={sendMessage}>
-            전송
+            {t("button_send", { ns: "fcmpage" })}
           </Button>
         </Form>
 
