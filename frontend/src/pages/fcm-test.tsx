@@ -4,7 +4,20 @@ import { Button, Container, Form, ToastContainer, Toast } from "react-bootstrap"
 import { app } from "./_app";
 import Head from "next/head";
 
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+
+export const getStaticProps = async ({ locale }: { locale: string }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ["fcmpage", "common"])),
+    },
+  };
+};
+
 const FCMForm: React.FC = (): JSX.Element => {
+  const { t } = useTranslation(["fcmpage", "common"]);
+
   const [showToast, setShowToast] = useState<ToastState>({ show: false, message: "", variant: "secondary" });
   const [messaging, setMessaging] = useState<Messaging | null>(null);
   const [title, setTitle] = useState<string>("");
