@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
-import Header from "../components/Header";
 
 const App = (): JSX.Element => {
   useEffect(() => {
@@ -13,7 +12,6 @@ const App = (): JSX.Element => {
 
   return (
     <>
-      <Header />
       <Container className="my-4">
         <nav>
           <ul>

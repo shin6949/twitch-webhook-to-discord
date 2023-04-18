@@ -1,12 +1,11 @@
 {
-  "main-program-name": "Twitch Webhook Notificater",
-  "sub-program-name": "트위치 알리미",
+  "sub-program-name": "Korean: 트위치 알리미",
   "developer": "Developer: COCOBLUE(shin6949)",
   "description": "This program helps you receive notifications from specific Twitch channels.",
   "notification-types-title": "Types of notifications supported",
-  "event-change-channel-information": "- Channel information change event",
-  "event-stream-online": "- Stream start",
-  "event-stream-offline": "- Stream finished",
+  "event-change-channel-information": "Channel information change event",
+  "event-stream-online": "Stream start",
+  "event-stream-offline": "Stream finished",
   "program-source-information": "Program source information",
   "source": "source"
 }

@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import getConfig from "next/config";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { appWithTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -59,6 +60,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     </>
   );
 }
+
+export const getStaticProps = async ({ locales }: { locales: string }) => {
+  console.log(locales);
+  return {
+    props: { ...(await serverSideTranslations(locales, ["common"])) },
+  };
+};
 
 export default appWithTranslation(MyApp);
 export { app };

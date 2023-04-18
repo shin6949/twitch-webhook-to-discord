@@ -1,1 +1,5 @@
-{}
+{
+  "program-name": "Twitch Webhook Notificater",
+  "test-menu": "Device Notification Test",
+  "about-menu": "About App"
+}
