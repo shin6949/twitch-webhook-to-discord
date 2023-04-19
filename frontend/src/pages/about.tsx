@@ -4,7 +4,6 @@ import Head from "next/head";
 import { Nav } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 
@@ -22,7 +21,7 @@ const About: React.FC = (): JSX.Element => {
   return (
     <>
       <Head>
-        <title>About</title>
+        <title>{t("about-menu", { ns: "common" })}</title>
       </Head>
       <Container>
         <h1>{t("program-name", { ns: "common" })}</h1>

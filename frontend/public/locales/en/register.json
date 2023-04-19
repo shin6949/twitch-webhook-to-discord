@@ -1,0 +1,14 @@
+{
+  "label-input-twitch-id": "Twitch ID",
+  "placehodler-twitch-id": "Enter the Twitch ID of the streamer you want to receive notifications for.",
+  "feedback-invalid-twitch-id": "Invalid ID.",
+  "label-notification-type": "Notification Type",
+  "select-notification-type": "Select notification type",
+  "label-delay-time": "Delay Time (minutes)",
+  "placehodler-delay-time": "Set the notification interval in minutes.",
+  "button-register": "Register",
+  "toast-register-success-header": "Registration Success",
+  "toast-register-success-content": "Successfully registered!",
+  "toast-register-error-header": "Registration Failure",
+  "toast-register-error-content": "An error occurred during registration. Please try again."
+}

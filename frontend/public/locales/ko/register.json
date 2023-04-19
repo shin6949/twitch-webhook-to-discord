@@ -1,0 +1,14 @@
+{
+  "label-input-twitch-id": "Twitch ID",
+  "placehodler-twitch-id": "알림을 받고 싶은 스트리머의 Twitch ID를 입력하세요",
+  "feedback-invalid-twitch-id": "유효하지 않은 ID 입니다.",
+  "label-notification-type": "알림 타입",
+  "select-notification-type": "알림 타입 선택",
+  "label-delay-time": "대기 시간 (분)",
+  "placehodler-delay-time": "알림 간격을 분 단위로 정해주세요.",
+  "button-register": "등록",
+  "toast-register-success-header": "등록 성공",
+  "toast-register-success-content": "성공적으로 등록되었습니다!",
+  "toast-register-error-header": "등록 실패",
+  "toast-register-error-content": "등록 중 오류가 발생했습니다. 다시 시도해주세요."
+}

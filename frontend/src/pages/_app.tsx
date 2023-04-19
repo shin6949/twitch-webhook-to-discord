@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState } from "react";
+import Head from "next/head";
 import type { AppProps } from "next/app";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { getMessaging, onMessage, Messaging, MessagePayload } from "firebase/messaging";
@@ -8,6 +9,7 @@ import getConfig from "next/config";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { appWithTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -23,8 +25,8 @@ const firebaseConfig: Record<string, string> = {
 };
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
-
 function MyApp({ Component, pageProps }: AppProps) {
+  const { t } = useTranslation(["common"]);
   const [showToast, setShowToast] = useState<ToastState>({ show: false, message: "", variant: "secondary" });
 
   if (typeof window !== "undefined") {
@@ -50,6 +52,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <title>{t("program-name", { ns: "common" })}</title>
+      </Head>
       <Header />
       <Component {...pageProps} />
       <ToastContainer position="bottom-end">

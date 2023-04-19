@@ -5,6 +5,7 @@ import { app } from "./_app";
 import Head from "next/head";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -22,12 +23,6 @@ const FCMForm: React.FC = (): JSX.Element => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      require("bootstrap/dist/css/bootstrap.min.css");
-    }
-  }, []);
-
   type ToastState = {
     show: boolean;
     message: string;
@@ -37,7 +32,6 @@ const FCMForm: React.FC = (): JSX.Element => {
   useEffect(() => {
     if (typeof window !== "undefined" && messaging === null) {
       setMessaging(getMessaging(app));
-      console.log("setMessaging(getMessaging(app)) Processed");
     }
   }, []);
 

@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -12,12 +14,7 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
 };
 
 const App = (): JSX.Element => {
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      require("bootstrap/dist/css/bootstrap.min.css");
-      require("bootstrap/dist/js/bootstrap.bundle.min.js");
-    }
-  }, []);
+  const { t } = useTranslation(["common"]);
 
   return (
     <>
@@ -25,13 +22,13 @@ const App = (): JSX.Element => {
         <nav>
           <ul>
             <li>
-              <Link href="/fcm-test" passHref>
-                <div>FCMTest</div>
+              <Link href="/fcm-test">
+                <div>{t("test-menu", { ns: "common" })}</div>
               </Link>
             </li>
             <li>
-              <Link href="/about" passHref>
-                <div>About</div>
+              <Link href="/about">
+                <div>{t("about-menu", { ns: "common" })}</div>
               </Link>
             </li>
           </ul>

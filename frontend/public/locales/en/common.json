@@ -1,5 +1,6 @@
 {
   "program-name": "Twitch Webhook Notificater",
   "test-menu": "Device Notification Test",
-  "about-menu": "About App"
+  "about-menu": "About App",
+  "register-menu": "Register Notification"
 }
