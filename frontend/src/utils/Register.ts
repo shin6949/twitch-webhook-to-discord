@@ -1,5 +1,8 @@
-export const getTwitchIDSearchResult = async (twitchID: string): Promise<Response> => {
-  return await fetch(`/api/twitch/id-search?name=${twitchID}`);
+export const getTwitchIDSearchResult = async (twitchID: string): Promise<boolean> => {
+  const result = await fetch(`/api/twitch/id-search?name=${twitchID}`);
+  const data: TwitchIDSearchResponse = await result.json();
+
+  return data.result;
 };
 
 export const postTwitchNotificationRegister = async (data: { twitchID: string; notificationType: string; delayTime: number }): Promise<Response> => {
@@ -14,11 +17,14 @@ export const postTwitchNotificationRegister = async (data: { twitchID: string; n
 
 export const getNotificationTypes = async (): Promise<NotificationType[]> => {
   const response = await fetch(`/api/twitch/notification/types`);
-  const data = await response.json();
-  return data;
+  return await response.json();
 };
 
 export interface NotificationType {
   value: string;
   name: string;
+}
+
+export interface TwitchIDSearchResponse {
+  result: boolean;
 }

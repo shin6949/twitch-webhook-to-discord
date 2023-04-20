@@ -1,20 +1,21 @@
 package me.cocoblue.fcmsample.controller;
 
+import lombok.extern.log4j.Log4j2;
 import me.cocoblue.fcmsample.dto.NotificationTypeDTO;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+@Log4j2
 @RestController
 @RequestMapping("/api")
 public class APIController {
     @PostMapping("/twitch/notification/register")
-    public boolean mockRegister() {
-        return true;
+    public Map<String, String> mockRegister() {
+        final Map<String, String> result = new HashMap<>();
+        result.put("result", "true");
+
+        return result;
     }
 
     @GetMapping("/twitch/notification/types")
@@ -25,5 +26,13 @@ public class APIController {
         notificationTypeDTOList.add(new NotificationTypeDTO("stream.offline", "방송 종료"));
 
         return notificationTypeDTOList;
+    }
+
+    @GetMapping("/twitch/id-search")
+    public Map<String, Object> mockIdCheck(@RequestParam(name = "name") String name) {
+        final Map<String, Object> result = new HashMap<>();
+        result.put("result", name.equals("shin6949"));
+
+        return result;
     }
 }
