@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from "@fortawesome/free-solid-svg-icons";
+import { faFlask, faComment, faAddressCard } from "@fortawesome/free-solid-svg-icons";
 
 const Header: React.FC = (): JSX.Element => {
   const { t } = useTranslation(["common"]);
@@ -19,13 +19,15 @@ const Header: React.FC = (): JSX.Element => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Link className="nav-link" href="/register">
-              <FontAwesomeIcon icon={faHome} />
+              <FontAwesomeIcon icon={faComment} />
               {t("register-menu", { ns: "common" })}
             </Link>
             <Link className="nav-link" href="/fcm-test">
+              <FontAwesomeIcon icon={faFlask} />
               {t("test-menu", { ns: "common" })}
             </Link>
             <Link className="nav-link" href="/about">
+              <FontAwesomeIcon icon={faAddressCard} />
               {t("about-menu", { ns: "common" })}
             </Link>
           </Nav>

@@ -1,15 +1,15 @@
 {
-  "label-input-twitch-id": "Twitch ID",
-  "hint-twitch-id": "Enter the Twitch ID of the streamer you want to receive notifications for. (4~25 characters)",
-  "feedback-valid-twitch-id": "Successfully verified the ID. If you want to modify it, please click the modify button.",
-  "feedback-invalid-twitch-id": "Invalid ID.",
-  "label-notification-type": "Notification Type",
-  "select-notification-type": "Select notification type",
-  "label-delay-time": "Delay Time (minutes)",
-  "placeholder-delay-time": "Set the notification interval in minutes.",
   "button-register": "Register",
-  "toast-register-success-header": "Registration Success",
-  "toast-register-success-content": "Successfully registered!",
+  "feedback-invalid-twitch-id": "Invalid ID.",
+  "feedback-valid-twitch-id": "Successfully verified the ID. If you want to modify it, please click the modify button.",
+  "hint-twitch-id": "Enter the Twitch ID of the streamer you want to receive notifications for. (4~25 characters)",
+  "label-delay-time": "Delay Time (minutes)",
+  "label-input-twitch-id": "Twitch ID",
+  "label-notification-type": "Notification Type",
+  "placeholder-delay-time": "Set the notification interval in minutes.",
+  "select-notification-type": "Select notification type",
+  "toast-register-error-content": "An error occurred during registration. Please try again.",
   "toast-register-error-header": "Registration Failure",
-  "toast-register-error-content": "An error occurred during registration. Please try again."
+  "toast-register-success-content": "Successfully registered!",
+  "toast-register-success-header": "Registration Success"
 }

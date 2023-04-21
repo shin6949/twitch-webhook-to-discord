@@ -6,10 +6,12 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import { getMessaging, onMessage, Messaging, MessagePayload } from "firebase/messaging";
 import Header from "../components/Header";
 import getConfig from "next/config";
-import { Toast, ToastContainer } from "react-bootstrap";
 import { appWithTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+
+// Custom Components
+import CustomToast, { ToastState } from '../components/CustomToast';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -36,19 +38,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       if (payload.notification) {
         setShowToast({
           show: true,
-          message: `알림을 정상적으로 받았습니다.\n받은 제목: ${payload.notification.title}\n받은 내용: ${payload.notification.body}`,
+          message: t("toast_received_message",
+              {title: payload.notification.title, content: payload.notification.body, ns: "common"}),
           variant: "secondary",
         });
       }
     });
   }
-
-  type ToastState = {
-    show: boolean;
-    message: string;
-    variant: string;
-    link?: string;
-  };
 
   return (
     <>
@@ -57,17 +53,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <Header />
       <Component {...pageProps} />
-      <ToastContainer position="bottom-end">
-        <Toast bg={showToast.variant} onClose={() => setShowToast({ ...showToast, show: false })} show={showToast.show} delay={3000} autohide>
-          <Toast.Body style={{ color: "#ffffff", whiteSpace: "pre-wrap" }}>{showToast.message}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+      <CustomToast showToast={showToast} setShowToast={setShowToast} />
     </>
   );
 }
 
 export const getStaticProps = async ({ locales }: { locales: string }) => {
-  console.log(locales);
   return {
     props: { ...(await serverSideTranslations(locales, ["common"])) },
   };

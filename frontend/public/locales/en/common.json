@@ -1,6 +1,7 @@
 {
-  "program-name": "Twitch Webhook Notificater",
-  "test-menu": "Device Notification Test",
   "about-menu": "About App",
-  "register-menu": "Register Notification"
+  "program-name": "Twitch Webhook Notificater",
+  "register-menu": "Register Notification",
+  "test-menu": "Device Notification Test",
+  "toast_received_message": "There is new notification.\nTitle: {{title}}\nContent: {{content}}"
 }

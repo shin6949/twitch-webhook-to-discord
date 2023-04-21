@@ -1,9 +1,9 @@
 {
-  "toast_unable_to_use_notification_function": "Unable to use notification feature.",
+  "button_send": "Send",
+  "form_notification_content": "Notification content",
+  "form_notification_title": "Notification title",
   "toast_fill_all_field": "Fill the title and content.",
   "toast_request_failed": "Request failed.",
-  "toast_unknown_error_occured": "Unknown error occured.",
-  "form_notification_title": "Notification title",
-  "form_notification_content": "Notification content",
-  "button_send": "Send"
+  "toast_unable_to_use_notification_function": "Unable to use notification feature.",
+  "toast_unknown_error_occurred": "Unknown error occurred."
 }

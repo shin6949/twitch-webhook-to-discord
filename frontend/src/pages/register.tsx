@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Spinner, Toast, ToastContainer } from "react-bootstrap";
+import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import { TwitchNotificationRegisterResponse } from "../types/Register";
-import { getTwitchIDSearchResult, postTwitchNotificationRegister, NotificationType, getNotificationTypes } from "../utils/Register";
+import {
+  getTwitchIDSearchResult,
+  postTwitchNotificationRegister,
+  NotificationType,
+  getNotificationTypes,
+} from "../utils/Register";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faCheck } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+// Custom Component
+import TwitchIDInput from "../components/register/TwitchIDInput";
+import NotificationTypeSelect from "../components/register/NotificationTypeSelect";
+import DelayTimeInput from "../components/register/DelayTimeInput";
+import CustomToast, { ToastState } from "../components/CustomToast";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -28,7 +37,9 @@ const RegisterPage = () => {
   const [twitchIDChecking, setTwitchIDChecking] = useState(false);
 
   // Notification Type
-  const [notificationTypes, setNotificationTypes] = useState<NotificationType[]>([]);
+  const [notificationTypes, setNotificationTypes] = useState<
+    NotificationType[]
+  >([]);
   const [selectedNotificationType, setSelectedNotificationType] = useState("");
 
   // Delay Time
@@ -38,12 +49,11 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Toast
-  const [showToast, setShowToast] = useState<ToastState>({ show: false, message: "", variant: "secondary" });
-  type ToastState = {
-    show: boolean;
-    message: string;
-    variant: string;
-  };
+  const [showToast, setShowToast] = useState<ToastState>({
+    show: false,
+    message: "",
+    variant: "secondary",
+  });
 
   const clickModifyTwitchIdButton = () => {
     setTwitchID("");
@@ -69,6 +79,13 @@ const RegisterPage = () => {
     try {
       const result: boolean = Boolean(await getTwitchIDSearchResult(twitchID));
       setTwitchIDValid(result);
+      setShowToast({
+        show: true,
+        message: t(
+          result ? "feedback-valid-twitch-id" : "feedback-invalid-twitch-id"
+        ),
+        variant: result ? "secondary" : "danger",
+      });
     } catch (e) {
       console.error(e);
       setTwitchIDValid(false);
@@ -95,16 +112,34 @@ const RegisterPage = () => {
       });
       const data: TwitchNotificationRegisterResponse = await response.json();
       if (data.result) {
-        setShowToast({ show: true, message: t("toast-register-success-header", { ns: "register" }), variant: "primary" });
+        setShowToast({
+          show: true,
+          message: t("toast-register-success-header", { ns: "register" }),
+          variant: "primary",
+        });
       } else {
-        setShowToast({ show: true, message: t("toast-register-error-header", { ns: "register" }), variant: "danger" });
+        setShowToast({
+          show: true,
+          message: t("toast-register-error-header", { ns: "register" }),
+          variant: "danger",
+        });
       }
     } catch (e) {
       console.error(e);
-      setShowToast({ show: true, message: t("toast-register-error-header", { ns: "register" }), variant: "danger" });
+      setShowToast({
+        show: true,
+        message: t("toast-register-error-header", { ns: "register" }),
+        variant: "danger",
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onNotificationTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSelectedNotificationType(event.currentTarget.value);
   };
 
   // Set up select field
@@ -118,81 +153,40 @@ const RegisterPage = () => {
     <div className="container">
       <h1>{t("register-menu", { ns: "common" })}</h1>
       <Form>
-        <Form.Group controlId="formTwitchID">
-          <Form.Label>{t("label-input-twitch-id", { ns: "register" })}</Form.Label>
-          <div className="input-group">
-            <Form.Control
-              type="text"
-              className="rounded"
-              value={twitchID}
-              onChange={handleTwitchIDChange}
-              isInvalid={twitchID.length > 0 && twitchIDChecked && !twitchIDValid}
-              isValid={twitchIDChecked && twitchIDValid}
-              minLength={4}
-              maxLength={25}
-              readOnly={twitchIDValid}
-              onKeyDown={(event) => {
-                if (event.code === "Enter") {
-                  handleTwitchIDBlur().then(() => {});
-                }
-              }}
-              required
-            />
+        <TwitchIDInput
+          twitchID={twitchID}
+          twitchIDValid={twitchIDValid}
+          twitchIDChecked={twitchIDChecked}
+          onTwitchIDChange={handleTwitchIDChange}
+          onTwitchIDBlur={handleTwitchIDBlur}
+          onClickModifyTwitchIdButton={clickModifyTwitchIdButton}
+          twitchIDChecking={twitchIDChecking}
+        />
 
-            {twitchIDValid && (
-              <Button className="ml-8 rounded btn-secondary" onClick={clickModifyTwitchIdButton}>
-                <FontAwesomeIcon icon={faPen} />
-              </Button>
-            )}
-            {(!twitchIDChecked || !twitchIDValid) && (
-              <Button className="ml-8 rounded" onClick={handleTwitchIDBlur}>
-                <FontAwesomeIcon icon={faCheck} />
-              </Button>
-            )}
-            {twitchIDChecking && (
-              <div className="input-group-append">
-                <div className="input-group-text">
-                  <Spinner animation="border" size="sm" />
-                </div>
-              </div>
-            )}
-            <Form.Control.Feedback key={twitchIDValid ? "valid" : "invalid"} type={twitchIDValid ? "valid" : "invalid"}>
-              {t(twitchIDValid ? "feedback-valid-twitch-id" : "feedback-invalid-twitch-id")}
-            </Form.Control.Feedback>
-          </div>
-          <Form.Text className="text-muted">{t("hint-twitch-id", { ns: "register" })}</Form.Text>
-        </Form.Group>
+        <NotificationTypeSelect
+          notificationTypes={notificationTypes}
+          selectedNotificationType={selectedNotificationType}
+          onNotificationTypeChange={onNotificationTypeChange}
+        />
 
-        <Form.Group controlId="formNotificationType">
-          <Form.Label>{t("label-notification-type", { ns: "register" })}</Form.Label>
-          <Form.Control as="select" value={selectedNotificationType} onChange={(e) => setSelectedNotificationType(e.currentTarget.value)}>
-            <option value="" disabled>
-              {t("select-notification-type", { ns: "register" })}
-            </option>
-            {notificationTypes.map((notificationType) => (
-              <option key={notificationType.value} value={notificationType.name}>
-                {notificationType.name}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
+        <DelayTimeInput
+          delayTime={delayTime}
+          onDelayTimeChange={handleDelayTimeChange}
+        />
 
-        <Form.Group controlId="formdelayTime">
-          <Form.Label>{t("label-delay-time", { ns: "register" })}</Form.Label>
-          <Form.Control type="number" placeholder={"" ?? t("placeholder-delay-time", { ns: "register" })} value={delayTime} onChange={handleDelayTimeChange} />
-        </Form.Group>
-
-        <Button variant="primary" onClick={handleSubmit} disabled={isLoading || !twitchIDValid || !selectedNotificationType}>
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          disabled={isLoading || !twitchIDValid || !selectedNotificationType}
+        >
           {t("button-register", { ns: "register" })}
-          {isLoading && <Spinner animation="border" size="sm" className="ml-2" />}
+          {isLoading && (
+            <Spinner animation="border" size="sm" className="ml-2" />
+          )}
         </Button>
       </Form>
 
-      <ToastContainer position="bottom-end">
-        <Toast bg={showToast.variant} onClose={() => setShowToast({ ...showToast, show: false })} show={showToast.show} delay={3000} className="mt-3" autohide>
-          <Toast.Body style={{ color: "#ffffff", whiteSpace: "pre-wrap" }}>{showToast.message}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+      <CustomToast showToast={showToast} setShowToast={setShowToast} />
     </div>
   );
 };
