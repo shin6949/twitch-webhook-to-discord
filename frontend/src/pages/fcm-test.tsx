@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getMessaging, getToken, Messaging } from "firebase/messaging";
 import { Button, Container, Form } from "react-bootstrap";
-import { app } from "./_app";
 import Head from "next/head";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -11,6 +10,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 // Custom Components
 import CustomToast, { ToastState } from "../components/CustomToast";
+import { app } from "../components/FirebaseMessaging";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {

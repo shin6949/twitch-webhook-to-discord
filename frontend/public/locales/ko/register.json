@@ -11,5 +11,6 @@
   "toast-register-error-content": "등록 중 오류가 발생했습니다. 다시 시도해주세요.",
   "toast-register-error-header": "등록 실패",
   "toast-register-success-content": "성공적으로 등록되었습니다!",
-  "toast-register-success-header": "등록 성공"
+  "toast-register-success-header": "등록 성공",
+  "toast_fill_form": "모든 항목을 채워주세요."
 }

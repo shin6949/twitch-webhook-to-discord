@@ -15,7 +15,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import TwitchIDInput from "../components/register/TwitchIDInput";
 import NotificationTypeSelect from "../components/register/NotificationTypeSelect";
 import DelayTimeInput from "../components/register/DelayTimeInput";
-import CustomToast, { ToastState } from "../components/CustomToast";
+import CustomToast from "../components/CustomToast";
+import { useToast } from "../components/ToastContext";
+import { getMessaging, getToken, Messaging } from "firebase/messaging";
+import { app } from "../components/FirebaseMessaging";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -27,6 +30,7 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
 
 const RegisterPage = () => {
   const { t } = useTranslation(["register", "common"]);
+  const [messaging, setMessaging] = useState<Messaging | null>(null);
 
   // Twitch ID
   const [twitchID, setTwitchID] = useState("");
@@ -49,11 +53,13 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Toast
-  const [showToast, setShowToast] = useState<ToastState>({
-    show: false,
-    message: "",
-    variant: "secondary",
-  });
+  const { showToast, setShowToast } = useToast();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && messaging === null) {
+      setMessaging(getMessaging(app));
+    }
+  }, []);
 
   const clickModifyTwitchIdButton = () => {
     setTwitchID("");
@@ -67,8 +73,14 @@ const RegisterPage = () => {
   };
 
   const handleTwitchIDBlur = async () => {
+    if (twitchIDValid) {
+      console.log("Already Checked.");
+      return;
+    }
+
     setTwitchIDChecking(true);
     setTwitchIDChecked(true);
+
     // 필수 조건 검증
     if (twitchID.length < 4 || twitchID.length > 25) {
       setTwitchIDValid(false);
@@ -103,37 +115,54 @@ const RegisterPage = () => {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const response = await postTwitchNotificationRegister({
-        twitchID,
-        notificationType: selectedNotificationType,
-        delayTime,
+    const handleNotificationResponse = (
+      data: TwitchNotificationRegisterResponse
+    ) => {
+      setShowToast({
+        show: true,
+        message: t(
+          data.result
+            ? "toast-register-success-header"
+            : "toast-register-error-header",
+          { ns: "register" }
+        ),
+        variant: data.result ? "primary" : "danger",
       });
-      const data: TwitchNotificationRegisterResponse = await response.json();
-      if (data.result) {
-        setShowToast({
-          show: true,
-          message: t("toast-register-success-header", { ns: "register" }),
-          variant: "primary",
-        });
-      } else {
-        setShowToast({
-          show: true,
-          message: t("toast-register-error-header", { ns: "register" }),
-          variant: "danger",
-        });
-      }
-    } catch (e) {
+    };
+
+    const handleError = (e: unknown) => {
       console.error(e);
       setShowToast({
         show: true,
         message: t("toast-register-error-header", { ns: "register" }),
         variant: "danger",
       });
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    Notification.requestPermission().then(
+      async (permission: NotificationPermission) => {
+        if (permission === "granted" && messaging) {
+          setIsLoading(true);
+          const token: string = await getToken(messaging);
+
+          try {
+            const response = await postTwitchNotificationRegister({
+              twitchID: twitchID,
+              notificationType: selectedNotificationType,
+              delayTime: delayTime,
+              registrationToken: token,
+            });
+            const data: TwitchNotificationRegisterResponse =
+              await response.json();
+            handleNotificationResponse(data);
+          } catch (e) {
+            handleError(e);
+          } finally {
+            setIsLoading(false);
+          }
+        }
+      }
+    );
   };
 
   const onNotificationTypeChange = (

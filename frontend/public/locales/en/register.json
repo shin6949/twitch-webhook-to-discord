@@ -11,5 +11,6 @@
   "toast-register-error-content": "An error occurred during registration. Please try again.",
   "toast-register-error-header": "Registration Failure",
   "toast-register-success-content": "Successfully registered!",
-  "toast-register-success-header": "Registration Success"
+  "toast-register-success-header": "Registration Success",
+  "toast_fill_form": "Fill the all inputs."
 }
