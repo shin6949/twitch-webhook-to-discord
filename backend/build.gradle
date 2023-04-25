@@ -31,6 +31,7 @@ dependencies {
     implementation 'javax.servlet:jstl:1.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'net.rakugakibox.util:yaml-resource-bundle:1.1'
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'

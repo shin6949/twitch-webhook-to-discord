@@ -1,29 +1,28 @@
-package me.cocoblue.fcmsample.controller;
+package me.cocoblue.twitchwebhook.controller.api;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.fcmsample.dto.NotificationRegisterDTO;
-import me.cocoblue.fcmsample.dto.NotificationTypeDTO;
-import me.cocoblue.fcmsample.service.FirebaseInitializer;
+import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
+import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RestController
-@RequestMapping("/api")
-@RequiredArgsConstructor
-public class APIController {
+@RequestMapping("/api/register")
+public class RegisterFormController {
     private final FirebaseMessaging fcm = FirebaseMessaging.getInstance();
 
     @PostMapping("/twitch/notification/register")
-    public Map<String, String> mockRegister(@RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException  {
+    public Map<String, String> mockRegister(@RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("Register Called");
-        log.info("notificationRegisterDTO");
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");

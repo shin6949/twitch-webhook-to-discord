@@ -1,7 +1,7 @@
 export const getTwitchIDSearchResult = async (
   twitchID: string
 ): Promise<boolean> => {
-  const result = await fetch(`/api/twitch/id-search?name=${twitchID}`);
+  const result = await fetch(`/api/register/id-search?name=${twitchID}`);
   const data: TwitchIDSearchResponse = await result.json();
 
   return data.result;
@@ -15,7 +15,7 @@ export const postTwitchNotificationRegister = async (data: {
 }): Promise<Response> => {
   const snakeCaseData = objectKeysToSnakeCase(data);
 
-  return await fetch(`/api/twitch/notification/register`, {
+  return await fetch(`/api/register/notification/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export const postTwitchNotificationRegister = async (data: {
 };
 
 export const getNotificationTypes = async (): Promise<NotificationType[]> => {
-  const response = await fetch(`/api/twitch/notification/types`);
+  const response = await fetch(`/api/register/notification/types`);
   return await response.json();
 };
 
