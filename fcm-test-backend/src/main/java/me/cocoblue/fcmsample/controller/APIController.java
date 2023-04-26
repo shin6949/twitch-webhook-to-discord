@@ -1,5 +1,6 @@
 package me.cocoblue.fcmsample.controller;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -11,6 +12,7 @@ import me.cocoblue.fcmsample.dto.NotificationTypeDTO;
 import me.cocoblue.fcmsample.service.FirebaseInitializer;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Log4j2
@@ -18,12 +20,24 @@ import java.util.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class APIController {
-    private final FirebaseMessaging fcm = FirebaseMessaging.getInstance();
+    // 사용하지 않는 것 같지만, 이 객체가 없으면 오류가 발생함.
+    private final FirebaseInitializer firebaseInitializer;
+    private final FirebaseMessaging fcm;
+
+//    @PostConstruct
+//    public void firebaseInit() {
+//        firebaseInitializer.init();
+//    }
 
     @PostMapping("/twitch/notification/register")
     public Map<String, String> mockRegister(@RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException  {
         log.info("Register Called");
         log.info("notificationRegisterDTO");
+
+        if(FirebaseApp.getApps().isEmpty()) {
+            firebaseInitializer.init();
+            FirebaseMessaging.getInstance();
+        }
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");

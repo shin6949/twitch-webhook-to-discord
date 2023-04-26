@@ -15,7 +15,7 @@ export const postTwitchNotificationRegister = async (data: {
 }): Promise<Response> => {
   const snakeCaseData = objectKeysToSnakeCase(data);
 
-  return await fetch(`/api/register/notification/register`, {
+  return await fetch(`/api/register/twitch/notification/submit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -25,7 +25,7 @@ export const postTwitchNotificationRegister = async (data: {
 };
 
 export const getNotificationTypes = async (): Promise<NotificationType[]> => {
-  const response = await fetch(`/api/register/notification/types`);
+  const response = await fetch(`/api/register/twitch/notification/types`);
   return await response.json();
 };
 

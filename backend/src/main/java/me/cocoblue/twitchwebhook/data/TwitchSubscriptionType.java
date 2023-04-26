@@ -13,12 +13,13 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum TwitchSubscriptionType {
-    STREAM_ONLINE("stream.online", "스트리밍 온라인"),
-    STREAM_OFFLINE("stream.offline", "스트리밍 오프라인"),
-    CHANNEL_UPDATE("channel.update", "채널 업데이트");
+    STREAM_ONLINE("stream.online", "방송 온라인", "Stream Online"),
+    STREAM_OFFLINE("stream.offline", "방송 오프라인", "Stream Offline"),
+    CHANNEL_UPDATE("channel.update", "채널 업데이트", "Channel Update");
 
     private final String twitchName;
     private final String koreanName;
+    private final String englishName;
 
     private static final Map<String, TwitchSubscriptionType> descriptions = Collections.unmodifiableMap(Stream.of(values()) .collect(Collectors.toMap(TwitchSubscriptionType::getTwitchName, Function.identity())));
 

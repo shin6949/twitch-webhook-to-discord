@@ -4,23 +4,26 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
+import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
 @RequestMapping("/api/register")
+@RequiredArgsConstructor
 public class RegisterFormController {
+    private final FirebaseInitializer firebaseInitializer;
     private final FirebaseMessaging fcm = FirebaseMessaging.getInstance();
 
-    @PostMapping("/twitch/notification/register")
+    @PostMapping("/twitch/notification/submit")
     public Map<String, String> mockRegister(@RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("Register Called");
 
@@ -42,12 +45,10 @@ public class RegisterFormController {
 
     @GetMapping("/twitch/notification/types")
     public List<NotificationTypeDTO> mockTypes() {
-        List<NotificationTypeDTO> notificationTypeDTOList = new ArrayList<>();
-        notificationTypeDTOList.add(new NotificationTypeDTO("channel.update", "채널 정보 변경"));
-        notificationTypeDTOList.add(new NotificationTypeDTO("stream.online", "방송 시작"));
-        notificationTypeDTOList.add(new NotificationTypeDTO("stream.offline", "방송 종료"));
 
-        return notificationTypeDTOList;
+        return Arrays.stream(TwitchSubscriptionType.values())
+                .map(NotificationTypeDTO::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/twitch/id-search")

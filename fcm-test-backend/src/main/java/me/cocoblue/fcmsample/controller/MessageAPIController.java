@@ -31,7 +31,7 @@ public class MessageAPIController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration token is required");
         }
 
-        firebaseInitializer.init();
+//        firebaseInitializer.init();
 
         // MessageRequest에서 제목, 내용, 등록 토큰을 가져옵니다.
         String title = request.getTitle();

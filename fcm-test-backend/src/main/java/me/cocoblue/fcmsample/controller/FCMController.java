@@ -20,11 +20,11 @@ public class FCMController {
     private final FirebaseInitializer firebaseInitializer;
     private final FirebaseMessaging fcm = FirebaseMessaging.getInstance();
 
-    @GetMapping("/v1")
-    public String v1() {
-        firebaseInitializer.init();
-        return "test";
-    }
+//    @GetMapping("/v1")
+//    public String v1() {
+//        firebaseInitializer.init();
+//        return "test";
+//    }
 
     @PostMapping("/topics/{topic}")
     public ResponseEntity<String> postToTopic(@RequestBody String message, @PathVariable("topic") String topic) throws FirebaseMessagingException {
