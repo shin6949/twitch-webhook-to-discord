@@ -53,7 +53,6 @@ const FCMForm: React.FC = (): JSX.Element => {
             return;
           }
           const token = await getToken(messaging);
-          console.log(`Current Registration Token: ${token}`);
 
           if (!title || !content) {
             setShowToast({

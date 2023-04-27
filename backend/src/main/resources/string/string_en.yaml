@@ -62,3 +62,13 @@ language:
   asl: American Sign Language
   zh-hk: Hong Kong Traditional
   other: Other
+
+api:
+  register:
+    types:
+      stream.online: Stream Online
+      stream.offline: Stream Offline
+      channel.update: Channel Update
+    notification-test:
+      title: Register Notification
+      body: If you successfully received the notification request and see this notification, then you are ready to receive notifications.

@@ -1,7 +1,7 @@
 export const getTwitchIDSearchResult = async (
   twitchID: string
 ): Promise<boolean> => {
-  const result = await fetch(`/api/register/id-search?name=${twitchID}`);
+  const result = await fetch(`/api/register/twitch/id-search?name=${twitchID}`);
   const data: TwitchIDSearchResponse = await result.json();
 
   return data.result;

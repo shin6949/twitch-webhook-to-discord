@@ -7,6 +7,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.dto.api.NotificationTestMessageRequestDTO;
 import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +21,31 @@ public class FCMAPIController {
     private final FirebaseInitializer firebaseInitializer;
     private FirebaseMessaging fcm;
 
-    @PostMapping("/clients/{registrationToken}")
-    public ResponseEntity<String> postToClient(@RequestBody String message, @PathVariable("registrationToken") String registrationToken) throws FirebaseMessagingException {
+    @PostMapping("/send")
+    public ResponseEntity<String> sendMessage(@RequestBody NotificationTestMessageRequestDTO request) throws FirebaseMessagingException {
+        log.info("Received Message request: {}", request);
+        if(request.getRegistrationToken() == null || request.getRegistrationToken().isEmpty()) {
+            log.error("Registration token isn't provided");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration token is required");
+        }
+
         if(FirebaseApp.getApps().isEmpty()) {
             firebaseInitializer.init();
             fcm = FirebaseMessaging.getInstance();
         }
 
-        Message msg = Message.builder()
+        // Firebase를 사용하여 메시지를 전송하는 코드를 작성합니다.
+        final Message msg = Message.builder()
                 .setNotification(Notification.builder()
-                        .setTitle("This is test notification")
-                        .setBody(message)
+                        .setTitle(request.getTitle())
+                        .setBody(request.getContent())
                         .build())
-                .setToken(registrationToken)
+                .setToken(request.getRegistrationToken())
                 .build();
 
-        String id = fcm.send(msg);
-        return ResponseEntity
-                .status(HttpStatus.ACCEPTED)
-                .body(id);
+        fcm.send(msg);
+
+        // 메시지 전송이 성공했다면 HTTP 상태 코드 200과 함께 응답합니다.
+        return ResponseEntity.status(HttpStatus.OK).body("Message sent successfully");
     }
 }

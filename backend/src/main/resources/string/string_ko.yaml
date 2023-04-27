@@ -66,3 +66,13 @@ language:
   asl: 미국 수화
   zh-hk: 홍콩 번체
   other: 기타
+
+api:
+  register:
+    types:
+      stream.online: 방송 온라인
+      stream.offline: 방송 오프라인
+      channel.update: 채널 업데이트
+    notification-test:
+      title: 등록 완료
+      body: 등록 요청을 정상적으로 받았으며, 이 알림이 보인다면 알림을 받을 준비가 완료된 것입니다.

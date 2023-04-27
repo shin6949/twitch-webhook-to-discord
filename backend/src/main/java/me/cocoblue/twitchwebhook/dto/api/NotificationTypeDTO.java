@@ -11,9 +11,4 @@ import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 public class NotificationTypeDTO {
     private String value;
     private String name;
-
-    public NotificationTypeDTO(TwitchSubscriptionType twitchSubscriptionType) {
-        this.value = twitchSubscriptionType.getTwitchName();
-        this.name = twitchSubscriptionType.getKoreanName();
-    }
 }

@@ -23,7 +23,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -40,6 +39,7 @@ public class StreamNotifyService {
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
     private final TwitchUserLogService twitchUserLogService;
+    private final SubscriptionCommonService subscriptionCommonService;
 
     private final String twitchUrl = "https://twitch.tv/";
 
@@ -53,15 +53,6 @@ public class StreamNotifyService {
 
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
-        final String authorProfileURL = user.getProfileImageUrl();
-        String authorName;
-        if(user.getDisplayName().equals(user.getLogin())) {
-            authorName = String.format("%s%s", user.getDisplayName(),
-                    messageSource.getMessage("stream.online.event-message", null, locale));
-        } else {
-            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
-                    messageSource.getMessage("stream.online.event-message", null, locale));
-        }
 
         // Thumbnail
         final String thumbnailUrl = game.removeSizeMentionInBoxArtUrl();
@@ -88,20 +79,10 @@ public class StreamNotifyService {
                 messageSource.getMessage("language." + languageIsoCode, null, locale), true);
         fields.add(languageField);
 
-        final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
+        final DiscordEmbed.Author author = createAuthor(event, user, "stream.online.event-message", locale);
 
-        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-        final DiscordEmbed discordEmbed = DiscordEmbed.builder()
-                .author(author)
-                .title(embedTitle)
-                .url(authorURL)
-                .description(embedDescription)
-                .color(embedColor)
-                .fields(fields)
-                .footer(footer)
-                .timestamp(String.valueOf(startTime))
-                .thumbnail(thumbnail)
-                .build();
+        final List<DiscordEmbed> discordEmbeds = new ArrayList<>();
+        final DiscordEmbed discordEmbed = createDiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor, fields, footer, String.valueOf(startTime), thumbnail, null);
 
         discordEmbeds.add(discordEmbed);
 
@@ -116,15 +97,6 @@ public class StreamNotifyService {
 
         // Author Area
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
-        final String authorProfileURL = user.getProfileImageUrl();
-        String authorName;
-        if(user.getDisplayName().equals(user.getLogin())) {
-            authorName = String.format("%s%s", user.getDisplayName(),
-                    messageSource.getMessage("stream.offline.event-message", null, locale));
-        } else {
-            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
-                    messageSource.getMessage("stream.offline.event-message", null, locale));
-        }
 
         // Embed Area
         final String embedColor = Integer.toString(form.getDecimalColor());
@@ -144,21 +116,9 @@ public class StreamNotifyService {
 
         final LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
 
-        final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
-
-        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
-
-        final DiscordEmbed discordEmbed = DiscordEmbed.builder()
-                .author(author)
-                .title(embedTitle)
-                .url(authorURL)
-                .image(image)
-                .description(embedDescription)
-                .color(embedColor)
-                .fields(fields)
-                .footer(footer)
-                .timestamp(String.valueOf(endTime))
-                .build();
+        final DiscordEmbed.Author author = createAuthor(event, user, "stream.offline.event-message", locale);
+        final List<DiscordEmbed> discordEmbeds = new ArrayList<>();
+        final DiscordEmbed discordEmbed = createDiscordEmbed(author, embedTitle, authorURL, embedDescription, embedColor, fields, footer, String.valueOf(endTime), null, image);
         discordEmbeds.add(discordEmbed);
 
         return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
@@ -182,13 +142,10 @@ public class StreamNotifyService {
             return;
         }
 
-        final List<SubscriptionFormEntity> filteredNotifyForms = notifyForms
-                .stream()
-                .filter(notifyForm -> twitchUserLogService.isNotInInterval(body.getEvent().getBroadcasterUserId(), notifyForm.getTwitchSubscriptionType(), notifyForm.getIntervalMinute()))
-                .collect(Collectors.toList());
+        final List<SubscriptionFormEntity> filteredNotifyForms = subscriptionCommonService.filter(notifyForms, body.getEvent().getBroadcasterUserId());
 
         if(filteredNotifyForms.isEmpty()) {
-            log.info("Filtered NotifyForms Is Empty. Finish The Processing");
+            log.info("Filtered NotifyForms is Empty. Finish The Processing");
             return;
         }
 
@@ -196,12 +153,9 @@ public class StreamNotifyService {
         log.debug("Got User Info From Twitch: " + twitchUser.toString());
 
         filteredNotifyForms.parallelStream().forEach(notifyForm -> {
-            DiscordEmbed.Webhook discordWebhookMessage;
-            if(notifyForm.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE) {
-                discordWebhookMessage = makeStreamOnlineDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser);
-            } else {
-                discordWebhookMessage = makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
-            }
+            DiscordEmbed.Webhook discordWebhookMessage = (notifyForm.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE)
+                    ? makeStreamOnlineDiscordWebhook(body.getEvent(), notifyForm, channel, twitchUser)
+                    : makeStreamOfflineDiscordWebhook(body.getEvent(), notifyForm, twitchUser);
 
             log.debug("Configured Webhook Message: " + discordWebhookMessage);
             final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
@@ -210,5 +164,34 @@ public class StreamNotifyService {
                 twitchUserLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
             }
         });
+    }
+
+    private DiscordEmbed.Author createAuthor(StreamNotifyRequest.Event event, User user, String messageKey, Locale locale) {
+        final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
+        final String authorProfileURL = user.getProfileImageUrl();
+        String authorName;
+        if (user.getDisplayName().equals(user.getLogin())) {
+            authorName = String.format("%s%s", user.getDisplayName(),
+                    messageSource.getMessage(messageKey, null, locale));
+        } else {
+            authorName = String.format("%s(%s)%s", user.getDisplayName(), user.getLogin(),
+                    messageSource.getMessage(messageKey, null, locale));
+        }
+        return new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
+    }
+
+    private DiscordEmbed createDiscordEmbed(DiscordEmbed.Author author, String embedTitle, String embedUrl, String embedDescription, String embedColor, List<DiscordEmbed.Field> fields, DiscordEmbed.Footer footer, String timestamp, DiscordEmbed.Thumbnail thumbnail, DiscordEmbed.Image image) {
+        return DiscordEmbed.builder()
+                .author(author)
+                .title(embedTitle)
+                .url(embedUrl)
+                .description(embedDescription)
+                .color(embedColor)
+                .fields(fields)
+                .footer(footer)
+                .timestamp(timestamp)
+                .thumbnail(thumbnail)
+                .image(image)
+                .build();
     }
 }

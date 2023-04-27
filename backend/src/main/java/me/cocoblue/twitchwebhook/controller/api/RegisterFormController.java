@@ -6,53 +6,43 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
-import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
+import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
 @RequestMapping("/api/register")
 @RequiredArgsConstructor
 public class RegisterFormController {
-    private final FirebaseInitializer firebaseInitializer;
-    private final FirebaseMessaging fcm = FirebaseMessaging.getInstance();
+    private final RegisterPageAPIService registerPageAPIService;
 
     @PostMapping("/twitch/notification/submit")
-    public Map<String, String> mockRegister(@RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
+    public Map<String, String> mockRegister(final HttpServletRequest request, @RequestBody final NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("Register Called");
+        final Locale locale = new Locale(request.getHeader("Accept-Language"));
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");
 
-        final Message msg = Message.builder()
-                .setNotification(Notification.builder()
-                        .setTitle("This is client scope notification")
-                        .setBody("Notification Register Success")
-                        .build())
-                .setToken(notificationRegisterDTO.getRegistrationToken())
-                .build();
-
-        fcm.send(msg);
+        registerPageAPIService.sendTestNotification(locale, notificationRegisterDTO.getRegistrationToken());
 
         return result;
     }
 
-    @GetMapping("/twitch/notification/types")
-    public List<NotificationTypeDTO> mockTypes() {
 
-        return Arrays.stream(TwitchSubscriptionType.values())
-                .map(NotificationTypeDTO::new)
-                .collect(Collectors.toList());
+    @GetMapping("/twitch/notification/types")
+    public List<NotificationTypeDTO> getTypes(final HttpServletRequest request) {
+        final Locale locale = new Locale(request.getHeader("Accept-Language"));
+        return registerPageAPIService.getNotificationTypeList(locale);
     }
 
     @GetMapping("/twitch/id-search")
-    public Map<String, Object> mockIdCheck(@RequestParam(name = "name") String name) {
+    public Map<String, Object> mockIdCheck(@RequestParam(name = "name") final String name) {
         final Map<String, Object> result = new HashMap<>();
         result.put("result", name.equals("shin6949"));
 

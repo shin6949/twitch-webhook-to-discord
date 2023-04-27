@@ -20,7 +20,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -35,6 +34,7 @@ public class ChannelNotifyService {
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
     private final TwitchUserLogService twitchUserLogService;
+    private final SubscriptionCommonService subscriptionCommonService;
 
     public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
         log.info("Send Channel Update Message");
@@ -50,10 +50,7 @@ public class ChannelNotifyService {
             return;
         }
 
-        final List<SubscriptionFormEntity> filteredNotifyForms = notifyForms
-                .stream()
-                .filter(notifyForm -> twitchUserLogService.isNotInInterval(body.getEvent().getBroadcasterUserId(), notifyForm.getTwitchSubscriptionType(), notifyForm.getIntervalMinute()))
-                .collect(Collectors.toList());
+        final List<SubscriptionFormEntity> filteredNotifyForms = subscriptionCommonService.filter(notifyForms, body.getEvent().getBroadcasterUserId());
 
         if(filteredNotifyForms.isEmpty()) {
             log.info("Filtered NotifyForms Is Empty. Finish The Processing");

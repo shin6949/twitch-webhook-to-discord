@@ -17,12 +17,12 @@ def npmCmd = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : 'npm'
 tasks.register('buildFrontend', Exec) {
     workingDir 'frontend'
     commandLine npmCmd, 'install'
-    commandLine npmCmd, 'run', 'build'
+    commandLine npmCmd, 'run', 'export'
 }
 
 tasks.register('copyFrontend', Copy) {
     dependsOn buildFrontend
-    from 'frontend/build'
+    from 'frontend/out'
     into 'backend/src/main/resources/react'
 }
 
