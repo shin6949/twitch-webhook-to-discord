@@ -69,7 +69,6 @@ const RegisterPage = () => {
 
   const handleTwitchIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTwitchID(e.target.value);
-    // setTwitchIDValid(false);
   };
 
   const handleTwitchIDBlur = async () => {

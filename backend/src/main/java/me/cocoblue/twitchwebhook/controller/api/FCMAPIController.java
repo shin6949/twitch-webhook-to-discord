@@ -34,7 +34,6 @@ public class FCMAPIController {
             fcm = FirebaseMessaging.getInstance();
         }
 
-        // Firebase를 사용하여 메시지를 전송하는 코드를 작성합니다.
         final Message msg = Message.builder()
                 .setNotification(Notification.builder()
                         .setTitle(request.getTitle())
@@ -45,7 +44,6 @@ public class FCMAPIController {
 
         fcm.send(msg);
 
-        // 메시지 전송이 성공했다면 HTTP 상태 코드 200과 함께 응답합니다.
         return ResponseEntity.status(HttpStatus.OK).body("Message sent successfully");
     }
 }

@@ -1,0 +1,13 @@
+FROM node:18-alpine
+LABEL org.opencontainers.image.source='https://github.com/shin6949/twitch-webhook-to-discord'
+
+WORKDIR /app
+COPY . .
+RUN npm install --only=production
+RUN export API_URL="http://localhost:8080" && \
+        npm run build && \
+        unset API_URL
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

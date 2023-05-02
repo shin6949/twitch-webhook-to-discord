@@ -10,7 +10,7 @@ import { useToast } from "./ToastContext";
 import getConfig from "next/config";
 import { useTranslation } from "next-i18next";
 
-const { publicRuntimeConfig } = getConfig();
+let { publicRuntimeConfig } = getConfig();
 
 // Firebase configuration
 const firebaseConfig: Record<string, string> = {
@@ -23,11 +23,24 @@ const firebaseConfig: Record<string, string> = {
   measurementId: publicRuntimeConfig.FIREBASE_MEASUREMENT_ID as string,
 };
 
-const app: FirebaseApp = initializeApp(firebaseConfig);
+let app: FirebaseApp = initializeApp(firebaseConfig);
 
 const firebaseMessaging = () => {
   const { t } = useTranslation(["common"]);
   const { setShowToast } = useToast();
+
+  console.log(publicRuntimeConfig.FIREBASE_API_KEY as string);
+  console.log(publicRuntimeConfig.FIREBASE_AUTH_DOMAIN as string);
+  console.log(publicRuntimeConfig.FIREBASE_PROJECT_ID as string);
+  console.log(publicRuntimeConfig.FIREBASE_STORAGE_BUCKET as string);
+  console.log(publicRuntimeConfig.FIREBASE_MESSAGING_SENDER_ID as string);
+  console.log(publicRuntimeConfig.FIREBASE_APP_ID as string);
+  console.log(publicRuntimeConfig.FIREBASE_MEASUREMENT_ID as string);
+
+  if (!app) {
+    publicRuntimeConfig = getConfig();
+    app = initializeApp(firebaseConfig);
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
