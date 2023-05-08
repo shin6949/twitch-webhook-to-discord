@@ -3,10 +3,11 @@ LABEL org.opencontainers.image.source='https://github.com/shin6949/twitch-webhoo
 
 WORKDIR /app
 COPY . .
-RUN npm install --only=production
-RUN export API_URL="http://localhost:8080" && \
+RUN npm install
+RUN export BUILD_STATUS="true" && \
         npm run build && \
-        unset API_URL
+        unset BUILD_STATUS && \
+        rm .env
 
 EXPOSE 3000
 

@@ -10,7 +10,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 // Custom Components
 import CustomToast, { ToastState } from "../components/CustomToast";
-import { app } from "../components/FirebaseMessaging";
+import { useFirebaseApp } from "../context/FirebaseContext";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -33,8 +33,10 @@ const FCMForm: React.FC = (): JSX.Element => {
   const [content, setContent] = useState<string>("");
 
   useEffect(() => {
-    if (typeof window !== "undefined" && messaging === null) {
-      setMessaging(getMessaging(app));
+    const firebaseApp = useFirebaseApp();
+
+    if (typeof window !== "undefined" && messaging === null && firebaseApp) {
+      setMessaging(getMessaging(firebaseApp));
     }
   }, []);
 

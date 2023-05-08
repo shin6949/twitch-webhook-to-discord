@@ -18,7 +18,7 @@ import DelayTimeInput from "../components/register/DelayTimeInput";
 import CustomToast from "../components/CustomToast";
 import { useToast } from "../components/ToastContext";
 import { getMessaging, getToken, Messaging } from "firebase/messaging";
-import { app } from "../components/FirebaseMessaging";
+import { useFirebaseApp } from "../context/FirebaseContext";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -56,8 +56,10 @@ const RegisterPage = () => {
   const { showToast, setShowToast } = useToast();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && messaging === null) {
-      setMessaging(getMessaging(app));
+    const firebaseApp = useFirebaseApp();
+
+    if (typeof window !== "undefined" && messaging === null && firebaseApp) {
+      setMessaging(getMessaging(firebaseApp));
     }
   }, []);
 

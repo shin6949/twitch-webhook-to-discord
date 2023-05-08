@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { FirebaseApp, initializeApp } from "firebase/app";
+import { FirebaseApp } from "firebase/app";
 import {
   getMessaging,
   onMessage,
@@ -7,44 +7,19 @@ import {
   MessagePayload,
 } from "firebase/messaging";
 import { useToast } from "./ToastContext";
-import getConfig from "next/config";
 import { useTranslation } from "next-i18next";
 
-let { publicRuntimeConfig } = getConfig();
+interface FirebaseMessagingProps {
+  firebaseApp: FirebaseApp | null;
+}
 
-// Firebase configuration
-const firebaseConfig: Record<string, string> = {
-  apiKey: publicRuntimeConfig.FIREBASE_API_KEY as string,
-  authDomain: publicRuntimeConfig.FIREBASE_AUTH_DOMAIN as string,
-  projectId: publicRuntimeConfig.FIREBASE_PROJECT_ID as string,
-  storageBucket: publicRuntimeConfig.FIREBASE_STORAGE_BUCKET as string,
-  messagingSenderId: publicRuntimeConfig.FIREBASE_MESSAGING_SENDER_ID as string,
-  appId: publicRuntimeConfig.FIREBASE_APP_ID as string,
-  measurementId: publicRuntimeConfig.FIREBASE_MEASUREMENT_ID as string,
-};
-
-let app: FirebaseApp = initializeApp(firebaseConfig);
-
-const firebaseMessaging = () => {
+const FirebaseMessaging = ({ firebaseApp }: FirebaseMessagingProps) => {
   const { t } = useTranslation(["common"]);
   const { setShowToast } = useToast();
 
-  console.log(publicRuntimeConfig.FIREBASE_API_KEY as string);
-  console.log(publicRuntimeConfig.FIREBASE_AUTH_DOMAIN as string);
-  console.log(publicRuntimeConfig.FIREBASE_PROJECT_ID as string);
-  console.log(publicRuntimeConfig.FIREBASE_STORAGE_BUCKET as string);
-  console.log(publicRuntimeConfig.FIREBASE_MESSAGING_SENDER_ID as string);
-  console.log(publicRuntimeConfig.FIREBASE_APP_ID as string);
-  console.log(publicRuntimeConfig.FIREBASE_MEASUREMENT_ID as string);
-
-  if (!app) {
-    publicRuntimeConfig = getConfig();
-    app = initializeApp(firebaseConfig);
-  }
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const messaging: Messaging = getMessaging(app);
+    if (typeof window !== "undefined" && firebaseApp) {
+      const messaging: Messaging = getMessaging(firebaseApp);
 
       onMessage(messaging, (payload: MessagePayload) => {
         if (payload.notification) {
@@ -61,7 +36,8 @@ const firebaseMessaging = () => {
       });
     }
   }, []);
+
+  return null;
 };
 
-export default firebaseMessaging;
-export { app };
+export default FirebaseMessaging;

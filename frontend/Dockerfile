@@ -3,10 +3,10 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 COPY . .
-RUN export API_URL="http://localhost:8080" && \
+RUN export NEXT_PUBLIC_API_URL="http://localhost:8080" && \
     npm install && \
     npm run build && \
-    unset API_URL
+    unset NEXT_PUBLIC_API_URL
 
 FROM node:18-alpine
 LABEL org.opencontainers.image.source='https://github.com/shin6949/twitch-webhook-to-discord'

@@ -21,6 +21,12 @@ public class FCMAPIController {
     private final FirebaseInitializer firebaseInitializer;
     private FirebaseMessaging fcm;
 
+    @GetMapping("/config")
+    public ResponseEntity<String> getConfig() {
+
+        return ResponseEntity.status(HttpStatus.OK).body("Firebase initialized");
+    }
+
     @PostMapping("/send")
     public ResponseEntity<String> sendMessage(@RequestBody NotificationTestMessageRequestDTO request) throws FirebaseMessagingException {
         log.info("Received Message request: {}", request);
