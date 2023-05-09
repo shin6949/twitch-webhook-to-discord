@@ -15,7 +15,6 @@ import CustomToast from "../components/CustomToast";
 import { useToast, ToastProvider } from "../components/ToastContext";
 import firebaseMessaging from "../components/FirebaseMessaging";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { router } from "next/client";
 import FirebaseContext from "../context/FirebaseContext";
 
 let firebaseApp: FirebaseApp | null = null;
@@ -24,13 +23,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   const { t } = useTranslation(["common"]);
 
   useEffect(() => {
-    console.log(publicRuntimeConfig);
-
-    if (!firebaseApp) {
+    if (typeof window !== "undefined" && !firebaseApp) {
       const firebaseConfig = publicRuntimeConfig.firebase;
       firebaseApp = initializeApp(firebaseConfig);
     }
-  }, [router]);
+  }, [firebaseApp]);
 
   return (
     <>

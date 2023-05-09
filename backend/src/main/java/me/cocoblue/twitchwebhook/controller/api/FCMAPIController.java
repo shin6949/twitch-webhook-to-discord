@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FCMAPIController {
     private final FirebaseInitializer firebaseInitializer;
-    private FirebaseMessaging fcm;
+    private FirebaseMessaging fcm = FirebaseMessaging.getInstance();
 
     @GetMapping("/config")
     public ResponseEntity<String> getConfig() {
@@ -35,7 +35,7 @@ public class FCMAPIController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration token is required");
         }
 
-        if(FirebaseApp.getApps().isEmpty()) {
+        if(FirebaseApp.getApps() == null) {
             firebaseInitializer.init();
             fcm = FirebaseMessaging.getInstance();
         }

@@ -31,14 +31,15 @@ const FCMForm: React.FC = (): JSX.Element => {
   const [messaging, setMessaging] = useState<Messaging | null>(null);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const firebaseApp = useFirebaseApp();
 
   useEffect(() => {
-    const firebaseApp = useFirebaseApp();
-
-    if (typeof window !== "undefined" && messaging === null && firebaseApp) {
-      setMessaging(getMessaging(firebaseApp));
+    if (typeof window !== "undefined" && messaging === null) {
+      if (firebaseApp) {
+        setMessaging(getMessaging(firebaseApp));
+      }
     }
-  }, []);
+  }, [firebaseApp]);
 
   const sendMessage = async (): Promise<void> => {
     Notification.requestPermission()

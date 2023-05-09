@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert

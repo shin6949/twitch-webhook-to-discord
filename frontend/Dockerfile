@@ -1,24 +1,10 @@
-FROM node:18-alpine AS build
-
-WORKDIR /app
-
-COPY . .
-RUN export NEXT_PUBLIC_API_URL="http://localhost:8080" && \
-    npm install && \
-    npm run build && \
-    unset NEXT_PUBLIC_API_URL
-
 FROM node:18-alpine
 LABEL org.opencontainers.image.source='https://github.com/shin6949/twitch-webhook-to-discord'
 
 WORKDIR /app
-
-COPY --from=build /app/package*.json ./
-RUN npm install --only=production
-
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/public ./public
+COPY . .
+RUN rm -rf node_modules && npm install
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD npm run build && npm start

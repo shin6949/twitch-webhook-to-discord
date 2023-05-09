@@ -54,14 +54,15 @@ const RegisterPage = () => {
 
   // Toast
   const { showToast, setShowToast } = useToast();
+  const firebaseApp = useFirebaseApp();
 
   useEffect(() => {
-    const firebaseApp = useFirebaseApp();
-
-    if (typeof window !== "undefined" && messaging === null && firebaseApp) {
-      setMessaging(getMessaging(firebaseApp));
+    if (typeof window !== "undefined" && messaging === null) {
+      if (firebaseApp) {
+        setMessaging(getMessaging(firebaseApp));
+      }
     }
-  }, []);
+  }, [firebaseApp]);
 
   const clickModifyTwitchIdButton = () => {
     setTwitchID("");

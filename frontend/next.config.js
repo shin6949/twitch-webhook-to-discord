@@ -30,7 +30,7 @@ module.exports = {
       },
     ];
   },
-  env: {
+  publicRuntimeConfig: {
     firebase: {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "default-value",
       authDomain:
@@ -45,6 +45,7 @@ module.exports = {
         process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "default-value",
     },
   },
+  serverRuntimeConfig: {},
   i18n,
   ...withPWA,
   reactStrictMode: true,

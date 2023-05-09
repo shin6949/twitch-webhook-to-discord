@@ -35,7 +35,7 @@ const FirebaseMessaging = ({ firebaseApp }: FirebaseMessagingProps) => {
         }
       });
     }
-  }, []);
+  }, [firebaseApp, t, setShowToast]);
 
   return null;
 };
