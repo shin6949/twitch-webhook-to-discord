@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @Entity(name = "youtube_subscription_form")
@@ -28,21 +26,18 @@ public class YouTubeSubscriptionFormEntity {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_CHANNEL_ID"))
-    @NotNull
+    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_CHANNEL_ID"), nullable = false)
     private YouTubeChannelInfoEntity youTubeChannelInfoEntity;
 
     @Column(length = 2000, name="content")
     private String content;
 
     @ManyToOne()
-    @JoinColumn(name="bot_profile_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_BOT_PROFILE_ID"))
-    @NotNull
+    @JoinColumn(name="bot_profile_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_BOT_PROFILE_ID"), nullable = false)
     private BotProfileDataEntity botProfileId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="type")
-    @NotNull
+    @Column(name="type", nullable = false)
     private YouTubeSubscriptionType youTubeSubscriptionType;
 
     @Column(name = "color_hex", nullable = false)
@@ -53,14 +48,12 @@ public class YouTubeSubscriptionFormEntity {
     private LanguageIsoData languageIsoData;
 
     @ManyToOne()
-    @JoinColumn(name="webhook_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_WEBHOOK_ID"))
-    @NotNull
+    @JoinColumn(name="webhook_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_WEBHOOK_ID"), nullable = false)
     private WebhookDataEntity webhookId;
 
     // 누가 이 폼을 만들었는지
     @ManyToOne()
-    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_OWNER_BROADCASTER_ID"))
-    @NotNull
+    @JoinColumn(name="form_owner", foreignKey = @ForeignKey(name="FK_YOUTUBE_SUBSCRIPTION_FORM_OWNER_BROADCASTER_ID"), nullable = false)
     private BroadcasterIdEntity formOwner;
 
     @Column(name="created_at")

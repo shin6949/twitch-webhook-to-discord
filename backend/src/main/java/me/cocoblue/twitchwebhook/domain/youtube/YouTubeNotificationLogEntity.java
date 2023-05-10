@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import org.hibernate.annotations.DynamicInsert;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @Entity(name = "youtube_notification_log")
@@ -23,17 +21,14 @@ public class YouTubeNotificationLogEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="type")
-    @NotNull
+    @Column(name="type", nullable = false)
     private YouTubeSubscriptionType youTubeSubscriptionType;
 
     @ManyToOne()
-    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_NOTIFICATION_LOG_CHANNEL_ID"))
-    @NotNull
+    @JoinColumn(name="channel_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_NOTIFICATION_LOG_CHANNEL_ID"), nullable = false)
     private YouTubeChannelInfoEntity youTubeChannelInfoEntity;
 
-    @Column(name = "video_id", length = 150)
-    @NotNull
+    @Column(name = "video_id", length = 150, nullable = false)
     private String videoId;
 
     @Column(name = "received_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

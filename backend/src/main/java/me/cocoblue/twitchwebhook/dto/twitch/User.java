@@ -2,10 +2,7 @@ package me.cocoblue.twitchwebhook.dto.twitch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Repository
 @Getter
 @ToString
+@Builder
 public class User {
     @JsonProperty("id")
     private int id;
@@ -46,6 +44,14 @@ public class User {
                 .id(Long.parseLong(String.valueOf(id)))
                 .loginId(login)
                 .displayName(displayName)
+                .profileUrl(profileImageUrl)
                 .build();
+    }
+
+    public User(BroadcasterIdEntity broadcasterIdEntity) {
+        this.id = Math.toIntExact(broadcasterIdEntity.getId());
+        this.login = broadcasterIdEntity.getLoginId();
+        this.displayName = broadcasterIdEntity.getDisplayName();
+        this.profileImageUrl = broadcasterIdEntity.getProfileUrl();
     }
 }

@@ -26,18 +26,11 @@ public class ChannelInfoService {
     private String twitchApiUrl;
 
     public Channel getChannelInformationByBroadcasterId(String broadcasterId) {
-        log.info("Getting Channel Information Twitch");
+        log.info("Getting Channel Information Twitch By Broadcaster ID");
 
         final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
-        final Channel channel = requestChannelInformationFromTwitch(broadcasterId, appTokenResponse.getAccessToken());
-        log.info("Channel Information Received");
-        log.debug("Received Channel Information: " + channel);
+        final String accessToken = appTokenResponse.getAccessToken();
 
-        oauthTokenService.revokeAppTokenToTwitch(appTokenResponse.getAccessToken());
-        return channel;
-    }
-
-    private Channel requestChannelInformationFromTwitch(String broadcasterId, String accessToken) {
         final String channelGetUrl = twitchApiUrl + "/channels";
         final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(channelGetUrl)
                 .queryParam("broadcaster_id", broadcasterId);
@@ -48,6 +41,12 @@ public class ChannelInfoService {
         final RestTemplate rt = new RestTemplate();
         final ResponseEntity<ChannelResponse> response = rt.exchange(builder.toUriString(), HttpMethod.GET, entity, ChannelResponse.class);
 
-        return Objects.requireNonNull(response.getBody()).getFirstData();
+        oauthTokenService.revokeAppTokenToTwitch(accessToken);
+
+        final Channel channel = Objects.requireNonNull(response.getBody()).getFirstData();
+        log.info("Channel Information Received");
+        log.debug("Received Channel Information: " + channel);
+
+        return channel;
     }
 }

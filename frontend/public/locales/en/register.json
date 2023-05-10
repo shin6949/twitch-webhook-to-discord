@@ -2,6 +2,7 @@
   "button-register": "Register",
   "feedback-invalid-twitch-id": "Invalid ID.",
   "feedback-valid-twitch-id": "Successfully verified the ID. If you want to modify it, please click the modify button.",
+  "feedback-id-checking": "ID is being checked.",
   "hint-twitch-id": "Enter the Twitch ID of the streamer you want to receive notifications for. (4~25 characters)",
   "label-delay-time": "Delay Time (minutes)",
   "label-input-twitch-id": "Twitch ID",

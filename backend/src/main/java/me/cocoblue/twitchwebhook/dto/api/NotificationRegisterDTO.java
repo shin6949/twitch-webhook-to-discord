@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +19,13 @@ public class NotificationRegisterDTO {
     private int delayTime;
     @JsonProperty("registration_token")
     private String registrationToken;
+
+    public PushSubscriptionFormEntity toEntity(BroadcasterIdEntity broadcasterIdEntity) {
+        return PushSubscriptionFormEntity.builder()
+                .registrationToken(registrationToken)
+                .broadcasterIdEntity(broadcasterIdEntity)
+                .intervalMinute(delayTime)
+                .enabled(false)
+                .build();
+    }
 }

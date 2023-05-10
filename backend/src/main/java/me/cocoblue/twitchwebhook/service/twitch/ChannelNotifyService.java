@@ -57,8 +57,8 @@ public class ChannelNotifyService {
             return;
         }
 
-        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId());
-        log.debug("Got User Info From Twitch: " + twitchUser.toString());
+        final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId()).get();
+        log.debug("Got User Info From Twitch: " + twitchUser);
 
         filteredNotifyForms.parallelStream().forEach(notifyForm -> {
             final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);

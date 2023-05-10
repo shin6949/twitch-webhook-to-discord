@@ -70,11 +70,16 @@ const RegisterPage = () => {
     setTwitchIDChecked(false);
   };
 
-  const handleTwitchIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTwitchID(e.target.value);
+  const onTwitchIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTwitchID = e.target.value;
+    setTwitchID(newTwitchID);
+
+    if (twitchIDChecked) {
+      setTwitchIDChecked(false);
+    }
   };
 
-  const handleTwitchIDBlur = async () => {
+  const onTwitchIDBlur = async () => {
     if (twitchIDValid) {
       console.log("Already Checked.");
       return;
@@ -188,8 +193,8 @@ const RegisterPage = () => {
           twitchID={twitchID}
           twitchIDValid={twitchIDValid}
           twitchIDChecked={twitchIDChecked}
-          onTwitchIDChange={handleTwitchIDChange}
-          onTwitchIDBlur={handleTwitchIDBlur}
+          onTwitchIDChange={onTwitchIDChange}
+          onTwitchIDBlur={onTwitchIDBlur}
           onClickModifyTwitchIdButton={clickModifyTwitchIdButton}
           twitchIDChecking={twitchIDChecking}
         />

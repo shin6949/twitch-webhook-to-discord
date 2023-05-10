@@ -8,15 +8,19 @@ import me.cocoblue.twitchwebhook.dto.twitch.AppTokenResponse;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.UserResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.persistence.LockModeType;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Log4j2
 @Service
@@ -29,59 +33,62 @@ public class UserInfoService {
     @Value("${twitch.api-endpoint}")
     private String twitchApiUrl;
 
-    public User getUserInfoByLoginIdFromTwitch(String loginId) {
-        log.info("Getting user information by login id from twitch");
-
-        final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(twitchApiUrl + "/users")
-                .queryParam("login", loginId);
-        log.debug("Built URL: " + builder.toUriString());
-
-        final UserResponse userResponse = requestUserInfoToTwitch(appTokenResponse.getAccessToken(), builder);
-        assert userResponse != null;
-        log.debug("Got User Info: " + userResponse);
-
-        oauthTokenService.revokeAppTokenToTwitch(appTokenResponse.getAccessToken());
-        updateUserToDb(userResponse.getTwitchUsers().get(0));
-
-        return userResponse.getTwitchUsers().get(0);
+    private Function<String, UriComponentsBuilder> queryParamFunction(String key) {
+        return value -> UriComponentsBuilder.fromHttpUrl(twitchApiUrl + "/users").queryParam(key, value);
     }
 
-    public User getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
-        log.info("Getting user information by Broadcaster Id from twitch");
+    public Optional<User> getUserInfoByLoginIdFromTwitch(String loginId) {
+        return getUserInfo(queryParamFunction("login").apply(loginId));
+    }
 
-        final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
+    public Optional<User> getUserInfoByBroadcasterIdFromTwitch(String broadcasterId) {
+        return getUserInfo(queryParamFunction("id").apply(broadcasterId));
+    }
 
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(twitchApiUrl + "/users")
-                .queryParam("id", broadcasterId);
+    public Optional<User> getUserInfo(final UriComponentsBuilder builder) {
+        log.info("Getting user information from twitch");
         log.debug("Built URL: " + builder.toUriString());
 
+        final AppTokenResponse appTokenResponse = oauthTokenService.getAppTokenFromTwitch();
         final UserResponse userResponse = requestUserInfoToTwitch(appTokenResponse.getAccessToken(), builder);
-        assert userResponse != null;
-        log.debug("Got User Info: " + userResponse);
-
         oauthTokenService.revokeAppTokenToTwitch(appTokenResponse.getAccessToken());
-        updateUserToDb(userResponse.getTwitchUsers().get(0));
-        return userResponse.getTwitchUsers().get(0);
+
+        if (userResponse == null || userResponse.getTwitchUsers().isEmpty()) {
+            log.warn("No user info found from Twitch");
+            return Optional.empty();
+        }
+
+        final User user = userResponse.getTwitchUsers().get(0);
+        updateUserToDb(user);
+
+        return Optional.of(user);
     }
 
     @Async
-    protected void updateUserToDb(User user) {
-        final Optional<BroadcasterIdEntity> userFromDb = broadcasterIdRepository.getBroadcasterIdEntityByIdEquals(user.getId());
-        log.debug("Got User Info From DB: " + userFromDb);
-
-        if(userFromDb.isPresent() && !user.toBroadcasterIdEntity().equals(userFromDb.get())) {
-            broadcasterIdRepository.save(user.toBroadcasterIdEntity());
-            log.info("User Info Updated!");
-        } else {
-            log.info("User Info isn't modified. Don't Update it.");
-        }
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    void updateUserToDb(final User user) {
+        final BroadcasterIdEntity entity = user.toBroadcasterIdEntity();
+        log.info("Saving entity to DB: {}", entity.toString());
+        broadcasterIdRepository.findById(entity.getId()).ifPresentOrElse(
+                oldValue -> {
+                    if (!oldValue.equals(entity)) {
+                        broadcasterIdRepository.save(entity);
+                        log.info("User Info Updated!");
+                    } else {
+                        log.info("User Info isn't modified. Don't Update it.");
+                    }
+                },
+                () -> {
+                    broadcasterIdRepository.save(entity);
+                    log.info("User not found in database");
+                }
+        );
     }
 
     private UserResponse requestUserInfoToTwitch(String accessToken, UriComponentsBuilder builder) {
-        HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
+        final HttpEntity<?> entity = new HttpEntity<>(requestService.makeRequestHeader(accessToken));
 
-        RestTemplate rt = new RestTemplate();
+        final RestTemplate rt = new RestTemplate();
         ResponseEntity<UserResponse> response;
 
         try {

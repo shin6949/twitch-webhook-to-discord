@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
+import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,9 +40,12 @@ public class RegisterFormController {
     }
 
     @GetMapping("/twitch/id-search")
-    public Map<String, Object> mockIdCheck(@RequestParam(name = "name") final String name) {
+    public Map<String, Object> idCheck(@RequestParam(name = "name") final String name) {
+        final Optional<User> user = registerPageAPIService.getUserByTwitchId(name);
+
         final Map<String, Object> result = new HashMap<>();
-        result.put("result", name.equals("shin6949"));
+        result.put("result", user.isPresent());
+        user.ifPresent(value -> result.put("user", value));
 
         return result;
     }
