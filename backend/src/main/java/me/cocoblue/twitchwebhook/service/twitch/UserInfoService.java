@@ -68,7 +68,7 @@ public class UserInfoService {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     void updateUserToDb(final User user) {
         final BroadcasterIdEntity entity = user.toBroadcasterIdEntity();
-        log.info("Saving entity to DB: {}", entity.toString());
+        log.debug("Saving entity to DB: {}", entity.toString());
         broadcasterIdRepository.findById(entity.getId()).ifPresentOrElse(
                 oldValue -> {
                     if (!oldValue.equals(entity)) {

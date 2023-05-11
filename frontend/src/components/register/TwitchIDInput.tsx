@@ -83,9 +83,16 @@ const TwitchIDInput: React.FC<TwitchIDInputProps> = ({
           )}
         </Form.Control.Feedback>
       </div>
-      <Form.Text className="text-muted">
-        {t("hint-twitch-id", { ns: "register" })}
-      </Form.Text>
+      {!twitchIDChecked && (
+        <Form.Text className="text-muted">
+          {t("hint-twitch-id", { ns: "register" })}
+        </Form.Text>
+      )}
+      {twitchIDChecked && (
+        <Form.Text className="text-muted">
+          {t("hint-data-notice", { ns: "register" })}
+        </Form.Text>
+      )}
     </Form.Group>
   );
 };

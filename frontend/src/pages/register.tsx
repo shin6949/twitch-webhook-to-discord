@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
-import { TwitchNotificationRegisterResponse } from "../types/Register";
-import {
-  getTwitchIDSearchResult,
-  postTwitchNotificationRegister,
-  NotificationType,
-  getNotificationTypes,
-} from "../utils/Register";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // Custom Component
 import TwitchIDInput from "../components/register/TwitchIDInput";
+import ProfileCard from "../components/register/ProfileCard";
 import NotificationTypeSelect from "../components/register/NotificationTypeSelect";
 import DelayTimeInput from "../components/register/DelayTimeInput";
 import CustomToast from "../components/CustomToast";
 import { useToast } from "../components/ToastContext";
 import { getMessaging, getToken, Messaging } from "firebase/messaging";
 import { useFirebaseApp } from "../context/FirebaseContext";
+import {
+  getTwitchIDSearchResult,
+  postTwitchNotificationRegister,
+  getNotificationTypes,
+} from "../utils/Register";
+import {
+  NotificationType,
+  TwitchIDSearchResponse,
+  TwitchNotificationRegisterResponse,
+} from "../interface/RegisterInterface";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -36,6 +40,10 @@ const RegisterPage = () => {
   const [twitchID, setTwitchID] = useState("");
   const [twitchIDValid, setTwitchIDValid] = useState(false);
   const [twitchIDChecked, setTwitchIDChecked] = useState(false);
+
+  // Twitch Profile Card
+  const [twitchProfileCard, setTwitchProfileCard] =
+    useState<TwitchIDSearchResponse | null>(null);
 
   // Spinner 용
   const [twitchIDChecking, setTwitchIDChecking] = useState(false);
@@ -68,6 +76,8 @@ const RegisterPage = () => {
     setTwitchID("");
     setTwitchIDValid(false);
     setTwitchIDChecked(false);
+    setTwitchIDChecking(false);
+    setTwitchProfileCard(null);
   };
 
   const onTwitchIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,14 +106,22 @@ const RegisterPage = () => {
     }
 
     try {
-      const result: boolean = Boolean(await getTwitchIDSearchResult(twitchID));
-      setTwitchIDValid(result);
+      const result: TwitchIDSearchResponse = await getTwitchIDSearchResult(
+        twitchID
+      );
+      setTwitchIDValid(result.result);
+      if (result.result && result.user !== undefined) {
+        console.log(result);
+        setTwitchProfileCard(result);
+      }
       setShowToast({
         show: true,
         message: t(
-          result ? "feedback-valid-twitch-id" : "feedback-invalid-twitch-id"
+          result.result
+            ? "feedback-valid-twitch-id"
+            : "feedback-invalid-twitch-id"
         ),
-        variant: result ? "secondary" : "danger",
+        variant: result.result ? "secondary" : "danger",
       });
     } catch (e) {
       console.error(e);
@@ -198,6 +216,13 @@ const RegisterPage = () => {
           onClickModifyTwitchIdButton={clickModifyTwitchIdButton}
           twitchIDChecking={twitchIDChecking}
         />
+
+        {twitchIDChecked && twitchIDValid && twitchProfileCard && (
+          <ProfileCard
+            twitchUser={twitchProfileCard.user!}
+            isLive={twitchProfileCard.is_live}
+          ></ProfileCard>
+        )}
 
         <NotificationTypeSelect
           notificationTypes={notificationTypes}

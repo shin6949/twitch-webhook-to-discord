@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
+import me.cocoblue.twitchwebhook.dto.api.UserSearchResultDTO;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,9 @@ public class RegisterFormController {
     @PostMapping("/twitch/notification/submit")
     public Map<String, String> mockRegister(final HttpServletRequest request, @RequestBody final NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("Register Called");
+        log.info("Received Data: {}", notificationRegisterDTO);
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
+        registerPageAPIService.saveSubscription(notificationRegisterDTO);
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");
@@ -32,7 +35,6 @@ public class RegisterFormController {
         return result;
     }
 
-
     @GetMapping("/twitch/notification/types")
     public List<NotificationTypeDTO> getTypes(final HttpServletRequest request) {
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
@@ -40,13 +42,7 @@ public class RegisterFormController {
     }
 
     @GetMapping("/twitch/id-search")
-    public Map<String, Object> idCheck(@RequestParam(name = "name") final String name) {
-        final Optional<User> user = registerPageAPIService.getUserByTwitchId(name);
-
-        final Map<String, Object> result = new HashMap<>();
-        result.put("result", user.isPresent());
-        user.ifPresent(value -> result.put("user", value));
-
-        return result;
+    public UserSearchResultDTO idCheck(@RequestParam(name = "name") final String name) {
+        return registerPageAPIService.getUserByTwitchId(name);
     }
 }

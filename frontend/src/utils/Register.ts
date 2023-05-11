@@ -1,10 +1,13 @@
+import {
+  NotificationType,
+  TwitchIDSearchResponse,
+} from "../interface/RegisterInterface";
+
 export const getTwitchIDSearchResult = async (
   twitchID: string
-): Promise<boolean> => {
+): Promise<TwitchIDSearchResponse> => {
   const result = await fetch(`/api/register/twitch/id-search?name=${twitchID}`);
-  const data: TwitchIDSearchResponse = await result.json();
-
-  return data.result;
+  return await result.json();
 };
 
 export const postTwitchNotificationRegister = async (data: {
@@ -14,13 +17,14 @@ export const postTwitchNotificationRegister = async (data: {
   registrationToken: string;
 }): Promise<Response> => {
   const snakeCaseData = objectKeysToSnakeCase(data);
+  console.log(snakeCaseData);
 
   return await fetch(`/api/register/twitch/notification/submit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(snakeCaseData),
+    body: JSON.stringify({ snakeCaseData }),
   });
 };
 
@@ -28,15 +32,6 @@ export const getNotificationTypes = async (): Promise<NotificationType[]> => {
   const response = await fetch(`/api/register/twitch/notification/types`);
   return await response.json();
 };
-
-export interface NotificationType {
-  value: string;
-  name: string;
-}
-
-export interface TwitchIDSearchResponse {
-  result: boolean;
-}
 
 const toSnakeCase = (str: string) => {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);

@@ -30,7 +30,7 @@ public class BroadcasterIdEntity {
     private String displayName;
     @Column(length = 500, name = "profile_url")
     private String profileUrl;
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
@@ -40,6 +40,7 @@ public class BroadcasterIdEntity {
     public boolean equals(BroadcasterIdEntity broadcasterIdEntity) {
         if(!broadcasterIdEntity.getId().equals(this.id)) return false;
         if(!broadcasterIdEntity.getLoginId().equals(this.loginId)) return false;
+        if(!broadcasterIdEntity.getProfileUrl().equals(this.profileUrl)) return false;
         return broadcasterIdEntity.getDisplayName().equals(this.displayName);
     }
 }
