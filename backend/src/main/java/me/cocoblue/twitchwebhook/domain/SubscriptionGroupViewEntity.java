@@ -17,7 +17,7 @@ public class SubscriptionGroupViewEntity implements Serializable {
     @EmbeddedId
     private SubscriptionGroupViewId subscriptionGroupViewId;
 
-    @Column(name="enabled", nullable = false, columnDefinition = "BIT", length = 1)
+    @Column(name="enabled", nullable = false, columnDefinition = "tinyint(1) default 0")
     private boolean enabled;
 
     public long getBroadcasterId() {

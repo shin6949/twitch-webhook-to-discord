@@ -25,7 +25,9 @@ public class RegisterFormController {
         log.info("Register Called");
         log.info("Received Data: {}", notificationRegisterDTO);
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
-        registerPageAPIService.saveSubscription(notificationRegisterDTO);
+        if(locale.getLanguage().startsWith("ko")) {
+            notificationRegisterDTO.setLanguage(locale);
+        }
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");
@@ -38,6 +40,7 @@ public class RegisterFormController {
     @GetMapping("/twitch/notification/types")
     public List<NotificationTypeDTO> getTypes(final HttpServletRequest request) {
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
+
         return registerPageAPIService.getNotificationTypeList(locale);
     }
 

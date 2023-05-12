@@ -90,7 +90,6 @@ public class RegisterPageAPIService {
 
     public void saveSubscription(final NotificationRegisterDTO notificationRegisterDTO) {
         Optional<BroadcasterIdEntity> broadcasterIdEntity = broadcasterIdRepository.getBroadcasterIdEntityByLoginIdEquals(notificationRegisterDTO.getTwitchId());
-        log.info(notificationRegisterDTO);
         if(broadcasterIdEntity.isEmpty()) {
             final Optional<User> user = userInfoService.getUserInfoByLoginIdFromTwitch(notificationRegisterDTO.getTwitchId());
             if(user.isEmpty()) {

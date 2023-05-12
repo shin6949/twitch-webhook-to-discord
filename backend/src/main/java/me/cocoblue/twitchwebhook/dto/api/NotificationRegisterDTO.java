@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
 
+import java.util.Locale;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +21,7 @@ public class NotificationRegisterDTO {
     private int delayTime;
     @JsonProperty("registration_token")
     private String registrationToken;
+    private Locale language;
 
     public PushSubscriptionFormEntity toEntity(BroadcasterIdEntity broadcasterIdEntity) {
         return PushSubscriptionFormEntity.builder()
