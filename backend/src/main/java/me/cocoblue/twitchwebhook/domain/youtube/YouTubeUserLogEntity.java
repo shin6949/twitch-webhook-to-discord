@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
-
-import com.sun.istack.NotNull;
+;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -11,7 +10,6 @@ import javax.persistence.*;
 @ToString
 @Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @Entity(name = "youtube_user_log")
@@ -21,13 +19,11 @@ public class YouTubeUserLogEntity {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name="form_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_USER_LOG_FORM_ID"))
-    @NotNull
+    @JoinColumn(name="form_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_USER_LOG_FORM_ID"), nullable = false)
     private YouTubeSubscriptionFormEntity youTubeSubscriptionFormEntity;
 
     @ManyToOne()
-    @JoinColumn(name="log_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_USER_LOG_LOG_ID"))
-    @NotNull
+    @JoinColumn(name="log_id", foreignKey = @ForeignKey(name="FK_YOUTUBE_USER_LOG_LOG_ID"), nullable = false)
     private YouTubeNotificationLogEntity logId;
 
     // 잘 전송되었는지

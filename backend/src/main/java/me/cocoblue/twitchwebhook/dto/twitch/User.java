@@ -3,7 +3,7 @@ package me.cocoblue.twitchwebhook.dto.twitch;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

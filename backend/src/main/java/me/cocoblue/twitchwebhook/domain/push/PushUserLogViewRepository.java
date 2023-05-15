@@ -1,0 +1,13 @@
+package me.cocoblue.twitchwebhook.domain.push;
+
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+
+@Repository
+public interface PushUserLogViewRepository extends JpaRepository<PushUserLogViewEntity, Long> {
+    int countByBroadcasterIdEntityAndTwitchSubscriptionTypeAndReceivedTimeBetween(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType, LocalDateTime start, LocalDateTime end);
+}

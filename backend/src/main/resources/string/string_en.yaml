@@ -1,6 +1,8 @@
 stream:
   online:
     event-message: " has started the stream."
+    title: "Title: "
+    game-name: "Game: "
     language: Language
     footer: Twitch
 
@@ -13,6 +15,8 @@ stream:
 channel:
   update:
     event-message: "'s channal info has changed."
+    title: "Title: "
+    game-name: "Game: "
     language: Language
     footer: Twitch
 

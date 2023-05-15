@@ -3,10 +3,10 @@ package me.cocoblue.twitchwebhook.controller.api;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
 import me.cocoblue.twitchwebhook.dto.api.UserSearchResultDTO;
-import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +21,21 @@ public class RegisterFormController {
     private final RegisterPageAPIService registerPageAPIService;
 
     @PostMapping("/twitch/notification/submit")
-    public Map<String, String> mockRegister(final HttpServletRequest request, @RequestBody final NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
+    public Map<String, String> register(final HttpServletRequest request, @RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("Register Called");
-        log.info("Received Data: {}", notificationRegisterDTO);
+
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
+        log.info("locale: {}", locale.getLanguage());
         if(locale.getLanguage().startsWith("ko")) {
-            notificationRegisterDTO.setLanguage(locale);
+            log.info("It's Korean");
+            notificationRegisterDTO.setLanguage(LanguageIsoData.Korean);
+        } else {
+            log.info("It's English");
+            notificationRegisterDTO.setLanguage(LanguageIsoData.English);
         }
+
+        log.info("Received Data: {}", notificationRegisterDTO);
+        registerPageAPIService.saveSubscription(notificationRegisterDTO);
 
         final Map<String, String> result = new HashMap<>();
         result.put("result", "true");

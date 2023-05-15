@@ -22,7 +22,7 @@ public class YoutubeNotificationLogService {
     private final YouTubeNotificationLogRepository youTubeNotificationLogRepository;
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
 
-    public boolean judgeDuplicateNotification(String videoId, String channelId) {
+    public boolean judgeDuplicateNotification(final String videoId, final String channelId) {
         /*
             true: Unique Notification
             false: Duplicated Notification
@@ -36,10 +36,10 @@ public class YoutubeNotificationLogService {
     }
 
     @Transactional
-    public YouTubeNotificationLogEntity insertLog(Video video, Channel channel, YouTubeSubscriptionType youTubeSubscriptionType) {
-        YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
+    public YouTubeNotificationLogEntity insertLog(final Video video, final Channel channel, final YouTubeSubscriptionType youTubeSubscriptionType) {
+        final YouTubeChannelInfoEntity youTubeChannelInfoEntity = youTubeChannelInfoRepository.getYouTubeChannelInfoEntityByYoutubeChannelId(channel.getId());
 
-        YouTubeNotificationLogEntity youTubeNotificationLogEntity = YouTubeNotificationLogEntity
+        final YouTubeNotificationLogEntity youTubeNotificationLogEntity = YouTubeNotificationLogEntity
                 .builder()
                 .youTubeSubscriptionType(youTubeSubscriptionType)
                 .youTubeChannelInfoEntity(youTubeChannelInfoEntity)

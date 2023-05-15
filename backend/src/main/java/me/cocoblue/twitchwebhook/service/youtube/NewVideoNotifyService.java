@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.youtube.*;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
-import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;

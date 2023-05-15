@@ -1,15 +1,15 @@
 package me.cocoblue.twitchwebhook.service.twitch;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
-import me.cocoblue.twitchwebhook.domain.NotificationLogEntity;
-import me.cocoblue.twitchwebhook.domain.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
-import me.cocoblue.twitchwebhook.service.DiscordWebhookService;
+import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -20,51 +20,77 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
-@RequiredArgsConstructor
-public class ChannelNotifyService {
+public class ChannelNotifyService extends AbstractNotifyService {
     @Value("${twitch.logo-url}")
     private String twitchLogoUrl;
-    private final DiscordWebhookService discordWebhookService;
     private final EventSubService eventSubService;
     private final NotificationFormService notificationFormService;
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
     private final GameInfoService gameInfoService;
     private final TwitchUserLogService twitchUserLogService;
-    private final SubscriptionCommonService subscriptionCommonService;
 
-    public void sendChannelUpdateMessage(ChannelUpdateRequest.Body body, NotificationLogEntity notificationLogEntity) {
+    public ChannelNotifyService(FirebaseInitializer firebaseInitializer, TwitchUserLogService twitchUserLogService,
+                                EventSubService eventSubService, NotificationFormService notificationFormService,
+                                UserInfoService userInfoService, MessageSource messageSource,
+                                GameInfoService gameInfoService) {
+        super(firebaseInitializer, twitchUserLogService);
+        this.eventSubService = eventSubService;
+        this.notificationFormService = notificationFormService;
+        this.userInfoService = userInfoService;
+        this.messageSource = messageSource;
+        this.gameInfoService = gameInfoService;
+        this.twitchUserLogService = twitchUserLogService;
+    }
+
+    public void sendChannelUpdateMessage(final ChannelUpdateRequest.Body body, final NotificationLogEntity notificationLogEntity) {
         log.info("Send Channel Update Message");
         log.debug("Received Body: " + body);
 
-        long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
+        final long broadcasterId = Long.parseLong(body.getEvent().getBroadcasterUserId());
         final List<SubscriptionFormEntity> notifyForms = notificationFormService.getFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
         log.debug("Received Notify Forms: " + notifyForms);
-        if(notifyForms.isEmpty()) {
-            log.info("filteredNotifyForms is empty. Delete the Subscription");
+
+        final List<PushSubscriptionFormEntity> pushNotifyForms = notificationFormService.getPushFormByBroadcasterIdAndType(broadcasterId, body.getSubscription().getType());
+        log.debug("Received pushNotifyForms Forms: " + pushNotifyForms);
+
+        if(notifyForms.isEmpty() && pushNotifyForms.isEmpty()) {
+            log.info("filteredNotifyForms and pushNotifyForms are empty. Delete the Subscription");
 
             eventSubService.deleteEventSub(body.getSubscription().getId());
             return;
         }
 
-        final List<SubscriptionFormEntity> filteredNotifyForms = subscriptionCommonService.filter(notifyForms, body.getEvent().getBroadcasterUserId());
+        final List<SubscriptionFormEntity> filteredNotifyForms = filter(notifyForms, body.getEvent().getBroadcasterUserId())
+                .stream()
+                .map(formEntity -> (SubscriptionFormEntity) formEntity) // 형변환 필요
+                .collect(Collectors.toList());
 
-        if(filteredNotifyForms.isEmpty()) {
-            log.info("Filtered NotifyForms Is Empty. Finish The Processing");
+        final List<PushSubscriptionFormEntity> filteredPushNotifyForms = filter(pushNotifyForms, body.getEvent().getBroadcasterUserId())
+                .stream()
+                .map(formEntity -> (PushSubscriptionFormEntity) formEntity) // 형변환 필요
+                .collect(Collectors.toList());
+
+        if(filteredNotifyForms.isEmpty() && filteredPushNotifyForms.isEmpty()) {
+            log.info("Filtered filteredNotifyForms and filteredPushNotifyForms are empty. finish The Processing");
             return;
         }
 
         final User twitchUser = userInfoService.getUserInfoByBroadcasterIdFromTwitch(body.getEvent().getBroadcasterUserId()).get();
         log.debug("Got User Info From Twitch: " + twitchUser);
 
+        // Game 정보 얻어오기
+        final Game game = gameInfoService.getGameInfoByIdFromTwitch(body.getEvent().getCategoryId());
+
         filteredNotifyForms.parallelStream().forEach(notifyForm -> {
-            final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser);
+            final DiscordEmbed.Webhook discordWebhookMessage = makeChannelUpdateDiscordWebhook(body, notifyForm, twitchUser, game);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            final HttpStatus httpStatus = sendDiscordWebhook(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
 
             if(notificationLogEntity == null) {
                 log.info("notificationLogEntity is NULL");
@@ -73,20 +99,29 @@ public class ChannelNotifyService {
 
             twitchUserLogService.insertUserLog(notifyForm, notificationLogEntity, httpStatus.is2xxSuccessful());
         });
+
+        filteredPushNotifyForms.forEach(pushNotifyForm -> {
+            final ChannelUpdateRequest.Event event = body.getEvent();
+            final Locale locale = Locale.forLanguageTag(pushNotifyForm.getLanguageIsoData().getCode());
+            final String messageTitle = String.format("%s(%s)%s", twitchUser.getDisplayName(), twitchUser.getLogin(),
+                    messageSource.getMessage("channel.update.event-message", null, locale));
+            final String messageBody = String.format("%s%s\n%s%s", messageSource.getMessage("channel.update.title", null, locale), event.getTitle(),
+                    messageSource.getMessage("channel.update.game-name", null, locale), game.getName());
+
+            assert notificationLogEntity != null;
+            sendPushMessage(messageTitle, messageBody, pushNotifyForm.getRegistrationToken(), pushNotifyForm.getId(), notificationLogEntity.getId());
+        });
     }
 
-    private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(ChannelUpdateRequest.Body body, SubscriptionFormEntity form, User user) {
+    private DiscordEmbed.Webhook makeChannelUpdateDiscordWebhook(final ChannelUpdateRequest.Body body, final SubscriptionFormEntity form,
+                                                                 final User user, final Game game) {
         // 설정한 언어 받아오기
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
-        log.debug("locale: " + locale);
-
-        // Game 정보 얻어오기
-        final Game game = gameInfoService.getGameInfoByIdFromTwitch(body.getEvent().getCategoryId());
 
         final ChannelUpdateRequest.Event event = body.getEvent();
 
         // Author Area
-        String twitchUrl = "https://twitch.tv/";
+        final String twitchUrl = "https://twitch.tv/";
         final String authorURL = twitchUrl + event.getBroadcasterUserLogin();
         final String authorProfileURL = user.getProfileImageUrl();
         String authorName;
@@ -126,7 +161,7 @@ public class ChannelNotifyService {
 
         final DiscordEmbed.Author author = new DiscordEmbed.Author(authorName, authorURL, authorProfileURL);
 
-        List<DiscordEmbed> discordEmbeds = new ArrayList<>();
+        final List<DiscordEmbed> discordEmbeds = new ArrayList<>();
         final DiscordEmbed discordEmbed = DiscordEmbed.builder()
                 .author(author)
                 .title(embedTitle)

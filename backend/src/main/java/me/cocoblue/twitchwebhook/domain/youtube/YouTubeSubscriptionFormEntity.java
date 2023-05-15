@@ -1,11 +1,12 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.YouTubeSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.BotProfileDataEntity;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.WebhookDataEntity;
+import me.cocoblue.twitchwebhook.domain.discord.BotProfileDataEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.discord.WebhookDataEntity;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @DynamicInsert
 @Entity(name = "youtube_subscription_form")
 public class YouTubeSubscriptionFormEntity {

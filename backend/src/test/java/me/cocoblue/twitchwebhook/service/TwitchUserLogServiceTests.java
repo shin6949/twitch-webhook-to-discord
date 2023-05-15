@@ -1,7 +1,12 @@
 package me.cocoblue.twitchwebhook.service;
 
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.domain.*;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
+import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogRepository;
 import me.cocoblue.twitchwebhook.service.twitch.TwitchUserLogService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,9 +8,8 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdRepository;
-import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
 import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
@@ -89,6 +88,8 @@ public class RegisterPageAPIService {
     }
 
     public void saveSubscription(final NotificationRegisterDTO notificationRegisterDTO) {
+        log.info("Received DTO: {}", notificationRegisterDTO);
+
         Optional<BroadcasterIdEntity> broadcasterIdEntity = broadcasterIdRepository.getBroadcasterIdEntityByLoginIdEquals(notificationRegisterDTO.getTwitchId());
         if(broadcasterIdEntity.isEmpty()) {
             final Optional<User> user = userInfoService.getUserInfoByLoginIdFromTwitch(notificationRegisterDTO.getTwitchId());
@@ -98,6 +99,9 @@ public class RegisterPageAPIService {
                 broadcasterIdEntity = Optional.of(broadcasterIdRepository.save(user.get().toBroadcasterIdEntity()));
             }
         }
+
+        log.info(broadcasterIdEntity);
+        log.info(notificationRegisterDTO.toEntity(broadcasterIdEntity.get()));
 
         pushSubscriptionFormRepository.save(notificationRegisterDTO.toEntity(broadcasterIdEntity.get()));
     }

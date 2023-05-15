@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.cocoblue.twitchwebhook.domain.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.data.LanguageIsoData;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
-
-import java.util.Locale;
 
 @Data
 @AllArgsConstructor
@@ -21,13 +21,15 @@ public class NotificationRegisterDTO {
     private int delayTime;
     @JsonProperty("registration_token")
     private String registrationToken;
-    private Locale language;
+    private LanguageIsoData language;
 
     public PushSubscriptionFormEntity toEntity(BroadcasterIdEntity broadcasterIdEntity) {
         return PushSubscriptionFormEntity.builder()
                 .registrationToken(registrationToken)
                 .broadcasterIdEntity(broadcasterIdEntity)
+                .twitchSubscriptionType(TwitchSubscriptionType.find(notificationType))
                 .intervalMinute(delayTime)
+                .languageIsoData(language)
                 .enabled(false)
                 .build();
     }
