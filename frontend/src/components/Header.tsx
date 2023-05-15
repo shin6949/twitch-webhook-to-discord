@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFlask, faComment, faAddressCard } from "@fortawesome/free-solid-svg-icons";
+import { faFlask, faComment, faAddressCard, faListCheck } from "@fortawesome/free-solid-svg-icons";
 
 const Header: React.FC = (): JSX.Element => {
   const { t } = useTranslation(["common"]);
@@ -21,6 +21,10 @@ const Header: React.FC = (): JSX.Element => {
             <Link className="nav-link" href="/register">
               <FontAwesomeIcon icon={faComment} />
               {t("register-menu", { ns: "common" })}
+            </Link>
+            <Link className="nav-link" href="/push-manage">
+              <FontAwesomeIcon icon={faListCheck} />
+              {t("push-manage-menu", { ns: "common" })}
             </Link>
             <Link className="nav-link" href="/fcm-test">
               <FontAwesomeIcon icon={faFlask} />

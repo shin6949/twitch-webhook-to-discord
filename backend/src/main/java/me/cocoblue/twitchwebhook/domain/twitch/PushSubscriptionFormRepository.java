@@ -1,7 +1,6 @@
-package me.cocoblue.twitchwebhook.domain.push;
+package me.cocoblue.twitchwebhook.domain.twitch;
 
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +13,7 @@ import java.util.List;
 @Repository
 public interface PushSubscriptionFormRepository extends JpaRepository<PushSubscriptionFormEntity, Long> {
     List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByBroadcasterIdEntityAndTwitchSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
+    List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByRegistrationToken(String registrationToken);
     @Transactional
     @Modifying
     @Query(value = "UPDATE push_subscription_form " +

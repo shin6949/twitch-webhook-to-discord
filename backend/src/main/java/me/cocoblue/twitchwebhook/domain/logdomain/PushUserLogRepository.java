@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.domain.push;
+package me.cocoblue.twitchwebhook.domain.logdomain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

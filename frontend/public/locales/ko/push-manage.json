@@ -1,0 +1,5 @@
+{
+  "notification-type": "알림 타입: ",
+  "interval-minute": "대기 시간(분): ",
+  "delete-button": "삭제"
+}

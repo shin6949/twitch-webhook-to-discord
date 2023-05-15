@@ -4,9 +4,9 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
-import me.cocoblue.twitchwebhook.dto.api.NotificationRegisterDTO;
-import me.cocoblue.twitchwebhook.dto.api.NotificationTypeDTO;
-import me.cocoblue.twitchwebhook.dto.api.UserSearchResultDTO;
+import me.cocoblue.twitchwebhook.dto.api.register.NotificationRegisterDTO;
+import me.cocoblue.twitchwebhook.dto.api.register.NotificationTypeDTO;
+import me.cocoblue.twitchwebhook.dto.api.register.UserSearchResultDTO;
 import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +17,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/register")
 @RequiredArgsConstructor
-public class RegisterFormController {
+public class RegisterFormPageController {
     private final RegisterPageAPIService registerPageAPIService;
 
     @PostMapping("/twitch/notification/submit")

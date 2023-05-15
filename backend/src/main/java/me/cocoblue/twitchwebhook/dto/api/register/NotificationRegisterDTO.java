@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.dto.api;
+package me.cocoblue.twitchwebhook.dto.api.register;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 
 @Data
 @AllArgsConstructor
@@ -17,8 +17,8 @@ public class NotificationRegisterDTO {
     private String twitchId;
     @JsonProperty("notification_type")
     private String notificationType;
-    @JsonProperty("delay_time")
-    private int delayTime;
+    @JsonProperty("interval_minute")
+    private int intervalMinute;
     @JsonProperty("registration_token")
     private String registrationToken;
     private LanguageIsoData language;
@@ -28,7 +28,7 @@ public class NotificationRegisterDTO {
                 .registrationToken(registrationToken)
                 .broadcasterIdEntity(broadcasterIdEntity)
                 .twitchSubscriptionType(TwitchSubscriptionType.find(notificationType))
-                .intervalMinute(delayTime)
+                .intervalMinute(intervalMinute)
                 .languageIsoData(language)
                 .enabled(false)
                 .build();

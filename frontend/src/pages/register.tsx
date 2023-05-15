@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import TwitchIDInput from "../components/register/TwitchIDInput";
 import ProfileCard from "../components/register/ProfileCard";
 import NotificationTypeSelect from "../components/register/NotificationTypeSelect";
-import DelayTimeInput from "../components/register/DelayTimeInput";
+import IntervalMinuteInput from "../components/register/IntervalMinuteInput";
 import CustomToast from "../components/CustomToast";
 import { useToast } from "../components/ToastContext";
 import { getMessaging, getToken, Messaging } from "firebase/messaging";
@@ -55,7 +55,7 @@ const RegisterPage = () => {
   const [selectedNotificationType, setSelectedNotificationType] = useState("");
 
   // Delay Time
-  const [delayTime, setDelayTime] = useState<number>(10);
+  const [intervalMinute, setIntervalMinute] = useState<number>(10);
 
   // Form Submission Status
   const [isLoading, setIsLoading] = useState(false);
@@ -131,8 +131,8 @@ const RegisterPage = () => {
     }
   };
 
-  const handleDelayTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDelayTime(Number(e.target.value));
+  const handleIntervalMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIntervalMinute(Number(e.target.value));
   };
 
   const handleSubmit = async () => {
@@ -174,7 +174,7 @@ const RegisterPage = () => {
             const response = await postTwitchNotificationRegister({
               twitchID: twitchID,
               notificationType: selectedNotificationType,
-              delayTime: delayTime,
+              intervalMinute: intervalMinute,
               registrationToken: token,
             });
             const data: TwitchNotificationRegisterResponse =
@@ -230,9 +230,9 @@ const RegisterPage = () => {
           onNotificationTypeChange={onNotificationTypeChange}
         />
 
-        <DelayTimeInput
-          delayTime={delayTime}
-          onDelayTimeChange={handleDelayTimeChange}
+        <IntervalMinuteInput
+          intervalMinute={intervalMinute}
+          onIntervalMinuteChange={handleIntervalMinuteChange}
         />
 
         <Button

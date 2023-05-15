@@ -2,7 +2,7 @@ package me.cocoblue.twitchwebhook.service.twitch;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequestBody;
 import me.cocoblue.twitchwebhook.service.EncryptDataService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class ControllerProcessingService {
         return !encryptValue.equals(signature);
     }
 
-    public boolean isChallenge(StreamNotifyRequest.Body body) {
+    public boolean isChallenge(StreamNotifyRequestBody.Body body) {
         return body.getChallenge() != null &&
                 body.getSubscription().getStatus().equals("webhook_callback_verification_pending");
     }

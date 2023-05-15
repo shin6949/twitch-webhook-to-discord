@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.domain.discord;
+package me.cocoblue.twitchwebhook.domain.logdomain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequest;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequestBody;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelNotifyService;
 import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.twitch.TwitchNotificationLogService;
@@ -29,20 +29,19 @@ public class TwitchChannelNotifyController {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @PostMapping(path = "/channel/{broadcasterId}/update")
-    public String receiveChannelUpdateNotification(
-            @PathVariable String broadcasterId,
-            @RequestBody String notification,
-            @RequestHeader HttpHeaders headers) {
+    public String receiveChannelUpdateNotification(@PathVariable final String broadcasterId, @RequestBody final String notification,
+            @RequestHeader final HttpHeaders headers) {
         log.info("Channel Update Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
-        log.debug("Body: " + notification);
+        log.debug("Body String: " + notification);
 
         if (controllerProcessingService.dataNotValid(headers, notification)) {
             return "success";
         }
 
-        final ChannelUpdateRequest.Body channelUpdateNotification = toChannelUpdateRequest(notification);
+        final ChannelUpdateRequestBody.Body channelUpdateNotification = toChannelUpdateRequest(notification);
+        log.debug("Body: " + channelUpdateNotification);
         if (channelUpdateNotification != null) {
             if (channelUpdateNotification.getChallenge() != null &&
                     "webhook_callback_verification_pending".equals(
@@ -56,17 +55,17 @@ public class TwitchChannelNotifyController {
             }
 
             final NotificationLogEntity notificationLogEntity =
-                    twitchNotificationLogService.insertLog(channelUpdateNotification.toCommonEvent(), headers);
-            channelNotifyService.sendChannelUpdateMessage(channelUpdateNotification, notificationLogEntity);
+                    twitchNotificationLogService.insertLog(channelUpdateNotification, headers);
+            channelNotifyService.sendMessage(channelUpdateNotification, notificationLogEntity, null);
         }
 
         return "success";
     }
 
-    private ChannelUpdateRequest.Body toChannelUpdateRequest(String original) {
+    private ChannelUpdateRequestBody.Body toChannelUpdateRequest(final String original) {
         try {
             final Map<String, Object> map = objectMapper.readValue(original, new TypeReference<Map<String, Object>>() {});
-            return objectMapper.convertValue(map, ChannelUpdateRequest.Body.class);
+            return objectMapper.convertValue(map, ChannelUpdateRequestBody.Body.class);
         } catch (JsonProcessingException e) {
             log.error("An error occurred while deserializing JSON.", e);
             return null;

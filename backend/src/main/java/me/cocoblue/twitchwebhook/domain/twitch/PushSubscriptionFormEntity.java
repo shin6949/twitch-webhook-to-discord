@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.domain.push;
+package me.cocoblue.twitchwebhook.domain.twitch;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;

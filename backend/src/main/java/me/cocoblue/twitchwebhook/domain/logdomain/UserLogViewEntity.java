@@ -1,8 +1,9 @@
-package me.cocoblue.twitchwebhook.domain.push;
+package me.cocoblue.twitchwebhook.domain.logdomain;
 
 import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -14,10 +15,11 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 @NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-@Entity(name = "push_user_log_view")
-public class PushUserLogViewEntity {
+@Entity(name = "user_log_view")
+public class UserLogViewEntity {
     @Id
     @Column(name = "user_log_id")
     private Long userLogId;
@@ -33,7 +35,7 @@ public class PushUserLogViewEntity {
     @ManyToOne()
     @JoinColumn(name="form_id")
     @NotNull
-    private PushSubscriptionFormEntity pushSubscriptionFormEntity;
+    private SubscriptionFormEntity subscriptionFormEntity;
 
     @ManyToOne()
     @JoinColumn(name="broadcaster_id")

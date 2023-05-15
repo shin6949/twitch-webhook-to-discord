@@ -9,8 +9,12 @@ import me.cocoblue.twitchwebhook.domain.youtube.*;
 import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +31,6 @@ public class NewVideoNotifyService {
     private final YouTubeSubscriptionFormRepository youTubeSubscriptionFormRepository;
     private final YouTubeChannelInfoRepository youTubeChannelInfoRepository;
     private final MessageSource messageSource;
-    private final DiscordWebhookService discordWebhookService;
     private final YoutubeNotificationLogService youtubeNotificationLogService;
     private final YouTubeUserLogService youTubeUserLogService;
 
@@ -50,7 +53,7 @@ public class NewVideoNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeDiscordWebhook(video, channel, notifyForm, embedSuffix, footerMessage);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            final HttpStatus httpStatus = sendDiscordWebhook(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
             youTubeUserLogService.insertUserLog(notifyForm, youTubeNotificationLogEntity, httpStatus.is2xxSuccessful());
         });
     }
@@ -74,7 +77,7 @@ public class NewVideoNotifyService {
             final DiscordEmbed.Webhook discordWebhookMessage = makeDiscordWebhook(video, channel, notifyForm, embedSuffix, footerMessage);
             log.debug("Made Webhook Message: " + discordWebhookMessage);
 
-            final HttpStatus httpStatus = discordWebhookService.send(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
+            final HttpStatus httpStatus = sendDiscordWebhook(discordWebhookMessage, notifyForm.getWebhookId().getWebhookUrl());
             youTubeUserLogService.insertUserLog(notifyForm, youTubeNotificationLogEntity, httpStatus.is2xxSuccessful());
         });
     }
@@ -147,5 +150,14 @@ public class NewVideoNotifyService {
 
         return new DiscordEmbed.Webhook(form.getBotProfileId().getUsername(),
                 form.getBotProfileId().getAvatarUrl(), form.getContent(), discordEmbeds);
+    }
+
+    public HttpStatus sendDiscordWebhook(DiscordEmbed.Webhook discordWebhookMessage, String webhookUrl) {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        final HttpEntity<DiscordEmbed.Webhook> entity = new HttpEntity<>(discordWebhookMessage, headers);
+
+        final RestTemplate rt = new RestTemplate();
+        return rt.exchange(webhookUrl, HttpMethod.POST, entity, String.class).getStatusCode();
     }
 }

@@ -4,18 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.discord.UserLogEntity;
-import me.cocoblue.twitchwebhook.domain.discord.UserLogRepository;
-import me.cocoblue.twitchwebhook.domain.discord.UserLogViewRepository;
-import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.push.PushUserLogEntity;
-import me.cocoblue.twitchwebhook.domain.push.PushUserLogRepository;
+import me.cocoblue.twitchwebhook.domain.logdomain.UserLogEntity;
+import me.cocoblue.twitchwebhook.domain.logdomain.UserLogRepository;
+import me.cocoblue.twitchwebhook.domain.logdomain.UserLogViewRepository;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogEntity;
+import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
 import org.springframework.stereotype.Service;
 
-import javax.management.Notification;
 import java.time.LocalDateTime;
 import java.util.Optional;
 

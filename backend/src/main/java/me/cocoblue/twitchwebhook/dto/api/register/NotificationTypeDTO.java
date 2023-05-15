@@ -1,4 +1,4 @@
-package me.cocoblue.twitchwebhook.dto.api;
+package me.cocoblue.twitchwebhook.dto.api.register;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

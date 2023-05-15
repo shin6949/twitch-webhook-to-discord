@@ -5,7 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.SubscriptionGroupViewEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.SubscriptionGroupViewRepository;
-import me.cocoblue.twitchwebhook.domain.push.PushSubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -89,7 +89,7 @@ public class ScheduledService {
                 && subscription.getTransport().getCallback().startsWith(webappBaseUrl + "/webhook/twitch");
     }
 
-    private void updateAndEnrollForms(List<SubscriptionGroupViewEntity> forms) {
+    private void updateAndEnrollForms(final List<SubscriptionGroupViewEntity> forms) {
         final String accessToken = oauthTokenService.getAppTokenFromTwitch().getAccessToken();
         forms.forEach(form -> {
             if (subscriptionGroupViewRepository.countSubscriptionGroupViewEntitiesBySubscriptionGroupViewIdAndEnabled(

@@ -80,3 +80,5 @@ api:
     notification-test:
       title: 등록 완료
       body: 등록 요청을 정상적으로 받았으며, 이 알림이 보인다면 알림을 받을 준비가 완료된 것입니다.
+  push-manage:
+    deleted-user: 탈퇴 유저

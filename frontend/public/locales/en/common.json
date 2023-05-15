@@ -3,5 +3,6 @@
   "program-name": "Twitch Webhook Notificater",
   "register-menu": "Register Notification",
   "test-menu": "Device Notification Test",
+  "push-manage-menu": "Push Notification Management",
   "toast_received_message": "There is new notification.\nTitle: {{title}}\nContent: {{content}}"
 }

@@ -7,7 +7,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import me.cocoblue.twitchwebhook.dto.api.NotificationTestMessageRequestDTO;
+import me.cocoblue.twitchwebhook.dto.api.register.NotificationTestMessageRequestDTO;
 import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +23,11 @@ public class FCMAPIController {
 
     @GetMapping("/config")
     public ResponseEntity<String> getConfig() {
-
         return ResponseEntity.status(HttpStatus.OK).body("Firebase initialized");
     }
 
     @PostMapping("/send")
-    public ResponseEntity<String> sendMessage(@RequestBody NotificationTestMessageRequestDTO request) throws FirebaseMessagingException {
+    public ResponseEntity<String> sendMessage(@RequestBody final NotificationTestMessageRequestDTO request) throws FirebaseMessagingException {
         log.info("Received Message request: {}", request);
         if(request.getRegistrationToken() == null || request.getRegistrationToken().isEmpty()) {
             log.error("Registration token isn't provided");

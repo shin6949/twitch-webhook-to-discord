@@ -1,3 +1,43 @@
+ALTER TABLE bot_profile_data
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE broadcaster_id
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE notification_log
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE subscription_form
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE user_log
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE webhook_data
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE youtube_channel_info
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE youtube_notification_log
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE youtube_subscription_form
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE youtube_user_log
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS push_user_log;
 DROP TABLE IF EXISTS push_subscription_form;
 CREATE TABLE `push_subscription_form` (
@@ -14,6 +54,10 @@ CREATE TABLE `push_subscription_form` (
       ON UPDATE CASCADE
       ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE push_subscription_form
+    CONVERT TO CHARACTER SET utf8mb4
+        COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE push_user_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -32,62 +76,17 @@ ALTER TABLE subscription_form MODIFY COLUMN enabled TINYINT(1);
 ALTER TABLE push_subscription_form MODIFY COLUMN enabled TINYINT(1);
 
 DROP VIEW IF EXISTS subscription_group_view;
-
 CREATE VIEW subscription_group_view AS (
-SELECT broadcaster_id, type, enabled
-FROM (
-    SELECT broadcaster_id, type, enabled
-    FROM subscription_form
-    UNION ALL
-    SELECT broadcaster_id, type, enabled
-    FROM push_subscription_form
-  ) AS combined
-GROUP BY broadcaster_id, type
+   SELECT broadcaster_id, type, enabled
+   FROM (
+            SELECT broadcaster_id, type, enabled
+            FROM subscription_form
+            UNION ALL
+            SELECT broadcaster_id, type, enabled
+            FROM push_subscription_form
+        ) AS combined
+   GROUP BY broadcaster_id, type
 );
-
-ALTER TABLE bot_profile_data
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE broadcaster_id
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE notification_log
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE push_subscription_form
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE subscription_form
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE user_log
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE webhook_data
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE youtube_channel_info
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE youtube_notification_log
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE youtube_subscription_form
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-ALTER TABLE youtube_user_log
-  CONVERT TO CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
 
 DROP VIEW IF EXISTS push_user_log_view;
 CREATE VIEW push_user_log_view AS (

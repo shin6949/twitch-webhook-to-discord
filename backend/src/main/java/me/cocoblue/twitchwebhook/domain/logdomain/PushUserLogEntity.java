@@ -1,7 +1,8 @@
-package me.cocoblue.twitchwebhook.domain.push;
+package me.cocoblue.twitchwebhook.domain.logdomain;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.UserLogSuperEntity;
 import org.hibernate.annotations.DynamicInsert;
 

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogRepository;
-import me.cocoblue.twitchwebhook.dto.CommonEvent;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.EventNotificationRequestBody;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +17,19 @@ import java.util.Objects;
 public class TwitchNotificationLogService {
     private final NotificationLogRepository notificationLogRepository;
 
-    public Boolean isAlreadySend(String idFromTwitch) {
+    public Boolean isAlreadySend(final String idFromTwitch) {
         return getLogByIdFromTwitch(idFromTwitch) != null;
     }
 
     @Transactional
-    public NotificationLogEntity insertLog(final CommonEvent event, final HttpHeaders headers) {
-        log.debug("event: " + event);
+    public <T extends EventNotificationRequestBody.Body> NotificationLogEntity insertLog(final T eventBody, final HttpHeaders headers) {
+        log.debug("eventBody: " + eventBody);
         final String messageId = Objects.requireNonNull(headers.get("twitch-eventsub-message-id")).get(0);
-        event.setNotificationIdFromTwitch(messageId);
+        final NotificationLogEntity notificationLogEntity = eventBody.toNotificationLogEntity();
 
-        return notificationLogRepository.save(event.toNotificationLogEntity());
+        notificationLogEntity.setIdFromTwitch(messageId);
+
+        return notificationLogRepository.save(notificationLogEntity);
     }
 
     private NotificationLogEntity getLogByIdFromTwitch(String idFromTwitch) {

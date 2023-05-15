@@ -13,7 +13,7 @@ export const getTwitchIDSearchResult = async (
 export const postTwitchNotificationRegister = async (data: {
   twitchID: string;
   notificationType: string;
-  delayTime: number;
+  intervalMinute: number;
   registrationToken: string;
 }): Promise<Response> => {
   return await fetch(`/api/register/twitch/notification/submit`, {
@@ -24,7 +24,7 @@ export const postTwitchNotificationRegister = async (data: {
     body: JSON.stringify({
       twitch_id: data.twitchID,
       notification_type: data.notificationType,
-      delay_time: data.delayTime,
+      interval_minute: data.intervalMinute,
       registration_token: data.registrationToken,
     }),
   });

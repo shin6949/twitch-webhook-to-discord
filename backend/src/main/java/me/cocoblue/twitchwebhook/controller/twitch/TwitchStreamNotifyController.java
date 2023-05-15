@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequest;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequestBody;
 import me.cocoblue.twitchwebhook.service.twitch.ChannelInfoService;
 import me.cocoblue.twitchwebhook.service.twitch.ControllerProcessingService;
 import me.cocoblue.twitchwebhook.service.twitch.StreamNotifyService;
@@ -30,9 +30,9 @@ public class TwitchStreamNotifyController {
     private final ControllerProcessingService controllerProcessingService;
 
     @PostMapping(path = "/stream/{broadcasterId}/{status}")
-    public String receiveStreamNotification(@PathVariable String broadcasterId, @PathVariable String status,
-                                            @RequestBody String notification,
-                                            @RequestHeader HttpHeaders headers) {
+    public String receiveStreamNotification(@PathVariable final String broadcasterId, @PathVariable final String status,
+                                            @RequestBody final String notification,
+                                            @RequestHeader final HttpHeaders headers) {
         log.info("Stream " + status.toUpperCase() + " Event Received");
         log.info("Received BroadcasterId: " + broadcasterId);
         log.debug("Header: " + headers.toString());
@@ -45,15 +45,15 @@ public class TwitchStreamNotifyController {
         }
 
         // RequestBody를 Vo에 Mapping
-        final Optional<StreamNotifyRequest.Body> streamNotificationOptional = toDto(notification);
+        final Optional<StreamNotifyRequestBody.Body> streamNotificationOptional = toDto(notification);
 
-        // StreamNotifyRequest.Body가 null인 경우 처리
+        // StreamNotifyRequestBody.Body가 null인 경우 처리
         if (streamNotificationOptional.isEmpty()) {
             log.warn("Failed to parse notification body.");
             return "success";
         }
 
-        final StreamNotifyRequest.Body streamNotification = streamNotificationOptional.get();
+        final StreamNotifyRequestBody.Body streamNotification = streamNotificationOptional.get();
 
         // Challenge 요구 시, 반응
         if (controllerProcessingService.isChallenge(streamNotification)) {
@@ -73,26 +73,26 @@ public class TwitchStreamNotifyController {
         }
 
         // Log Insert
-        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification.toCommonEvent(), headers);
+        final NotificationLogEntity notificationLogEntity = twitchNotificationLogService.insertLog(streamNotification, headers);
 
         log.info("This req is valid!");
         final Channel channel = channelInfoService.getChannelInformationByBroadcasterId(streamNotification.getEvent().getBroadcasterUserId());
 
         // Message Send (Async)
-        streamNotifyService.sendMessage(streamNotification, channel, notificationLogEntity);
+        streamNotifyService.sendMessage(streamNotification, notificationLogEntity, channel);
 
         return "success";
     }
 
-    private Optional<StreamNotifyRequest.Body> toDto(String original) {
+    private Optional<StreamNotifyRequestBody.Body> toDto(final String original) {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             final Map<String, Object> map = objectMapper.readValue(original, new TypeReference<Map<String, Object>>() {});
             log.debug("map: " + map.toString());
-            return Optional.ofNullable(objectMapper.convertValue(map, StreamNotifyRequest.Body.class));
+            return Optional.ofNullable(objectMapper.convertValue(map, StreamNotifyRequestBody.Body.class));
         } catch (JsonProcessingException e) {
-            log.error("Error converting JSON to StreamNotifyRequest.Body", e);
+            log.error("Error converting JSON to StreamNotifyRequestBody.Body", e);
             return Optional.empty();
         }
     }
