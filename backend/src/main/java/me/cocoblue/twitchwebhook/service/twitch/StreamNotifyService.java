@@ -54,12 +54,18 @@ public class StreamNotifyService extends AbstractNotifyService {
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
 
         final String messageTitle = form.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE ?
-                String.format("%s(%s)%s", twitchUser.getDisplayName(), twitchUser.getLogin(), messageSource.getMessage("stream.online.event-message", null, locale)) :
-                String.format("%s(%s)%s", twitchUser.getDisplayName(), twitchUser.getLogin(), messageSource.getMessage("stream.offline.event-message", null, locale));
+                messageSource.getMessage("api.notification.stream-online-event-title", new Object[]{twitchUser.getDisplayName()}, locale) :
+                messageSource.getMessage("api.notification.stream-offline-event-title", new Object[]{twitchUser.getDisplayName()}, locale);
+
+        final String streamerName = !twitchUser.getDisplayName().equals(twitchUser.getLogin()) ?
+                String.format("%s(%s)", twitchUser.getDisplayName(), twitchUser.getLogin()) :
+                twitchUser.getLogin();
 
         final String messageBody = form.getTwitchSubscriptionType() == TwitchSubscriptionType.STREAM_ONLINE ?
-                String.format("%s%s\n%s%s", messageSource.getMessage("stream.online.title", null, locale), channel.getTitle(),
-                        messageSource.getMessage("stream.online.game-name", null, locale), game.getName()) :
+                String.format("%s\n%s\n%s",
+                        messageSource.getMessage("api.notification.streamer", new Object[]{streamerName}, locale),
+                        messageSource.getMessage("api.notification.title", new Object[]{channel.getTitle()}, locale),
+                        messageSource.getMessage("api.notification.game", new Object[]{game.getName()}, locale)) :
                 messageSource.getMessage("stream.offline.embed-description", null, locale);
 
         return Message.builder()

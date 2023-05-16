@@ -14,7 +14,7 @@ stream:
 
 channel:
   update:
-    event-message: "'s channal info has changed."
+    event-message: "'s channel info has changed."
     title: "Title: "
     game-name: "Game: "
     language: Language
@@ -81,3 +81,10 @@ api:
     delete:
       invalid-request: Invalid request
       success: Deletion success
+  notification:
+    channel-update-event-title: "{0}'s channel info has changed."
+    stream-online-event-title: "{0} has started the stream."
+    stream-offline-event-title: "{0} has started the stream."
+    streamer: "Streamer: {0}"
+    title: "Title: {0}"
+    game: "Game: {0}"

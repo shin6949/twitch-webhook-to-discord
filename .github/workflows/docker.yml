@@ -106,7 +106,7 @@ jobs:
         working-directory: frontend
 
   release:
-    needs: [make-jar, qemu-build-backend, qemu-build-frontend]
+    needs: [make-jar]
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout

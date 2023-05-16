@@ -85,3 +85,10 @@ api:
     delete:
       invalid-request: 유효하지 않은 요청
       success: 삭제 완료
+  notification:
+    channel-update-event-title: "{0}님의 채널 정보가 변경됨."
+    stream-online-event-title: "{0}님이 방송 시작!"
+    stream-offline-event-title: "{0}님의 방송 종료"
+    streamer: "스트리머: {0}"
+    title: "제목: {0}"
+    game: "게임: {0}"

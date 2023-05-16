@@ -10,9 +10,7 @@ import me.cocoblue.twitchwebhook.dto.discord.DiscordEmbed;
 import me.cocoblue.twitchwebhook.dto.twitch.Channel;
 import me.cocoblue.twitchwebhook.dto.twitch.Game;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequestBody;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.ChannelUpdateRequestEvent;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.EventNotificationRequestBody;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.NotificationEvent;
 import me.cocoblue.twitchwebhook.service.FirebaseInitializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,10 +51,16 @@ public class ChannelNotifyService extends AbstractNotifyService {
         final ChannelUpdateRequestEvent channelUpdateEvent = (ChannelUpdateRequestEvent) event;
 
         final Locale locale = Locale.forLanguageTag(form.getLanguageIsoData().getCode());
-        final String messageTitle = String.format("%s(%s)%s", twitchUser.getDisplayName(), twitchUser.getLogin(),
-                messageSource.getMessage("channel.update.event-message", null, locale));
-        final String messageBody = String.format("%s%s\n%s%s", messageSource.getMessage("channel.update.title", null, locale), channelUpdateEvent.getTitle(),
-                messageSource.getMessage("channel.update.game-name", null, locale), game.getName());
+        final String messageTitle = messageSource.getMessage("api.notification.channel-update-event-title", new Object[]{twitchUser.getDisplayName()}, locale);
+
+        final String streamerName = !twitchUser.getDisplayName().equals(twitchUser.getLogin()) ?
+                String.format("%s(%s)", twitchUser.getDisplayName(), twitchUser.getLogin()) :
+                twitchUser.getLogin();
+
+        final String messageBody = String.format("%s\n%s\n%s",
+                messageSource.getMessage("api.notification.streamer", new Object[]{streamerName}, locale),
+                messageSource.getMessage("api.notification.title", new Object[]{channelUpdateEvent.getTitle()}, locale),
+                messageSource.getMessage("api.notification.game", new Object[]{game.getName()}, locale));
 
         return Message.builder()
                 .setNotification(Notification.builder()
