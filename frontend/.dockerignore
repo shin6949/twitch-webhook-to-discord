@@ -1,7 +1,6 @@
 google-service-account.json
-firebase-messaging-sw.js
-./test.db
-*.env
+backend
+*.md
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij+all,webstorm+all,vs,yarn,node,gradle,java
@@ -243,7 +242,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
+# .env
 .env.development.local
 .env.test.local
 .env.production.local

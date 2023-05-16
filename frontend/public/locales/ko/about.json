@@ -1,0 +1,11 @@
+{
+  "description": "이 프로그램은 특정 Twitch 채널의 알림을 받을 수 있게 도와줍니다.",
+  "developer": "제작자: 코코블루 (shin6949)",
+  "event-change-channel-information": "채널 정보 변경",
+  "event-stream-offline": "스트리밍 완료",
+  "event-stream-online": "스트리밍 시작",
+  "notification-types-title": "지원되는 알림의 종류",
+  "program-source-information": "프로그램 코드 정보",
+  "source": "소스코드",
+  "sub-program-name": "Twitch Webhook Notificater"
+}

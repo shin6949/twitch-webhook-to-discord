@@ -1,0 +1,7 @@
+{
+  "404_description": "The page you were looking for could not be found.",
+  "404_title": "404 Error",
+  "500_description": "An error occurred on the server.",
+  "500_title": "500 Error",
+  "go_home_button": "Go Home"
+}

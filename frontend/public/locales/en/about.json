@@ -1,0 +1,11 @@
+{
+  "description": "This program helps you receive notifications from specific Twitch channels.",
+  "developer": "Developer: COCOBLUE(shin6949)",
+  "event-change-channel-information": "Channel information change event",
+  "event-stream-offline": "Stream finished",
+  "event-stream-online": "Stream start",
+  "notification-types-title": "Types of notifications supported",
+  "program-source-information": "Program source information",
+  "source": "source",
+  "sub-program-name": "Korean: 트위치 알리미"
+}
