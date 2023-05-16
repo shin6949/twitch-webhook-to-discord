@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PushSubscriptionFormRepository extends JpaRepository<PushSubscriptionFormEntity, Long> {
     List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByBroadcasterIdEntityAndTwitchSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
     List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByRegistrationToken(String registrationToken);
+    Optional<PushSubscriptionFormEntity> getPushSubscriptionFormEntityById(long formId);
     @Transactional
     @Modifying
     @Query(value = "UPDATE push_subscription_form " +

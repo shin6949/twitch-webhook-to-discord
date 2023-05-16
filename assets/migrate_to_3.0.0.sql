@@ -59,12 +59,13 @@ ALTER TABLE push_subscription_form
     CONVERT TO CHARACTER SET utf8mb4
         COLLATE utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS push_user_log;
 CREATE TABLE push_user_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     form_id BIGINT NOT NULL,
     log_id BIGINT NOT NULL,
     status tinyint(1) NOT NULL,
-    FOREIGN KEY(form_id) REFERENCES push_subscription_form(id)
+    FOREIGN KEY(form_id) REFERENCES push_subscription_form(id) ON DELETE CASCADE
 );
 
 ALTER TABLE `broadcaster_id`

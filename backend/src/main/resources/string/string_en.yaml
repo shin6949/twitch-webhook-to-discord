@@ -77,4 +77,7 @@ api:
       title: Register Notification
       body: If you successfully received the notification request and see this notification, then you are ready to receive notifications.
   push-manage:
-    deleted-user: Deleted User
+    deleted-user: Deleted user
+    delete:
+      invalid-request: Invalid request
+      success: Deletion success

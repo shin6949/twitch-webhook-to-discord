@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequestBody;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.StreamNotifyRequestEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -17,7 +18,7 @@ class EventVoTests {
     public void test() {
         final String time = "2021-10-06T04:32:47.613998673Z";
 
-        StreamNotifyRequestBody.Event event = new StreamNotifyRequestBody.Event();
+        StreamNotifyRequestEvent event = new StreamNotifyRequestEvent();
         event.setStartedAt(time);
         log.info(event.getStartedAt());
     }

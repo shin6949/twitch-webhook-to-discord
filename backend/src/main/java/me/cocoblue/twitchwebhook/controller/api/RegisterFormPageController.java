@@ -22,19 +22,17 @@ public class RegisterFormPageController {
 
     @PostMapping("/twitch/notification/submit")
     public Map<String, String> register(final HttpServletRequest request, @RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
-        log.info("Register Called");
+        log.info("API Register Called");
 
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
-        log.info("locale: {}", locale.getLanguage());
+
         if(locale.getLanguage().startsWith("ko")) {
-            log.info("It's Korean");
             notificationRegisterDTO.setLanguage(LanguageIsoData.Korean);
         } else {
-            log.info("It's English");
             notificationRegisterDTO.setLanguage(LanguageIsoData.English);
         }
 
-        log.info("Received Data: {}", notificationRegisterDTO);
+        log.debug("Received Data: {}", notificationRegisterDTO);
         registerPageAPIService.saveSubscription(notificationRegisterDTO);
 
         final Map<String, String> result = new HashMap<>();

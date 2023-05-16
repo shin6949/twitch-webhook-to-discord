@@ -1,5 +1,11 @@
 {
-  "notification-type": "Type: ",
-  "interval-minute": "Interval(minute): ",
-  "delete-button": "Delete"
+  "delete-button": "Delete",
+  "interval-minute": "Interval(minute): {{minute}} minutes",
+  "latest-notification-time": "Latest notification time: {{latestNotificationTime}}",
+  "no-notification-warning": "No notifications registered",
+  "notification-count": "Notification Count: {{noticationCount}}",
+  "notification-type": "Type: {{notificationType}}",
+  "receive-fail": "Unknown error occurred.",
+  "receive-successfully": "The notification subscription list has been received normally.",
+  "title": "Push Notification Management"
 }

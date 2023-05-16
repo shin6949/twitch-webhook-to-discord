@@ -1,8 +1,8 @@
 {
   "about-menu": "앱에 대하여",
   "program-name": "트위치 알리미",
+  "push-manage-menu": "푸시 알림 관리",
   "register-menu": "알림 등록",
   "test-menu": "알림 테스트",
-  "push-manage-menu": "푸시 알림 관리",
   "toast_received_message": "새로운 알림이 있습니다.\n제목: {{title}}\n내용: {{content}}"
 }

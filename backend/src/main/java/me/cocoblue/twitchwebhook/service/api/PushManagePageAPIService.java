@@ -3,17 +3,21 @@ package me.cocoblue.twitchwebhook.service.api;
 import com.google.firebase.auth.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogViewEntity;
+import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogViewRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationCardDTO;
+import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationDeleteResultDTO;
 import me.cocoblue.twitchwebhook.dto.api.register.UserSearchResultDTO;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,16 +30,39 @@ import java.util.stream.Collectors;
 @Log4j2
 public class PushManagePageAPIService {
     private final PushSubscriptionFormRepository pushSubscriptionFormRepository;
+    private final PushUserLogViewRepository pushUserLogViewRepository;
     private final BroadcasterIdRepository broadcasterIdRepository;
     private final UserInfoService userInfoService;
     private final MessageSource messageSource;
+
+    public NotificationDeleteResultDTO deleteNotification(final Locale locale, final String token, final long formId) {
+        final NotificationDeleteResultDTO result = new NotificationDeleteResultDTO();
+        final Optional<PushSubscriptionFormEntity> pushSubscriptionFormEntity = pushSubscriptionFormRepository.getPushSubscriptionFormEntityById(formId);
+        if(pushSubscriptionFormEntity.isEmpty()) {
+            result.setResult(false);
+            result.setMessage(messageSource.getMessage("api.push-manage.delete.invalid-request", null, locale));
+            return result;
+        }
+
+        // 유효하지 않은 사용자가 요청한 경우 Token Filtering 으로 차단
+        if(!pushSubscriptionFormEntity.get().getRegistrationToken().equals(token)) {
+            result.setResult(false);
+            result.setMessage(messageSource.getMessage("api.push-manage.delete.invalid-request", null, locale));
+            return result;
+        }
+
+        pushSubscriptionFormRepository.deleteById(pushSubscriptionFormEntity.get().getId());
+        result.setResult(true);
+        result.setMessage(messageSource.getMessage("api.push-manage.delete.success", null, locale));
+        return result;
+    }
 
     public List<NotificationCardDTO> getNotifcationList(final String registrationToken, final Locale locale) {
         final List<PushSubscriptionFormEntity> pushSubscriptionFormEntities = pushSubscriptionFormRepository.getPushSubscriptionFormEntitiesByRegistrationToken(registrationToken);
         final List<NotificationCardDTO> result = pushSubscriptionFormEntities.stream()
                 .map(item -> makeNotificationDTO(item, locale))
                 .collect(Collectors.toList());
-        log.info(result);
+        log.debug("getNotificationList Result: {}", result);
 
         return result;
     }
@@ -59,6 +86,12 @@ public class PushManagePageAPIService {
         result.setFormId(pushSubscriptionFormEntity.getId());
         result.setNotificationType(messageSource.getMessage("api.register.types." + pushSubscriptionFormEntity.getTwitchSubscriptionType().getTwitchName(), null, locale));
         result.setIntervalMinute(pushSubscriptionFormEntity.getIntervalMinute());
+
+        final int notificationCount = pushUserLogViewRepository.countByPushSubscriptionFormEntity(pushSubscriptionFormEntity);
+        final Optional<PushUserLogViewEntity> pushUserLogViewEntity = pushUserLogViewRepository.findFirstByPushSubscriptionFormEntityOrderByReceivedTimeDesc(pushSubscriptionFormEntity);
+
+        result.setLatestNotificationTime(pushUserLogViewEntity.map(PushUserLogViewEntity::getReceivedTime).orElse(null));
+        result.setNotificationCount(notificationCount);
 
         final User user = getUserByBroadcasterId(pushSubscriptionFormEntity.getBroadcasterIdEntity().getId());
         if(user == null) {

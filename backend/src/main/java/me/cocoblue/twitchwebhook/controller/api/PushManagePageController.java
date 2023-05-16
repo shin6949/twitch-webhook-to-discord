@@ -3,6 +3,7 @@ package me.cocoblue.twitchwebhook.controller.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationCardDTO;
+import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationDeleteResultDTO;
 import me.cocoblue.twitchwebhook.service.api.PushManagePageAPIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +22,16 @@ public class PushManagePageController {
     public List<NotificationCardDTO> getNotificationList(final HttpServletRequest request,
                                              @RequestParam(name = "token") final String registrationToken) {
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
-        log.info("registrationToken: " + registrationToken);
+        log.debug("registrationToken: " + registrationToken);
         return pushManagePageAPIService.getNotifcationList(registrationToken, locale);
     }
 
     @DeleteMapping("/delete")
-    public boolean deleteNotification(@RequestParam(name = "token") final String registrationToken,
-                                      @RequestParam(name = "id") final long id) {
+    public NotificationDeleteResultDTO deleteNotification(final HttpServletRequest request,
+                                                          @RequestParam(name = "token") final String registrationToken,
+                                                          @RequestParam(name = "id") final long id) {
+        final Locale locale = new Locale(request.getHeader("Accept-Language"));
 
-        return true;
+        return pushManagePageAPIService.deleteNotification(locale, registrationToken, id);
     }
 }

@@ -111,7 +111,6 @@ const RegisterPage = () => {
       );
       setTwitchIDValid(result.result);
       if (result.result && result.user !== undefined) {
-        console.log(result);
         setTwitchProfileCard(result);
       }
       setShowToast({
@@ -131,7 +130,9 @@ const RegisterPage = () => {
     }
   };
 
-  const handleIntervalMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIntervalMinuteChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setIntervalMinute(Number(e.target.value));
   };
 
@@ -151,7 +152,7 @@ const RegisterPage = () => {
             : "toast-register-error-header",
           { ns: "register" }
         ),
-        variant: data.result ? "primary" : "danger",
+        variant: data.result ? "success" : "danger",
       });
     };
 
