@@ -11,8 +11,8 @@ import NotificationTypeSelect from "../components/register/NotificationTypeSelec
 import IntervalMinuteInput from "../components/register/IntervalMinuteInput";
 import CustomToast from "../components/CustomToast";
 import { useToast } from "../components/ToastContext";
-import { getMessaging, getToken, Messaging } from "firebase/messaging";
-import { useFirebaseApp } from "../context/FirebaseContext";
+import { getToken } from "firebase/messaging";
+import { useFirebase } from "../context/FirebaseContext";
 import {
   getTwitchIDSearchResult,
   postTwitchNotificationRegister,
@@ -34,8 +34,6 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
 
 const RegisterPage = () => {
   const { t } = useTranslation(["register", "common"]);
-  const [messaging, setMessaging] = useState<Messaging | null>(null);
-
   // Twitch ID
   const [twitchID, setTwitchID] = useState("");
   const [twitchIDValid, setTwitchIDValid] = useState(false);
@@ -62,15 +60,9 @@ const RegisterPage = () => {
 
   // Toast
   const { showToast, setShowToast } = useToast();
-  const firebaseApp = useFirebaseApp();
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && messaging === null) {
-      if (firebaseApp) {
-        setMessaging(getMessaging(firebaseApp));
-      }
-    }
-  }, [firebaseApp]);
+  // Firebase Messaging
+  const { messaging } = useFirebase();
 
   const clickModifyTwitchIdButton = () => {
     setTwitchID("");
@@ -137,6 +129,7 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async () => {
+    console.warn(`handleSubmit called at register.`);
     if (!twitchIDValid || !selectedNotificationType) {
       return;
     }
@@ -170,6 +163,7 @@ const RegisterPage = () => {
         if (permission === "granted" && messaging) {
           setIsLoading(true);
           const token: string = await getToken(messaging);
+          console.warn(`Token at register: ${token}`);
 
           try {
             const response = await postTwitchNotificationRegister({

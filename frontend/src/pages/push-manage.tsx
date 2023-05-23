@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Spinner, Row, Col } from "react-bootstrap";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import CustomToast, { ToastState } from "../components/CustomToast";
-import { getMessaging, getToken } from "firebase/messaging";
-import { useFirebaseApp } from "../context/FirebaseContext";
+import { getToken } from "firebase/messaging";
+import { useFirebase } from "../context/FirebaseContext";
 
 import NotificationCard from "../components/push-manage/NotificationCard";
 import { useTranslation } from "next-i18next";
@@ -42,7 +42,7 @@ const NotificationManagePage = () => {
   });
   const [token, setToken] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const firebaseApp = useFirebaseApp();
+  const { app, messaging } = useFirebase();
 
   useEffect(() => {
     const requestNotificationPermission = async () => {
@@ -56,14 +56,13 @@ const NotificationManagePage = () => {
 
   useEffect(() => {
     const getFirebaseMessagingToken = async () => {
-      if (firebaseApp) {
-        const messaging = getMessaging(firebaseApp);
+      if (app && messaging) {
         const token = await getToken(messaging);
         setToken(token);
       }
     };
     getFirebaseMessagingToken();
-  }, [firebaseApp]);
+  }, [app]);
 
   useEffect(() => {
     const fetchNotifications = async () => {

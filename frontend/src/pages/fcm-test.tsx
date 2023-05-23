@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { getMessaging, getToken, Messaging } from "firebase/messaging";
+import React, { useState } from "react";
+import { getToken } from "firebase/messaging";
 import { Button, Container, Form } from "react-bootstrap";
 import Head from "next/head";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -10,7 +10,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 // Custom Components
 import CustomToast, { ToastState } from "../components/CustomToast";
-import { useFirebaseApp } from "../context/FirebaseContext";
+import { useFirebase } from "../context/FirebaseContext";
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
   return {
@@ -28,20 +28,13 @@ const FCMForm: React.FC = (): JSX.Element => {
     message: "",
     variant: "secondary",
   });
-  const [messaging, setMessaging] = useState<Messaging | null>(null);
+
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const firebaseApp = useFirebaseApp();
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && messaging === null) {
-      if (firebaseApp) {
-        setMessaging(getMessaging(firebaseApp));
-      }
-    }
-  }, [firebaseApp]);
+  const { messaging } = useFirebase();
 
   const sendMessage = async (): Promise<void> => {
+    console.warn(`sendMessage called at fcm-test.`);
     Notification.requestPermission()
       .then(async (permission: NotificationPermission) => {
         if (permission === "granted") {
@@ -56,6 +49,7 @@ const FCMForm: React.FC = (): JSX.Element => {
             return;
           }
           const token = await getToken(messaging);
+          console.warn(`Token at fcm-test: ${token}`);
 
           if (!title || !content) {
             setShowToast({

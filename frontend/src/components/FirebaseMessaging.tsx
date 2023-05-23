@@ -1,26 +1,17 @@
 import { useEffect } from "react";
-import { FirebaseApp } from "firebase/app";
-import {
-  getMessaging,
-  onMessage,
-  Messaging,
-  MessagePayload,
-} from "firebase/messaging";
+import { onMessage, MessagePayload } from "firebase/messaging";
 import { useToast } from "./ToastContext";
 import { useTranslation } from "next-i18next";
+import { useFirebase } from "../context/FirebaseContext";
 
-interface FirebaseMessagingProps {
-  firebaseApp: FirebaseApp | null;
-}
-
-const FirebaseMessaging = ({ firebaseApp }: FirebaseMessagingProps) => {
+const FirebaseMessaging = () => {
   const { t } = useTranslation(["common"]);
   const { setShowToast } = useToast();
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && firebaseApp) {
-      const messaging: Messaging = getMessaging(firebaseApp);
+  const { app, messaging } = useFirebase();
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && app && messaging) {
       onMessage(messaging, (payload: MessagePayload) => {
         if (payload.notification) {
           setShowToast({
@@ -35,7 +26,7 @@ const FirebaseMessaging = ({ firebaseApp }: FirebaseMessagingProps) => {
         }
       });
     }
-  }, [firebaseApp, t, setShowToast]);
+  }, [app, messaging, t, setShowToast]);
 
   return null;
 };
