@@ -16,6 +16,7 @@ import javax.persistence.*;
 @DynamicInsert
 @Entity(name = "push_subscription_form")
 public class PushSubscriptionFormEntity extends FormEntity {
-    @Column(name = "registration_token", nullable = false)
-    private String registrationToken;
+    @ManyToOne()
+    @JoinColumn(name="registration_uuid", foreignKey = @ForeignKey(name="FK_PUSH_SUBSCRIPTION_FORM_REGISTRATION_UUID"), nullable = false)
+    private PushUUIDStorageEntity registrationUUID;
 }

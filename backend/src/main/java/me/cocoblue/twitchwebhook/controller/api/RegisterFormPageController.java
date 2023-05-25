@@ -21,7 +21,7 @@ public class RegisterFormPageController {
     private final RegisterPageAPIService registerPageAPIService;
 
     @PostMapping("/twitch/notification/submit")
-    public Map<String, String> register(final HttpServletRequest request, @RequestBody NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
+    public Map<String, String> register(final HttpServletRequest request, @RequestBody final NotificationRegisterDTO notificationRegisterDTO) throws FirebaseMessagingException {
         log.info("API Register Called");
 
         final Locale locale = new Locale(request.getHeader("Accept-Language"));

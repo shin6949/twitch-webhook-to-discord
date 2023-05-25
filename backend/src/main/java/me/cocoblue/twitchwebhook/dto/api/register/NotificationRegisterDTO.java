@@ -8,6 +8,7 @@ import me.cocoblue.twitchwebhook.data.LanguageIsoData;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.PushUUIDStorageEntity;
 
 @Data
 @AllArgsConstructor
@@ -21,11 +22,18 @@ public class NotificationRegisterDTO {
     private int intervalMinute;
     @JsonProperty("registration_token")
     private String registrationToken;
+    @JsonProperty("uuid")
+    private String uuid;
+    @JsonProperty("language")
     private LanguageIsoData language;
 
     public PushSubscriptionFormEntity toEntity(BroadcasterIdEntity broadcasterIdEntity) {
+        final PushUUIDStorageEntity pushUUIDStorageEntity = PushUUIDStorageEntity.builder()
+                .uuid(uuid)
+                .build();
+
         return PushSubscriptionFormEntity.builder()
-                .registrationToken(registrationToken)
+                .registrationUUID(pushUUIDStorageEntity)
                 .broadcasterIdEntity(broadcasterIdEntity)
                 .twitchSubscriptionType(TwitchSubscriptionType.find(notificationType))
                 .intervalMinute(intervalMinute)
