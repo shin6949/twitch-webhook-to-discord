@@ -11,7 +11,7 @@ import NotificationTypeSelect from "../components/register/NotificationTypeSelec
 import IntervalMinuteInput from "../components/register/IntervalMinuteInput";
 import CustomToast from "../components/CustomToast";
 import { useToast } from "../components/ToastContext";
-import { getToken } from "firebase/messaging";
+import { getMessaging, getToken, isSupported } from "firebase/messaging";
 import { useFirebase } from "../context/FirebaseContext";
 import {
   getTwitchIDSearchResult,
@@ -62,7 +62,7 @@ const RegisterPage = () => {
   const { showToast, setShowToast } = useToast();
 
   // Firebase Messaging
-  const { messaging } = useFirebase();
+  // const { messaging } = useFirebase();
 
   const clickModifyTwitchIdButton = () => {
     setTwitchID("");
@@ -158,27 +158,33 @@ const RegisterPage = () => {
       });
     };
 
+    // Firebase Messaging 초기화
+    const messaging = (await isSupported()) ? getMessaging() : null;
+
     Notification.requestPermission().then(
       async (permission: NotificationPermission) => {
         if (permission === "granted" && messaging) {
           setIsLoading(true);
-          const token: string = await getToken(messaging);
-          console.warn(`Token at register: ${token}`);
+          const permissionState = await Notification.permission;
+          if (permissionState === "granted") {
+            const token: string = await getToken(messaging);
+            console.warn(`Token at register: ${token}`);
 
-          try {
-            const response = await postTwitchNotificationRegister({
-              twitchID: twitchID,
-              notificationType: selectedNotificationType,
-              intervalMinute: intervalMinute,
-              registrationToken: token,
-            });
-            const data: TwitchNotificationRegisterResponse =
-              await response.json();
-            handleNotificationResponse(data);
-          } catch (e) {
-            handleError(e);
-          } finally {
-            setIsLoading(false);
+            try {
+              const response = await postTwitchNotificationRegister({
+                twitchID: twitchID,
+                notificationType: selectedNotificationType,
+                intervalMinute: intervalMinute,
+                registrationToken: token,
+              });
+              const data: TwitchNotificationRegisterResponse =
+                await response.json();
+              handleNotificationResponse(data);
+            } catch (e) {
+              handleError(e);
+            } finally {
+              setIsLoading(false);
+            }
           }
         }
       }

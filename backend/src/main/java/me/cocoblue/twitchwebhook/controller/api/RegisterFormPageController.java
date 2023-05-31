@@ -46,6 +46,7 @@ public class RegisterFormPageController {
     @GetMapping("/twitch/notification/types")
     public List<NotificationTypeDTO> getTypes(final HttpServletRequest request) {
         final Locale locale = new Locale(request.getHeader("Accept-Language"));
+        log.info("locale: {}", locale);
 
         return registerPageAPIService.getNotificationTypeList(locale);
     }

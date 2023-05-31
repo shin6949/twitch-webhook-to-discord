@@ -1,23 +1,17 @@
 package me.cocoblue.twitchwebhook.service.api;
 
-import com.google.firebase.auth.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogViewEntity;
 import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogViewRepository;
-import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
-import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
-import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormRepository;
+import me.cocoblue.twitchwebhook.domain.twitch.*;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationCardDTO;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationDeleteResultDTO;
-import me.cocoblue.twitchwebhook.dto.api.register.UserSearchResultDTO;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,7 +39,7 @@ public class PushManagePageAPIService {
         }
 
         // 유효하지 않은 사용자가 요청한 경우 Token Filtering 으로 차단
-        if(!pushSubscriptionFormEntity.get().getRegistrationToken().equals(token)) {
+        if(!pushSubscriptionFormEntity.get().getRegistrationUUID().getFcmToken().equals(token)) {
             result.setResult(false);
             result.setMessage(messageSource.getMessage("api.push-manage.delete.invalid-request", null, locale));
             return result;
@@ -58,7 +52,11 @@ public class PushManagePageAPIService {
     }
 
     public List<NotificationCardDTO> getNotifcationList(final String registrationToken, final Locale locale) {
-        final List<PushSubscriptionFormEntity> pushSubscriptionFormEntities = pushSubscriptionFormRepository.getPushSubscriptionFormEntitiesByRegistrationToken(registrationToken);
+        final PushUUIDStorageEntity pushUUIDStorageEntity = PushUUIDStorageEntity.builder()
+                .fcmToken(registrationToken)
+                .build();
+
+        final List<PushSubscriptionFormEntity> pushSubscriptionFormEntities = pushSubscriptionFormRepository.getPushSubscriptionFormEntitiesByRegistrationUUID(pushUUIDStorageEntity);
         final List<NotificationCardDTO> result = pushSubscriptionFormEntities.stream()
                 .map(item -> makeNotificationDTO(item, locale))
                 .collect(Collectors.toList());

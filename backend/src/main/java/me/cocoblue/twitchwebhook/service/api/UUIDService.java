@@ -9,6 +9,7 @@ import me.cocoblue.twitchwebhook.dto.api.uuid.UUIDRequestDTO;
 import me.cocoblue.twitchwebhook.dto.api.uuid.UUIDResponse;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,16 +43,30 @@ public class UUIDService {
         final Optional<PushUUIDStorageEntity> tokenSearchResult = pushUUIDStorageRepository.getPushUUIDStorageEntityByUuid(request.getUuid());
         if(tokenSearchResult.isEmpty()) {
             final UUIDResponse uuidRequestDTO = createUUID(request);
-            final TokenUpdateResultDTO result = new TokenUpdateResultDTO(uuidRequestDTO, true);
+
+            return new TokenUpdateResultDTO(uuidRequestDTO, true);
         }
 
         tokenSearchResult.get().setFcmToken(request.getFcmToken());
         pushUUIDStorageRepository.save(tokenSearchResult.get());
-        return new UUIDResponse(tokenSearchResult.get());
+
+        final UUIDResponse uuidResponse = new UUIDResponse(tokenSearchResult.get());
+        return new TokenUpdateResultDTO(uuidResponse, false);
     }
 
     // 유효한 UUID 인지 검증.
-    public UUIDResponse verifyUUID(final UUIDRequestDTO request) {
+    public TokenUpdateResultDTO verifyUUID(final UUIDRequestDTO request) {
+        final Optional<PushUUIDStorageEntity> tokenSearchResult = pushUUIDStorageRepository.getPushUUIDStorageEntityByUuid(request.getUuid());
+        if(tokenSearchResult.isEmpty()) {
+            final UUIDResponse uuidRequestDTO = createUUID(request);
 
+            return new TokenUpdateResultDTO(uuidRequestDTO, true);
+        }
+
+        tokenSearchResult.get().setUpdatedAt(LocalDateTime.now());
+        pushUUIDStorageRepository.save(tokenSearchResult.get());
+
+        final UUIDResponse uuidResponse = new UUIDResponse(tokenSearchResult.get());
+        return new TokenUpdateResultDTO(uuidResponse, false);
     }
 }

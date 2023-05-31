@@ -73,7 +73,7 @@ public class StreamNotifyService extends AbstractNotifyService {
                         .setTitle(messageTitle)
                         .setBody(messageBody)
                         .build())
-                .setToken(form.getRegistrationToken())
+                .setToken(form.getRegistrationUUID().getFcmToken())
                 .build();
     }
 

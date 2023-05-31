@@ -1,9 +1,7 @@
 package me.cocoblue.twitchwebhook.dto.api.uuid;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import me.cocoblue.twitchwebhook.domain.twitch.PushUUIDStorageEntity;
 
 import java.time.LocalDateTime;
@@ -11,6 +9,8 @@ import java.time.LocalDateTime;
 @Data
 @ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UUIDResponse {
     @JsonProperty("uuid")
     private String uuid;

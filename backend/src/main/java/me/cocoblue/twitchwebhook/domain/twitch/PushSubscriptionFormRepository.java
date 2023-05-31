@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface PushSubscriptionFormRepository extends JpaRepository<PushSubscriptionFormEntity, Long> {
     List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByBroadcasterIdEntityAndTwitchSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
-    List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByRegistrationToken(String registrationToken);
+    List<PushSubscriptionFormEntity> getPushSubscriptionFormEntitiesByRegistrationUUID(PushUUIDStorageEntity pushUUIDStorageEntity);
     Optional<PushSubscriptionFormEntity> getPushSubscriptionFormEntityById(long formId);
     @Transactional
     @Modifying
