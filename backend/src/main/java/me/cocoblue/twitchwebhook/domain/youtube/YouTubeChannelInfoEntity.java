@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -21,8 +20,7 @@ public class YouTubeChannelInfoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long internalId;
 
-    @Column(name = "youtube_channel_id", length = 150)
-    @NotNull
+    @Column(name = "youtube_channel_id", length = 150, nullable = false)
     private String youtubeChannelId;
 
     @Column(name = "upcoming_live_id", length = 150)

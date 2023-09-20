@@ -45,6 +45,6 @@ dependencies {
 }
 
 group = 'me.cocoblue'
-version = '3.0.1'
+version = '3.1'
 description = 'Notification Service Using Twitch Webhook (Backend)'
 java.sourceCompatibility = JavaVersion.VERSION_11

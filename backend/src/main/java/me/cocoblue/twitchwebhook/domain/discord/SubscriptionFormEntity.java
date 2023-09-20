@@ -24,7 +24,7 @@ public class SubscriptionFormEntity extends FormEntity {
     @Column(length = 2000, name="content", nullable = false)
     private String content;
 
-    @Column(name = "color_hex", nullable = false)
+    @Column(name = "color_hex", nullable = false, length = 11)
     private String colorHex;
 
     @ManyToOne()

@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.logdomain;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
@@ -23,8 +22,7 @@ public class PushUserLogViewEntity {
     @Column(name = "user_log_id")
     private Long userLogId;
 
-    @Column(name = "received_time")
-    @NotNull
+    @Column(name = "received_time", nullable = false)
     private LocalDateTime receivedTime;
 
     @Enumerated(EnumType.STRING)
@@ -32,12 +30,10 @@ public class PushUserLogViewEntity {
     private TwitchSubscriptionType twitchSubscriptionType;
 
     @ManyToOne()
-    @JoinColumn(name="form_id")
-    @NotNull
+    @JoinColumn(name="form_id", nullable = false)
     private PushSubscriptionFormEntity pushSubscriptionFormEntity;
 
     @ManyToOne()
-    @JoinColumn(name="broadcaster_id")
-    @NotNull
+    @JoinColumn(name="broadcaster_id", nullable = false)
     private BroadcasterIdEntity broadcasterIdEntity;
 }
