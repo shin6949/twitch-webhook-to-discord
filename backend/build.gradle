@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     implementation group: 'com.h2database', name: 'h2', version: '2.1.214'
+    implementation 'com.github.seratch:notion-sdk-jvm-core:1.9.0'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'

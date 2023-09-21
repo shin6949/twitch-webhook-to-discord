@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.domain.discord;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 

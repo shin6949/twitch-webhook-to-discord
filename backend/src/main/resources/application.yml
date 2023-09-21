@@ -47,6 +47,9 @@ youtube:
   api-key: ${YOUTUBE_API_KEY}
   logo-url: ${YOUTUBE_LOGO_URL}
 
+notion:
+  api-key: ${NOTION_API_KEY}
+
 logging:
   level:
     root: info
