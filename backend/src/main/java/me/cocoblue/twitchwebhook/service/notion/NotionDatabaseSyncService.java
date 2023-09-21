@@ -5,6 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexEntity;
 import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexRepository;
 import notion.api.v1.NotionClient;
+import notion.api.v1.model.databases.Database;
+import notion.api.v1.request.databases.QueryDatabaseRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -47,13 +49,13 @@ public class NotionDatabaseSyncService {
 
         final NotionClient notionClient = new NotionClient(notionApiKey);
         for(NotionDatabaseIndexEntity notionDatabaseIndex : notionDatabaseIndexEntityList) {
-            notionClient.queryDatabase()
+//            notionClient.queryDatabase()
         }
 
         notionClient.close();
     }
 
-    private void databaseSync() {
+    private void databaseSync(final NotionClient notionClient, final NotionDatabaseIndexEntity notionDatabaseIndex) {
 
     }
 }
