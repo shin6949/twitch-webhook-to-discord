@@ -6,6 +6,11 @@ import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexEntity;
 import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexRepository;
 import notion.api.v1.NotionClient;
 import notion.api.v1.model.databases.Database;
+import notion.api.v1.model.databases.QueryResults;
+import notion.api.v1.model.databases.query.filter.PropertyFilter;
+import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
+import notion.api.v1.model.databases.query.filter.condition.DateFilter;
+import notion.api.v1.model.databases.query.filter.condition.TextFilter;
 import notion.api.v1.request.databases.QueryDatabaseRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,7 +54,19 @@ public class NotionDatabaseSyncService {
 
         final NotionClient notionClient = new NotionClient(notionApiKey);
         for(NotionDatabaseIndexEntity notionDatabaseIndex : notionDatabaseIndexEntityList) {
-//            notionClient.queryDatabase()
+            final QueryDatabaseRequest queryDatabaseRequest = new QueryDatabaseRequest(notionDatabaseIndex.getDatabaseIdAtNotion());
+            final DateFilter updatedAtDateFilter = new DateFilter();
+            updatedAtDateFilter.setAfter("2023-09-08T11:00");
+
+            final TextFilter textFilter = new TextFilter();
+            textFilter.setNotEmpty(true);
+
+            notion.api.v1.model.databases.query.filter.PropertyFilter updatedAtFilter = new PropertyFilter();
+            updatedAtFilter.setProperty("updated_at");
+            updatedAtFilter.setDate(updatedAtDateFilter);
+
+            QueryResults queryResults = notionClient.queryDatabase(queryDatabaseRequest);
+
         }
 
         notionClient.close();
