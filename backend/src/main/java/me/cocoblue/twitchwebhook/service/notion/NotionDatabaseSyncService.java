@@ -7,6 +7,7 @@ import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexRepository;
 import notion.api.v1.NotionClient;
 import notion.api.v1.model.databases.Database;
 import notion.api.v1.model.databases.QueryResults;
+import notion.api.v1.model.databases.query.filter.CompoundFilter;
 import notion.api.v1.model.databases.query.filter.PropertyFilter;
 import notion.api.v1.model.databases.query.filter.QueryTopLevelFilter;
 import notion.api.v1.model.databases.query.filter.condition.DateFilter;
@@ -16,6 +17,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Log4j2
@@ -54,16 +60,26 @@ public class NotionDatabaseSyncService {
 
         final NotionClient notionClient = new NotionClient(notionApiKey);
         for(NotionDatabaseIndexEntity notionDatabaseIndex : notionDatabaseIndexEntityList) {
-            final QueryDatabaseRequest queryDatabaseRequest = new QueryDatabaseRequest(notionDatabaseIndex.getDatabaseIdAtNotion());
+            final String oneHourAgo = ZonedDateTime.now(ZoneId.of("UTC")).minusHours(1).format(DateTimeFormatter.ISO_INSTANT);
             final DateFilter updatedAtDateFilter = new DateFilter();
-            updatedAtDateFilter.setAfter("2023-09-08T11:00");
+            updatedAtDateFilter.setAfter(oneHourAgo);
+
+            final PropertyFilter updatedAtFilter = new PropertyFilter();
+            updatedAtFilter.setProperty("updated_at");
+            updatedAtFilter.setDate(updatedAtDateFilter);
 
             final TextFilter textFilter = new TextFilter();
             textFilter.setNotEmpty(true);
 
-            notion.api.v1.model.databases.query.filter.PropertyFilter updatedAtFilter = new PropertyFilter();
-            updatedAtFilter.setProperty("updated_at");
-            updatedAtFilter.setDate(updatedAtDateFilter);
+            final PropertyFilter lastEditorStringFilter = new PropertyFilter();
+            lastEditorStringFilter.setProperty("last_editor_string");
+            lastEditorStringFilter.setRichText(textFilter);
+
+            // filter를 List 형태로 모은 뒤, and 조건에 지정
+            final List<PropertyFilter> filters = Arrays.asList(lastEditorStringFilter, updatedAtFilter);
+            final CompoundFilter compoundFilter = new CompoundFilter(null, filters);
+
+            final QueryDatabaseRequest queryDatabaseRequest = new QueryDatabaseRequest(notionDatabaseIndex.getDatabaseIdAtNotion(), compoundFilter);
 
             QueryResults queryResults = notionClient.queryDatabase(queryDatabaseRequest);
 
