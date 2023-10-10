@@ -2,11 +2,15 @@ package me.cocoblue.twitchwebhook.service.notion;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
+import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexEntity;
 import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
+import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.util.NotionPropertyUtil;
 import notion.api.v1.NotionClient;
@@ -45,6 +49,7 @@ public class NotionDatabaseSyncService {
     private String notionApiKey;
 
     private final NotionDatabaseIndexRepository notionDatabaseIndexRepository;
+    private final SubscriptionFormRepository subscriptionFormRepository;
     private final UserInfoService userInfoService;
     private final BroadcasterIdRepository broadcasterIdRepository;
 
@@ -70,37 +75,83 @@ public class NotionDatabaseSyncService {
         }
 
         final NotionClient notionClient = new NotionClient(notionApiKey);
+
+        // 각 Notion Database 마다 같은 과정 수행
         for(final NotionDatabaseIndexEntity notionDatabaseIndex : notionDatabaseIndexEntityList) {
+            // 변경 되거나 새롭게 생성한 Item 갖고 옴.
             final List<Page> resultItems = get1HourAgoItems(notionClient, notionDatabaseIndex.getDatabaseIdAtNotion());
+
         }
 
         notionClient.close();
     }
 
-    private void savePageToDatabase(final List<Page> resultPagesList, final NotionClient notionClient) {
+    /**
+     * 신규 Item 을 Database에 등록하는 메소드
+     *
+     * @param page 신규 등록할 Page 객체
+     * @param notionClient NotionClient 객체
+     */
+    private void createNewItem(final Page page, final NotionClient notionClient, final NotionDatabaseIndexEntity notionDatabaseIndex) {
+        if(page.getProperties().get("twitch_id").getRichText() == null) {
+            addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
+            return;
+        }
+
+        final String targetTwitchId = NotionPropertyUtil.buildStringFromNotionRichText(page.getProperties().get("twitch_id").getRichText());
+        final boolean isUserExists = isTwitchUserExists(targetTwitchId);
+        // 없는 경우 예외 처리 및 다음 item 진행
+        if(!isUserExists) {
+            addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
+            return;
+        }
+
+        // isTwitchUserExists를 실행했기 때문에 있을 것이라고 기대됨.
+        final Optional<BroadcasterIdEntity> broadcasterIdEntity = broadcasterIdRepository.getBroadcasterIdEntityByLoginIdEquals(targetTwitchId);
+        if(broadcasterIdEntity.isEmpty()) {
+            addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
+            return;
+        }
+
+        final String message = NotionPropertyUtil.buildStringFromNotionRichText(page.getProperties().get("message").getRichText());
+        final String colorString = NotionPropertyUtil.buildStringFromNotionRichText(page.getProperties().get("color").getRichText());
+
+        final SubscriptionFormEntity subscriptionFormEntity = SubscriptionFormEntity.builder()
+                .formOwner(notionDatabaseIndex.getOwnerId())
+                .botProfileId(notionDatabaseIndex.getProfileId())
+                .webhookId(notionDatabaseIndex.getWebhookId())
+                .colorHex(isColorHex(colorString) ? colorString : notionDatabaseIndex.getDefaultColorHex())
+                .content(message)
+                .languageIsoData(notionDatabaseIndex.getLanguageIsoData())
+                .twitchSubscriptionType(TwitchSubscriptionType.STREAM_ONLINE)
+                .intervalMinute(notionDatabaseIndex.getIntervalMinute())
+                .enabled(false)
+                .build();
+
+        subscriptionFormRepository.save(subscriptionFormEntity);
+
+    }
+
+    /**
+     * 업데이트 되거나 변경된 데이터를 Database에 Insert / Update 하는 메소드
+     *
+     * @param resultPagesList 업데이트 해야할 Notion Page 들
+     * @param notionClient NotionClient 객체
+     */
+    private void processNotionDatabase(final List<Page> resultPagesList, final NotionClient notionClient, final NotionDatabaseIndexEntity notionDatabaseIndex) {
         for(final Page page : resultPagesList) {
             final ZonedDateTime pageCreatedAt = ZonedDateTime.ofInstant(Instant.parse(page.getCreatedTime()), ZoneId.of("UTC"));
             final ZonedDateTime oneHourAgo = ZonedDateTime.of(LocalDateTime.now().minusHours(1), ZoneId.of("UTC"));
 
-            // 신규 등록인 경우 User 정보 검증 필요.
+            // 신규 데이터인 경우
             if(pageCreatedAt.isAfter(oneHourAgo)) {
-                if(page.getProperties().get("twitch_id").getRichText() == null) {
-                    addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
-                    continue;
-                }
-
-                final String targetTwitchId = NotionPropertyUtil.buildStringFromNotionRichText(page.getProperties().get("twitch_id").getRichText());
-                final boolean isUserExists = isTwitchUserExists(targetTwitchId);
-                // 없는 경우 예외 처리 및 다음 item 진행
-                if(!isUserExists) {
-                    addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
-                    continue;
-                }
+                createNewItem(page, notionClient, notionDatabaseIndex);
+                continue;
             }
 
+            // 신규 데이터가 아니라면 자동으로 업데이트 된 데이터임.
 
         }
-
     }
 
     /**
@@ -184,6 +235,14 @@ public class NotionDatabaseSyncService {
         );
 
         notionClient.updatePage(updatePageRequest);
+    }
+
+    private boolean isColorHex(final String colorHex) {
+        if(colorHex == null) return false;
+        if(colorHex.isEmpty()) return false;
+
+        final String pattern = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
+        return colorHex.matches(pattern);
     }
 
     private List<Page> get1HourAgoItems(final NotionClient notionClient, final String databaseId) {
