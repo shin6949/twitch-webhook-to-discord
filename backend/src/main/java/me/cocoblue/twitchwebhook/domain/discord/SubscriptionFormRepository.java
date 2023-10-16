@@ -10,10 +10,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFormEntity, Long> {
-    List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndTwitchSubscriptionType(BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
+    List<SubscriptionFormEntity> getStreamNotifyFormsByBroadcasterIdEntityAndTwitchSubscriptionType(
+            BroadcasterIdEntity broadcasterIdEntity, TwitchSubscriptionType twitchSubscriptionType);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE subscription_form " +
@@ -21,5 +24,10 @@ public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFo
             "WHERE broadcaster_id = :broadcaster_id " +
             "AND type = :type", nativeQuery = true)
     int updateEnabled(@Param(value = "broadcaster_id") long broadcasterId, @Param(value = "type") String type);
+
     List<SubscriptionFormEntity> getSubscriptionFormEntityByBroadcasterIdEntity(BroadcasterIdEntity broadcasterIdEntity);
+
+    Optional<SubscriptionFormEntity> getSubscriptionFormEntityByBroadcasterIdEntityAndWebhookIdAndFormOwnerAndTwitchSubscriptionType(
+            BroadcasterIdEntity broadcasterIdEntity, WebhookDataEntity webhookDataEntity,
+            BroadcasterIdEntity formOwner, TwitchSubscriptionType twitchSubscriptionType);
 }
