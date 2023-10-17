@@ -1,6 +1,5 @@
 package me.cocoblue.twitchwebhook.service.api;
 
-import com.google.firebase.auth.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogViewEntity;
@@ -11,13 +10,11 @@ import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormRepository;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationCardDTO;
 import me.cocoblue.twitchwebhook.dto.api.pushmanage.NotificationDeleteResultDTO;
-import me.cocoblue.twitchwebhook.dto.api.register.UserSearchResultDTO;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -30,4 +30,7 @@ public interface SubscriptionFormRepository extends JpaRepository<SubscriptionFo
     Optional<SubscriptionFormEntity> getSubscriptionFormEntityByBroadcasterIdEntityAndWebhookIdAndFormOwnerAndTwitchSubscriptionType(
             BroadcasterIdEntity broadcasterIdEntity, WebhookDataEntity webhookDataEntity,
             BroadcasterIdEntity formOwner, TwitchSubscriptionType twitchSubscriptionType);
+
+    List<SubscriptionFormEntity> getSubscriptionFormEntitiesByWebhookIdAndFormOwnerAndTwitchSubscriptionType(
+            WebhookDataEntity webhookDataEntity, BroadcasterIdEntity formOwner, TwitchSubscriptionType twitchSubscriptionType);
 }

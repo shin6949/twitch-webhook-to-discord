@@ -6,7 +6,10 @@ import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.UserLogSuperEntity;
 import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Getter
 @Setter

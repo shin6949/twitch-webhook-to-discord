@@ -4,15 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 import me.cocoblue.twitchwebhook.domain.discord.SubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.logdomain.UserLogEntity;
-import me.cocoblue.twitchwebhook.domain.logdomain.UserLogRepository;
-import me.cocoblue.twitchwebhook.domain.logdomain.UserLogViewRepository;
-import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
-import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogEntity;
-import me.cocoblue.twitchwebhook.domain.logdomain.PushUserLogRepository;
+import me.cocoblue.twitchwebhook.domain.logdomain.*;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

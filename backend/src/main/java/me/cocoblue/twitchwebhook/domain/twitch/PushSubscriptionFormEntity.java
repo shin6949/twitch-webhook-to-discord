@@ -2,10 +2,10 @@ package me.cocoblue.twitchwebhook.domain.twitch;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import me.cocoblue.twitchwebhook.domain.twitch.FormEntity;
 import org.hibernate.annotations.DynamicInsert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 @Getter
 @Setter

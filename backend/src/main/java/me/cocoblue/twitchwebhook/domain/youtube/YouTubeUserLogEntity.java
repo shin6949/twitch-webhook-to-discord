@@ -1,9 +1,11 @@
 package me.cocoblue.twitchwebhook.domain.youtube;
-;
+
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+
+;
 
 @Getter
 @Setter

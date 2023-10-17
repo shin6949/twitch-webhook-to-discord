@@ -2,7 +2,6 @@ package me.cocoblue.twitchwebhook.domain.twitch;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import me.cocoblue.twitchwebhook.domain.twitch.NotificationLogEntity;
 
 import javax.persistence.*;
 

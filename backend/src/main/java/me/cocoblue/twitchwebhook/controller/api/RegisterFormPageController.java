@@ -11,7 +11,10 @@ import me.cocoblue.twitchwebhook.service.api.RegisterPageAPIService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Log4j2
 @RestController

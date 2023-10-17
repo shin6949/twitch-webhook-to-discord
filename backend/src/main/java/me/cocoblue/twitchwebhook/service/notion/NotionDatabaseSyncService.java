@@ -10,11 +10,9 @@ import me.cocoblue.twitchwebhook.domain.notion.NotionDatabaseIndexRepository;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdRepository;
 import me.cocoblue.twitchwebhook.dto.twitch.User;
-import me.cocoblue.twitchwebhook.dto.twitch.eventsub.Subscription;
 import me.cocoblue.twitchwebhook.service.twitch.UserInfoService;
 import me.cocoblue.twitchwebhook.util.NotionPropertyUtil;
 import notion.api.v1.NotionClient;
-import notion.api.v1.model.common.OptionColor;
 import notion.api.v1.model.common.PropertyType;
 import notion.api.v1.model.common.RichTextType;
 import notion.api.v1.model.databases.DatabaseProperty;
@@ -32,7 +30,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -42,16 +43,14 @@ import static java.util.Map.entry;
 @RequiredArgsConstructor
 @Service
 public class NotionDatabaseSyncService {
-    @Value("${twitch.event-renew}")
-    private boolean eventEnabled;
-
-    @Value("${notion.api-key:null}")
-    private String notionApiKey;
-
     private final NotionDatabaseIndexRepository notionDatabaseIndexRepository;
     private final SubscriptionFormRepository subscriptionFormRepository;
     private final UserInfoService userInfoService;
     private final BroadcasterIdRepository broadcasterIdRepository;
+    @Value("${twitch.event-renew}")
+    private boolean eventEnabled;
+    @Value("${notion.api-key:null}")
+    private String notionApiKey;
 
     /**
      * 변경된 내용만 추적하는 Job
@@ -69,25 +68,30 @@ public class NotionDatabaseSyncService {
             return;
         }
 
+        // Notion API Client 생성
+        final NotionClient notionClient = new NotionClient(notionApiKey);
+
+        // Notion Database Index Table에서 모든 Index 가져오기
         final List<NotionDatabaseIndexEntity> notionDatabaseIndexEntityList = notionDatabaseIndexRepository.findAll();
         if (notionDatabaseIndexEntityList.isEmpty()) {
             return;
         }
-
-        final NotionClient notionClient = new NotionClient(notionApiKey);
 
         // 각 Notion Database 마다 같은 과정 수행
         for (final NotionDatabaseIndexEntity notionDatabaseIndex : notionDatabaseIndexEntityList) {
             // 변경 되거나 새롭게 생성한 Item 갖고 옴.
             final List<Page> resultItems = get1HourAgoItems(notionClient, notionDatabaseIndex.getDatabaseIdAtNotion());
 
+            processNotionDatabase(resultItems, notionClient, notionDatabaseIndex);
+            arrangeDatabaseItem(notionClient, notionDatabaseIndex);
         }
 
+        // Notion API Client 종료
         notionClient.close();
     }
 
     private void createNewItem(final Page page, final NotionClient notionClient,
-            final NotionDatabaseIndexEntity notionDatabaseIndex) {
+                               final NotionDatabaseIndexEntity notionDatabaseIndex) {
         if (page.getProperties().get("twitch_id").getRichText() == null) {
             addInvalidMessageToPage(notionClient, page, "요청한 유저가 존재하지 않습니다.");
             return;
@@ -138,7 +142,7 @@ public class NotionDatabaseSyncService {
      * @param notionClient    NotionClient 객체
      */
     private void processNotionDatabase(final List<Page> resultPagesList, final NotionClient notionClient,
-            final NotionDatabaseIndexEntity notionDatabaseIndex) {
+                                       final NotionDatabaseIndexEntity notionDatabaseIndex) {
         for (final Page page : resultPagesList) {
             final ZonedDateTime pageCreatedAt = ZonedDateTime.ofInstant(Instant.parse(page.getCreatedTime()),
                     ZoneId.of("UTC"));
@@ -155,22 +159,18 @@ public class NotionDatabaseSyncService {
         }
     }
 
+    /**
+     * 1시간 내로 변경된 데이터 중, 사람이 편집한 내용을 필터링하여 DB, Notion Database에 업데이트하는 메소드
+     *
+     * @param page Notion Page
+     * @param notionClient NotionClient 객체
+     * @param notionDatabaseIndex Notion Database Index
+     */
     private void updateExistItem(final Page page, final NotionClient notionClient,
-            final NotionDatabaseIndexEntity notionDatabaseIndex) {
-        /*
-         * 1. 1시간 내로 변경된 데이터 중, 사람이 편집한 내용을 필터링
-         * 판단용 Column의 값이 null이면, Bot이 변경한 것으로 판단하여 제외.
-         * 2. 데이터 업데이트
-         * 기존 데이터를 갖고 온 뒤, message 또는 color 항목이 변경되었다면 update
-         * → Twitch 프로필 부분은 update 시, 참고하지 않음.
-         * → 만일, 기존 데이터가 없다면, create 시의 메소드를 따르도록 설정.
-         * 3. Notion Database 업데이트
-         * - Twitch 프로필이 Database 기준 Profile이 변경되었다면 Update
-         * - is_valid를 YES로 변경
-         */
+                                 final NotionDatabaseIndexEntity notionDatabaseIndex) {
         final String targetTwitchUniqueId = NotionPropertyUtil
                 .buildStringFromNotionRichText(page.getProperties().get("twitch_unique_id").getRichText());
-        if(targetTwitchUniqueId == null) {
+        if (targetTwitchUniqueId == null) {
             log.info("twitch_unique_id is NOT FOUND. Process as new item.");
             createNewItem(page, notionClient, notionDatabaseIndex);
             return;
@@ -185,25 +185,51 @@ public class NotionDatabaseSyncService {
         }
 
         // message가 변경되었는지 판단.
-        final Optional<SubscriptionFormEntity> subscriptionFormEntity = subscriptionFormRepository.getSubscriptionFormEntityByBroadcasterIdEntityAndWebhookIdAndFormOwnerAndTwitchSubscriptionType(
-                targetBroadcasterEntity.get(),
-                notionDatabaseIndex.getWebhookId(),
-                notionDatabaseIndex.getOwnerId(),
-                TwitchSubscriptionType.STREAM_ONLINE);
-        if(subscriptionFormEntity.isEmpty()) {
+        final Optional<SubscriptionFormEntity> subscriptionFormEntity = subscriptionFormRepository
+                .getSubscriptionFormEntityByBroadcasterIdEntityAndWebhookIdAndFormOwnerAndTwitchSubscriptionType(
+                        targetBroadcasterEntity.get(),
+                        notionDatabaseIndex.getWebhookId(),
+                        notionDatabaseIndex.getOwnerId(),
+                        TwitchSubscriptionType.STREAM_ONLINE);
+
+        if (subscriptionFormEntity.isEmpty()) {
             log.info("SubscriptionFormEntity is NOT FOUND. Process as new item.");
             createNewItem(page, notionClient, notionDatabaseIndex);
             return;
         }
 
-        final String SubscriptionMessage = NotionPropertyUtil
+        final String subscriptionMessageFromNotion = NotionPropertyUtil
                 .buildStringFromNotionRichText(page.getProperties().get("message").getRichText());
-
-        if(subscriptionFormEntity.get().getContent().equals(SubscriptionMessage)) {
-
-        }
+        String colorValueFromNotion = NotionPropertyUtil
+                .buildStringFromNotionRichText(page.getProperties().get("color").getRichText());
 
         final Map<String, PageProperty> result = new HashMap<>();
+
+        // Message 또는 Color가 변경되었는지 판단
+        if (!subscriptionFormEntity.get().getContent().equals(subscriptionMessageFromNotion) ||
+                !subscriptionFormEntity.get().getColorHex().equals(colorValueFromNotion)) {
+            log.info("There is a change in the subscription. Update the subscription to database.");
+            // 변경된 경우, Database에 Update
+            subscriptionFormEntity.get().setContent(subscriptionMessageFromNotion);
+
+            if (!isColorHex(colorValueFromNotion)) {
+                log.info("Color is not Hex. Process as default color.");
+                colorValueFromNotion = notionDatabaseIndex.getDefaultColorHex();
+                addInvalidMessageToPage(notionClient, page, "색상 값이 올바르지 않습니다. 기본 색상으로 변경합니다.");
+                result.put("color", new PageProperty(
+                        page.getProperties().get("color").getId(),
+                        PropertyType.RichText,
+                        null,
+                        Collections.singletonList(new PageProperty.RichText(RichTextType.Text,
+                                new PageProperty.RichText.Text(notionDatabaseIndex.getDefaultColorHex(), null)))));
+            }
+            subscriptionFormEntity.get().setColorHex(colorValueFromNotion);
+
+            subscriptionFormRepository.save(subscriptionFormEntity.get());
+            log.info("The subscription who owned {} is updated. Target twitch user is {}",
+                    notionDatabaseIndex.getOwnerId().getLoginId(),
+                    targetBroadcasterEntity.get().getLoginId());
+        }
 
         // Twitch ID 판단
         Optional.ofNullable(configurePageProperty(page, "twitch_id", targetBroadcasterEntity.get().getLoginId()))
@@ -213,13 +239,16 @@ public class NotionDatabaseSyncService {
         Optional.ofNullable(configurePageProperty(page, "nickname", targetBroadcasterEntity.get().getDisplayName()))
                 .ifPresent(pageProperty -> result.put("nickname", pageProperty));
 
-        // is_valid YES로 변경
-        result.put("is_valid", new PageProperty(
-                page.getProperties().get("is_valid").getId(),
-                PropertyType.Select,
-                null,
-                null,
-                new DatabaseProperty.Select.Option(null, "YES", null)));
+        // ColorHex가 유효하지 않으면 상기에서 처리했기에 여기서는 유효한 경우만 처리
+        if (isColorHex(colorValueFromNotion)) {
+            // is_valid YES로 변경
+            result.put("is_valid", new PageProperty(
+                    page.getProperties().get("is_valid").getId(),
+                    PropertyType.Select,
+                    null,
+                    null,
+                    new DatabaseProperty.Select.Option(null, "YES", null)));
+        }
 
         final UpdatePageRequest updatePageRequest = new UpdatePageRequest(page.getId(), result);
         notionClient.updatePage(updatePageRequest);
@@ -233,7 +262,7 @@ public class NotionDatabaseSyncService {
      * @return 다르면 Map<String, PageProperty>, 같으면 null
      */
     private PageProperty configurePageProperty(final Page page, final String targetColumnName,
-            final String toCompareValue) {
+                                               final String toCompareValue) {
         final String targetColumnValue = NotionPropertyUtil
                 .buildStringFromNotionRichText(page.getProperties().get(targetColumnName).getRichText());
         if (targetColumnValue == null || !targetColumnValue.equals(toCompareValue)) {
@@ -250,10 +279,10 @@ public class NotionDatabaseSyncService {
     }
 
     /**
-     * 주어진 Twitch ID가 존재하는지 확인합니다.
-     * 
+     * 주어진 Twitch ID가 존재하는지 확인하는 메소드.
+     *
      * @param targetTwitchId 확인할 Twitch ID
-     * @return Twitch ID가 존재하는 경우 true, 그렇지 않은 경우 false를 반환합니다.
+     * @return Twitch ID가 존재하는 경우 true, 그렇지 않은 경우 false를 반환.
      */
     private boolean isTwitchUserExists(final String targetTwitchId) {
         final Optional<BroadcasterIdEntity> broadcasterIdEntity = broadcasterIdRepository
@@ -274,7 +303,7 @@ public class NotionDatabaseSyncService {
      * @param invalidMessage 추가할 Invalid Message
      */
     private void addInvalidMessageToPage(final NotionClient notionClient, final Page page,
-            final String invalidMessage) {
+                                         final String invalidMessage) {
         final String resultMessage = NotionPropertyUtil
                 .buildStringFromNotionRichText(page.getProperties().get("invalid_reason").getRichText()) +
                 "\n" + invalidMessage;
@@ -350,4 +379,60 @@ public class NotionDatabaseSyncService {
 
         return allResults;
     }
+
+    /**
+     * Notion Database에서 모든 값을 갖고 와서 DB와 비교하여 Notion에서 행이 삭제되었다면, DB에서도 삭제하는 메소드
+     *
+     * @param notionClient        NotionClient 객체
+     * @param notionDatabaseIndex Notion Database Index
+     */
+    private void arrangeDatabaseItem(final NotionClient notionClient,
+                                          final NotionDatabaseIndexEntity notionDatabaseIndex) {
+        /*
+         * 구현 전략
+         * 1. databaseId를 이용하여 Notion Database에서 모든 행을 갖고 옴.
+         * 2. NotionDatabaseIndexEntity에서 ownerId, webhookId, profileId를 갖고 옴.
+         * 3. NotionDatabaseIndexEntity에서 ownerId, webhookId, profileId를 기반으로
+         * SubscriptionFormRepository에서 모든 행을 갖고 옴.
+         * 4. 1번에서 갖고 온 행들을 4번에서 갖고 온 행들과 비교하여, 4번에는 있지만 1번에는 없는 행을 찾아서 삭제.
+         */
+        final QueryDatabaseRequest queryDatabaseRequest = new QueryDatabaseRequest(
+                notionDatabaseIndex.getDatabaseIdAtNotion());
+        QueryResults queryResults = notionClient.queryDatabase(queryDatabaseRequest);
+        final List<Page> allResults = new ArrayList<>(queryResults.getResults());
+        while (queryResults.getHasMore()) {
+            final QueryDatabaseRequest nextRequest = new QueryDatabaseRequest(
+                    notionDatabaseIndex.getDatabaseIdAtNotion());
+            nextRequest.setStartCursor(queryResults.getNextCursor());
+            queryResults = notionClient.queryDatabase(nextRequest);
+
+            allResults.addAll(queryResults.getResults());
+        }
+
+        final List<SubscriptionFormEntity> subscriptionFormEntityList = subscriptionFormRepository
+                .getSubscriptionFormEntitiesByWebhookIdAndFormOwnerAndTwitchSubscriptionType(
+                        notionDatabaseIndex.getWebhookId(),
+                        notionDatabaseIndex.getOwnerId(),
+                        TwitchSubscriptionType.STREAM_ONLINE);
+
+        for (final SubscriptionFormEntity subscriptionFormEntity : subscriptionFormEntityList) {
+            final Optional<Page> page = allResults.stream()
+                    .filter(e -> {
+                        final String twitchUniqueId = NotionPropertyUtil
+                                .buildStringFromNotionRichText(e.getProperties().get("twitch_unique_id").getRichText());
+                        if (twitchUniqueId == null)
+                            return false;
+
+                        return twitchUniqueId
+                                .equals(String.valueOf(subscriptionFormEntity.getBroadcasterIdEntity().getId()));
+                    })
+                    .findFirst();
+
+            if (page.isEmpty()) {
+                log.info("Page is NOT FOUND. Delete subscription form. {}", subscriptionFormEntity);
+                subscriptionFormRepository.delete(subscriptionFormEntity);
+            }
+        }
+    }
+
 }

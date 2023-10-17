@@ -1,6 +1,9 @@
 package me.cocoblue.twitchwebhook.domain.twitch;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
 
 import javax.persistence.*;

@@ -2,8 +2,8 @@ package me.cocoblue.twitchwebhook.domain.logdomain;
 
 import lombok.*;
 import me.cocoblue.twitchwebhook.data.TwitchSubscriptionType;
-import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import me.cocoblue.twitchwebhook.domain.twitch.BroadcasterIdEntity;
+import me.cocoblue.twitchwebhook.domain.twitch.PushSubscriptionFormEntity;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
