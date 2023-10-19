@@ -37,9 +37,9 @@ public class NotionDatabaseIndexEntity {
     @Column(name = "language", nullable = false)
     private LanguageIsoData languageIsoData;
 
-    @Column(name="interval_minute", nullable = false, length = 11)
+    @Column(name="default_interval_minute", nullable = false, length = 11)
     @ColumnDefault("10")
-    private int intervalMinute;
+    private int defaultIntervalMinute;
 
     @Column(name = "default_color_hex", nullable = false, length = 11)
     private String defaultColorHex;

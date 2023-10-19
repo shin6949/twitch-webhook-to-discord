@@ -128,7 +128,7 @@ public class NotionDatabaseSyncService {
                 .content(message)
                 .languageIsoData(notionDatabaseIndex.getLanguageIsoData())
                 .twitchSubscriptionType(TwitchSubscriptionType.STREAM_ONLINE)
-                .intervalMinute(notionDatabaseIndex.getIntervalMinute())
+                .intervalMinute(notionDatabaseIndex.getDefaultIntervalMinute())
                 .enabled(false)
                 .build();
 
