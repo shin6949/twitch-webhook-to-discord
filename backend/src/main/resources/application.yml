@@ -8,7 +8,7 @@ spring:
   datasource:
     # DB Config
 #    driver-class-name: org.mariadb.jdbc.Driver
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: ${DB_DRIVER}
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
@@ -27,7 +27,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+#        dialect: org.hibernate.dialect.MySQL8Dialect
         show_sql: false
         format_sql: true
         use_sql_comments: true
@@ -98,7 +98,7 @@ spring:
   profiles: dev
   datasource:
     # DB Config
-    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: ${DB_DRIVER}
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}

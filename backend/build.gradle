@@ -17,33 +17,35 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'com.h2database', name: 'h2', version: '2.1.214'
-    implementation 'com.github.seratch:notion-sdk-jvm-core:1.9.0'
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    implementation group: 'com.h2database', name: 'h2', version: '2.2.224'
+    implementation 'com.github.seratch:notion-sdk-jvm-core:1.11.0'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    implementation 'org.apache.commons:commons-dbcp2:2.9.0'
+    implementation 'org.apache.commons:commons-dbcp2:2.11.0'
     implementation 'javax.servlet:jstl:1.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'net.rakugakibox.util:yaml-resource-bundle:1.1'
-    implementation 'com.google.firebase:firebase-admin:9.1.1'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
+    // https://mvnrepository.com/artifact/dev.akkinoc.util/yaml-resource-bundle
+    implementation 'dev.akkinoc.util:yaml-resource-bundle:2.12.1'
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.16.1'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev20220926-2.0.0'
-    implementation 'com.google.http-client:google-http-client-jackson2:1.42.3'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.44.1'
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     implementation 'com.mysql:mysql-connector-j:8.3.0'
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation 'org.postgresql:postgresql:42.7.1'
 }
 
 group = 'me.cocoblue'
 version = '3.1'
 description = 'Notification Service Using Twitch Webhook (Backend)'
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_17

@@ -1,9 +1,9 @@
 package me.cocoblue.twitchwebhook.config;
 
+import dev.akkinoc.util.YamlResourceBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.cocoblue.twitchwebhook.logging.Interceptor;
-import net.rakugakibox.util.YamlResourceBundle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

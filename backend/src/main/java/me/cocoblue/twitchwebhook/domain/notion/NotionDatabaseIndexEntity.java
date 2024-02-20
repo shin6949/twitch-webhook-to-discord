@@ -13,7 +13,6 @@ import javax.persistence.*;
 @Setter
 @ToString
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @Entity(name = "notion_database_index")
 public class NotionDatabaseIndexEntity {

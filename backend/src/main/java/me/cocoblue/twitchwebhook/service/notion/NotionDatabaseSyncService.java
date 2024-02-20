@@ -247,7 +247,7 @@ public class NotionDatabaseSyncService {
                     PropertyType.Select,
                     null,
                     null,
-                    new DatabaseProperty.Select.Option(null, "YES", null)));
+                    new DatabaseProperty.Select.Option()));
         }
 
         final UpdatePageRequest updatePageRequest = new UpdatePageRequest(page.getId(), result);

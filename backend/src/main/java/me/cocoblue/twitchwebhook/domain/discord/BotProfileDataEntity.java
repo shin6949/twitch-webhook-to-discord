@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Setter
 @ToString
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @Entity(name = "bot_profile_data")
 public class BotProfileDataEntity {

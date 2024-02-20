@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @Entity(name = "user_log_view")

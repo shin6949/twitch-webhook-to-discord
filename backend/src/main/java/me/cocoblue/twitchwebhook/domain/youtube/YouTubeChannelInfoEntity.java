@@ -10,7 +10,6 @@ import javax.persistence.*;
 @ToString
 @Builder
 @NoArgsConstructor(force = true)
-@RequiredArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @Entity(name = "youtube_channel_info")
