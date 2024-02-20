@@ -1,9 +1,7 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.springframework.boot' version '2.7.10'
+    id 'org.springframework.boot' version '2.7.18'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
@@ -42,7 +40,7 @@ dependencies {
     implementation 'com.google.apis:google-api-services-youtube:v3-rev20220926-2.0.0'
     implementation 'com.google.http-client:google-http-client-jackson2:1.42.3'
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
 }
 
 group = 'me.cocoblue'
